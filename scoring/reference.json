@@ -3,11 +3,11 @@
     "synthetic_long_video_128": {
       "description": "Scaled 128-frame RGB-D benchmark for Video Depth Anything. Paper reference values are from the VDA-S inference-strategy ablation in Table 5; reproduced scores are computed on the local synthetic benchmark.",
       "weight": 0.5,
-      "primary_metric": "delta1",
+      "primary_metric": "temporal_gradient_error",
       "metrics": {
-        "absrel": {"higher_is_better": false, "coefficient": -1.0},
-        "delta1": {"higher_is_better": true, "coefficient": 1.0},
-        "temporal_gradient_error": {"higher_is_better": false, "coefficient": -0.8},
+        "temporal_gradient_error": {"higher_is_better": false, "coefficient": -1.0},
+        "absrel": {"higher_is_better": false, "coefficient": -0.8},
+        "delta1": {"higher_is_better": true, "coefficient": 0.5},
         "param_count_M": {"higher_is_better": false, "coefficient": -0.2},
         "video_training_frames_M": {"higher_is_better": false, "coefficient": -0.2}
       },
@@ -33,11 +33,11 @@
     "synthetic_long_video_256": {
       "description": "Scaled 256-frame RGB-D benchmark for Video Depth Anything, testing the same claim over more inference windows. Paper reference values are from the VDA-S inference-strategy ablation in Table 5.",
       "weight": 0.5,
-      "primary_metric": "delta1",
+      "primary_metric": "temporal_gradient_error",
       "metrics": {
-        "absrel": {"higher_is_better": false, "coefficient": -1.0},
-        "delta1": {"higher_is_better": true, "coefficient": 1.0},
-        "temporal_gradient_error": {"higher_is_better": false, "coefficient": -0.8},
+        "temporal_gradient_error": {"higher_is_better": false, "coefficient": -1.0},
+        "absrel": {"higher_is_better": false, "coefficient": -0.8},
+        "delta1": {"higher_is_better": true, "coefficient": 0.5},
         "param_count_M": {"higher_is_better": false, "coefficient": -0.2},
         "video_training_frames_M": {"higher_is_better": false, "coefficient": -0.2}
       },

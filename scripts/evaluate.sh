@@ -15,8 +15,8 @@
 # This file is read by the system for automated comparison.
 #
 # Example usage:
-#   ./evaluate.sh <method_and_run_name>                             # evaluate with defaults
-#   ./evaluate.sh <method_and_run_name> checkpoints/epoch_10.pt     # evaluate a specific checkpoint
+#   ./evaluate.sh <method_and_run_name>
+#   ./evaluate.sh vda_oi_kr custom_method=path/to/predictions.npz
 #
 # Called from run.sh after training, or independently.
 
@@ -35,20 +35,27 @@ if [ "${#methods[@]}" -eq 0 ]; then
 fi
 
 for method in "${methods[@]}"; do
-  case "$method" in
-    vda_independent_windows)
-      artifact="${VDA_BASELINE_ARTIFACT:-baseline/outputs/${experiment}/vda_independent_windows.npz}"
-      ;;
-    vda_oi_kr)
-      artifact="${VDA_METHOD_ARTIFACT:-method/outputs/${experiment}/vda_oi_kr.npz}"
-      ;;
-    *)
-      echo "Unknown evaluation method: $method" >&2
-      exit 2
-      ;;
-  esac
+  if [[ "$method" == *=* ]]; then
+    name="${method%%=*}"
+    artifact="${method#*=}"
+  else
+    name="$method"
+    case "$method" in
+      vda_independent_windows)
+        artifact="${VDA_BASELINE_ARTIFACT:-baseline/outputs/${experiment}/vda_independent_windows.npz}"
+        ;;
+      vda_oi_kr)
+        artifact="${VDA_METHOD_ARTIFACT:-method/outputs/${experiment}/vda_oi_kr.npz}"
+        ;;
+      *)
+        echo "Unknown evaluation method: $method" >&2
+        echo "Use name=/path/to/predictions.npz for custom artifacts." >&2
+        exit 2
+        ;;
+    esac
+  fi
   if [ -f "$artifact" ]; then
-    args+=(--prediction "$method" "$artifact")
+    args+=(--prediction "$name" "$artifact")
   fi
 done
 

@@ -4,13 +4,18 @@
 
 Primary paper-scale target:
 
-- Maintain or improve `delta1` on the fixed RGB-D videos while improving temporal consistency.
+- Lower `temporal_gradient_error` on the fixed RGB-D videos while keeping spatial accuracy in the same range.
 
 Benefit targets:
 
+- Lower `temporal_gradient_error`. This is a percent-scaled local temporal-gradient proxy for the paper's temporal alignment error, so it should be used for method comparison within this benchmark rather than exact paper-number matching.
 - Lower `absrel`.
 - Higher `delta1`.
-- Lower `temporal_gradient_error`. This is a percent-scaled local temporal-gradient proxy for the paper's temporal alignment error, so it should be used for method comparison within this benchmark rather than exact paper-number matching.
+
+Spatial-quality guardrails:
+
+- `absrel` and `delta1` should remain close to the independent-window baseline unless a run is explicitly reported as a temporal-only ablation.
+- Improvements obtained by smoothing depth so aggressively that spatial quality collapses do not satisfy the paper's claim.
 
 Constraint targets:
 

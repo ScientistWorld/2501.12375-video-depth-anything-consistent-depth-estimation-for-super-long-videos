@@ -26,5 +26,4 @@ if [ ! -f data/downloads/video_depth_anything_vits.pth ]; then
     -P data/downloads/
 fi
 
-python data/synthetic_rgbd.py --output data/synthetic_video_128 --frames 128 --height 112 --width 160 --seed 7
-python data/synthetic_rgbd.py --output data/synthetic_video_256 --frames 256 --height 112 --width 160 --seed 7
+echo "Checkpoint ready. Synthetic RGB-D videos are generated inside the container by scripts/baseline.sh and scripts/method.sh."

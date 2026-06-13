@@ -13,5 +13,20 @@ set -euo pipefail
 
 cd /home/user
 
-bash scripts/reproduce.sh
+# Follow-up audit run: use the paper's default inference input size to test
+# whether OI+KR preserves spatial quality better than the earlier 252 run.
+for frames in 128 256; do
+  export VDA_INPUT_SIZE=518
+  export VDA_SYNTH_FRAMES="$frames"
+  export VDA_EXPERIMENT="synthetic_long_video_${frames}_input518"
+  export VDA_VIDEO_DIR="data/synthetic_video_${frames}"
+  export VDA_BASELINE_ARTIFACT="baseline/outputs/${VDA_EXPERIMENT}/vda_independent_windows.npz"
+  export VDA_METHOD_ARTIFACT="method/outputs/${VDA_EXPERIMENT}/vda_oi_kr.npz"
+  export VDA_GT="${VDA_VIDEO_DIR}/ground_truth.npz"
+
+  bash scripts/baseline.sh vda_independent_windows
+  bash scripts/method.sh
+  bash scripts/evaluate.sh vda_independent_windows vda_oi_kr
+done
+
 python validate.py --compare

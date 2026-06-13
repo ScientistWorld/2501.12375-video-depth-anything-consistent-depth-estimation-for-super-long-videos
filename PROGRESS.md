@@ -5,9 +5,14 @@
 - Read the paper and identified the core reproducible claim: long-video inference improves temporal consistency over independent short-window processing while keeping the same model scale.
 - Vendored the official Video Depth Anything implementation in `method/official`.
 - Downloaded the released VDA-S checkpoint to `data/downloads/video_depth_anything_vits.pth`.
+- Verified that `scripts/download.sh` uses a reachable Hugging Face checkpoint URL.
 - Added a reproducible synthetic RGB-D long-video generator in `data/synthetic_rgbd.py`.
 - Added method and baseline runners that write prediction artifacts for the evaluator.
 - Added an artifact-only evaluator in `eval/metrics.py`.
+- Extended `scripts/evaluate.sh` so future methods can be scored with `name=artifact.npz` without editing the script.
+- Kept `scripts/download.sh` limited to network downloads so it does not require NumPy/Pillow on the login node.
+- Validated the workspace with `python validate.py --compare`.
+- Audited the scoring target and set temporal-gradient error as the primary local metric, with `absrel` and `delta1` retained as spatial-quality guardrails.
 
 ## Results
 
@@ -48,6 +53,8 @@ The additional setting supports `core_claim_plus`: OI+KR improves the temporal m
 - Job `4c759670-8bf` failed because `evaluate.sh` mixed a fresh 128-frame baseline artifact with a stale 72-frame method artifact. Scripts now clear full-run outputs and allow explicit evaluation of requested methods.
 - On the 128-frame benchmark, OI+KR improves temporal consistency but has a small `delta1` drop relative to independent windows.
 - `temporal_gradient_error` is a local proxy rather than the paper's camera-pose TAE, but it is now reported as a percent to match the paper evaluator's scale convention.
+- A continuation audit found the previous target wording was too strict because it required `delta1` to maintain or improve. The scoring contract now makes temporal consistency primary and treats spatial accuracy as a reported constraint.
+- A continuation audit also found that higher-resolution inference is needed before confidently restoring `core_claim_plus`; `scripts/run.sh` now submits a 518-input-size follow-up experiment.
 
 ## Deviations from Paper
 

@@ -1,8 +1,8 @@
 # IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends. Sleeping blocks the entire pipeline.
-action: pending
+action: submit
 gpus: 1
-test: false
+test: true
 milestone: core_claim
-notes: ""
+notes: "Audit found core VDA implementation is real, but spatial quality drops slightly at 252 input size. Run a one-GPU test job at the paper's 518 input size on 128/256-frame synthetic videos to check whether OI+KR preserves spatial quality while improving temporal consistency."
