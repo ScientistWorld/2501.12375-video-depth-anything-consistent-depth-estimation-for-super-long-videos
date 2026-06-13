@@ -27,8 +27,8 @@
 #   milestone: core_claim
 #   notes: "Reproduced the core claim. Environment packaged."
 
-action: submit
+action: done
 gpus: 1
 test: true
-milestone: method_runs
-notes: "Retry the 128-frame synthetic benchmark after fixing stale-artifact evaluation; expect both baseline and OI+KR artifacts to be regenerated and scored together."
+milestone: core_claim
+notes: "Core temporal-consistency claim reproduced on the packaged 128-frame synthetic benchmark with the actual Video Depth Anything OI+KR inference path."

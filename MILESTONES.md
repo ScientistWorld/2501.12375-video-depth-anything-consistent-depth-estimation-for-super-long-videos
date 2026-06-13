@@ -24,5 +24,4 @@
 - Spatial accuracy stayed close but did not improve (`absrel` 0.1245 to 0.1247, `delta1` 0.8389 to 0.8328), so the reproduced claim is limited to long-video temporal consistency rather than the full paper benchmark profile.
 
 ## Stop Justification
-
-- Core temporal-consistency claim reproduced on the packaged synthetic benchmark. Full-paper coverage remains out of scope for this scaled environment.
+- Completed at milestone `core_claim`.
