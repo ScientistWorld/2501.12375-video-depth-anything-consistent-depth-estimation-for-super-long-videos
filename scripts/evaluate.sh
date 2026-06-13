@@ -28,6 +28,8 @@ mkdir -p scoring
 
 args=()
 methods=("$@")
+experiment="${VDA_EXPERIMENT:-synthetic_long_video_128}"
+gt_path="${VDA_GT:-data/synthetic_video_128/ground_truth.npz}"
 if [ "${#methods[@]}" -eq 0 ]; then
   methods=(vda_independent_windows vda_oi_kr)
 fi
@@ -35,10 +37,10 @@ fi
 for method in "${methods[@]}"; do
   case "$method" in
     vda_independent_windows)
-      artifact=baseline/outputs/vda_independent_windows.npz
+      artifact="${VDA_BASELINE_ARTIFACT:-baseline/outputs/${experiment}/vda_independent_windows.npz}"
       ;;
     vda_oi_kr)
-      artifact=method/outputs/vda_oi_kr.npz
+      artifact="${VDA_METHOD_ARTIFACT:-method/outputs/${experiment}/vda_oi_kr.npz}"
       ;;
     *)
       echo "Unknown evaluation method: $method" >&2
@@ -55,4 +57,4 @@ if [ "${#args[@]}" -eq 0 ]; then
   exit 1
 fi
 
-python eval/metrics.py "${args[@]}" --gt data/synthetic_video/ground_truth.npz --output scoring/scores.json
+python eval/metrics.py "${args[@]}" --gt "$gt_path" --output scoring/scores.json --experiment "$experiment"

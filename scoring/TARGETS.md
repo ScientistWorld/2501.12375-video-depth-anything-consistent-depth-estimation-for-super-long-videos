@@ -1,10 +1,10 @@
 # Scoring Targets
 
-## synthetic_long_video
+## synthetic_long_video_128 and synthetic_long_video_256
 
 Primary paper-scale target:
 
-- Maintain or improve `delta1` on the fixed 128-frame RGB-D video.
+- Lower `temporal_gradient_error` on the fixed RGB-D videos while keeping spatial metrics close to the baseline.
 
 Benefit targets:
 

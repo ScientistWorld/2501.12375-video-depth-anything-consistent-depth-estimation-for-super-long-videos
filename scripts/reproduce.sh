@@ -21,6 +21,15 @@ cd /home/user
 rm -rf baseline/outputs method/outputs
 rm -f scoring/scores.json scoring/metrics_detail.json
 
-bash scripts/baseline.sh vda_independent_windows
-bash scripts/method.sh
-bash scripts/evaluate.sh vda_independent_windows vda_oi_kr
+for frames in 128 256; do
+  export VDA_SYNTH_FRAMES="$frames"
+  export VDA_EXPERIMENT="synthetic_long_video_${frames}"
+  export VDA_VIDEO_DIR="data/synthetic_video_${frames}"
+  export VDA_BASELINE_ARTIFACT="baseline/outputs/${VDA_EXPERIMENT}/vda_independent_windows.npz"
+  export VDA_METHOD_ARTIFACT="method/outputs/${VDA_EXPERIMENT}/vda_oi_kr.npz"
+  export VDA_GT="${VDA_VIDEO_DIR}/ground_truth.npz"
+
+  bash scripts/baseline.sh vda_independent_windows
+  bash scripts/method.sh
+  bash scripts/evaluate.sh vda_independent_windows vda_oi_kr
+done

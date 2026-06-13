@@ -23,12 +23,16 @@ if [ "$name" != "vda_independent_windows" ]; then
   exit 2
 fi
 
-python data/synthetic_rgbd.py --output data/synthetic_video --frames "${VDA_SYNTH_FRAMES:-128}" --height 112 --width 160 --seed 7
+experiment="${VDA_EXPERIMENT:-synthetic_long_video_128}"
+video_dir="${VDA_VIDEO_DIR:-data/synthetic_video_128}"
+artifact="${VDA_BASELINE_ARTIFACT:-baseline/outputs/${experiment}/vda_independent_windows.npz}"
+
+python data/synthetic_rgbd.py --output "$video_dir" --frames "${VDA_SYNTH_FRAMES:-128}" --height 112 --width 160 --seed 7
 python method/run_vda.py \
-  --video-dir data/synthetic_video \
-  --output baseline/outputs/vda_independent_windows.npz \
+  --video-dir "$video_dir" \
+  --output "$artifact" \
   --checkpoint data/downloads/video_depth_anything_vits.pth \
   --mode independent_windows \
   --input-size "${VDA_INPUT_SIZE:-252}"
 
-bash scripts/evaluate.sh vda_independent_windows
+VDA_EXPERIMENT="$experiment" VDA_GT="$video_dir/ground_truth.npz" VDA_BASELINE_ARTIFACT="$artifact" bash scripts/evaluate.sh vda_independent_windows

@@ -71,6 +71,7 @@ def main() -> None:
     parser.add_argument("--prediction", action="append", nargs=2, metavar=("NAME", "PATH"), required=True)
     parser.add_argument("--gt", default="data/synthetic_video/ground_truth.npz")
     parser.add_argument("--output", default="scoring/scores.json")
+    parser.add_argument("--experiment", default="synthetic_long_video_128")
     args = parser.parse_args()
 
     results = {}
@@ -78,29 +79,36 @@ def main() -> None:
         metrics = evaluate_artifact(Path(path), Path(args.gt))
         results[name] = metrics
 
-    scores = {
-        "experiments": {
-            "synthetic_long_video": {
-                "results": {
-                    name: {
-                        "absrel": vals["absrel"],
-                        "delta1": vals["delta1"],
-                        "temporal_gradient_error": vals["temporal_gradient_error"],
-                        "param_count_M": vals["param_count_M"],
-                        "video_training_frames_M": vals["video_training_frames_M"],
-                    }
-                    for name, vals in results.items()
-                }
-            }
-        }
-    }
-
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
+    if out.exists():
+        with out.open("r", encoding="utf-8") as f:
+            scores = json.load(f)
+    else:
+        scores = {"experiments": {}}
+    scores.setdefault("experiments", {})[args.experiment] = {
+        "results": {
+            name: {
+                "absrel": vals["absrel"],
+                "delta1": vals["delta1"],
+                "temporal_gradient_error": vals["temporal_gradient_error"],
+                "param_count_M": vals["param_count_M"],
+                "video_training_frames_M": vals["video_training_frames_M"],
+            }
+            for name, vals in results.items()
+        }
+    }
     with out.open("w", encoding="utf-8") as f:
         json.dump(scores, f, indent=2)
-    with out.with_name("metrics_detail.json").open("w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2)
+    detail_path = out.with_name("metrics_detail.json")
+    if detail_path.exists():
+        with detail_path.open("r", encoding="utf-8") as f:
+            detail = json.load(f)
+    else:
+        detail = {}
+    detail[args.experiment] = results
+    with detail_path.open("w", encoding="utf-8") as f:
+        json.dump(detail, f, indent=2)
     print(json.dumps(scores, indent=2))
 
 

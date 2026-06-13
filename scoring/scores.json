@@ -1,6 +1,6 @@
 {
   "experiments": {
-    "synthetic_long_video": {
+    "synthetic_long_video_128": {
       "results": {
         "vda_independent_windows": {
           "absrel": 0.12448491090621908,

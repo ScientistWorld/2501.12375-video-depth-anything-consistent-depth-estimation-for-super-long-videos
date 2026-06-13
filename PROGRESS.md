@@ -25,11 +25,12 @@ Final 128-frame synthetic benchmark from job `679781e3-847`:
 - `vda_independent_windows`: `absrel=0.1245`, `delta1=0.8389`, `temporal_gradient_error=0.003628`
 - `vda_oi_kr`: `absrel=0.1247`, `delta1=0.8328`, `temporal_gradient_error=0.003295`
 
-This supports the core long-video consistency claim: the actual OI+KR inference path improves temporal consistency by about 9.2% at the same model size and video training-data scale. Spatial depth quality is close but does not reproduce the paper's reported accuracy improvement on this synthetic benchmark. `delta1` remains the paper-scale primary metric in `reference.json`; `temporal_gradient_error` is a local proxy used to compare consistency within this environment.
+This supports the core long-video consistency claim: the actual OI+KR inference path improves temporal consistency by about 9.2% at the same model size and video training-data scale. Spatial depth quality is close but does not reproduce the paper's reported accuracy improvement on this synthetic benchmark. `temporal_gradient_error` is the primary local metric for the long-video consistency claim; `absrel` and `delta1` remain required spatial quality metrics.
 
 ## Remaining
 
 - Higher milestones would require broader evaluation on the paper's real datasets or additional synthetic settings.
+- A new 256-frame synthetic setting has been added and is ready for the next submitted job.
 - Full training reproduction remains open; this environment uses the released VDA-S checkpoint.
 
 ## Issues
