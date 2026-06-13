@@ -20,6 +20,7 @@ cd /home/user
 
 rm -rf baseline/outputs method/outputs
 rm -f scoring/scores.json scoring/metrics_detail.json
+export VDA_APPEND_SCORES=1
 
 for frames in 128 256; do
   export VDA_SYNTH_FRAMES="$frames"

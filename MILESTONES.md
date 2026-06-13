@@ -26,5 +26,10 @@
 - Restored canonical score artifacts from completed full-evaluator container output and confirmed `python validate.py --compare` passes.
 - Removed generated CUDA cache files from version control and documented the final gym-readiness judgment in `VERIFICATION.md`.
 
-## Stop Justification
-- Completed at milestone `core_claim_plus`.
+### [2026-06-13 05:47] - core_claim_plus
+- Fixed the artifact evaluator so standalone runs replace `scores.json` by default instead of retaining stale experiments.
+- Updated full-run scripts to opt into append mode only after clearing previous score artifacts.
+- Submitted a CPU-only container test to verify score regeneration with the runtime dependencies available.
+
+## Next Verification
+- CPU-only container test should regenerate all score artifacts with explicit append mode and rerun `python validate.py --compare`.

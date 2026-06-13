@@ -137,6 +137,11 @@ def main() -> None:
     parser.add_argument("--gt", default="data/synthetic_video/ground_truth.npz")
     parser.add_argument("--output", default="scoring/scores.json")
     parser.add_argument("--experiment", default="synthetic_long_video_128")
+    parser.add_argument(
+        "--append",
+        action="store_true",
+        help="Merge this experiment into an existing score file. By default the output is replaced.",
+    )
     args = parser.parse_args()
 
     results = {}
@@ -146,29 +151,35 @@ def main() -> None:
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
-    if out.exists():
+    if args.append and out.exists():
         with out.open("r", encoding="utf-8") as f:
             scores = json.load(f)
     else:
         scores = {"experiments": {}}
-    scores.setdefault("experiments", {})[args.experiment] = {
-        "results": {
+    experiment_scores = scores.setdefault("experiments", {}).setdefault(args.experiment, {"results": {}})
+    if not args.append:
+        experiment_scores["results"] = {}
+    experiment_scores.setdefault("results", {}).update(
+        {
             name: {
                 key: vals[key]
                 for key in METRIC_KEYS
             }
             for name, vals in results.items()
         }
-    }
+    )
     with out.open("w", encoding="utf-8") as f:
         json.dump(scores, f, indent=2)
     detail_path = out.with_name("metrics_detail.json")
-    if detail_path.exists():
+    if args.append and detail_path.exists():
         with detail_path.open("r", encoding="utf-8") as f:
             detail = json.load(f)
     else:
         detail = {}
-    detail[args.experiment] = results
+    if args.append:
+        detail.setdefault(args.experiment, {}).update(results)
+    else:
+        detail[args.experiment] = results
     with detail_path.open("w", encoding="utf-8") as f:
         json.dump(detail, f, indent=2)
     print(json.dumps(scores, indent=2))

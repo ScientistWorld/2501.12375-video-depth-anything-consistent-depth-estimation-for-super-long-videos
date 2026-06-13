@@ -28,6 +28,7 @@ for exp in \
   synthetic_long_video_256_input518
 do
   gt_exp="${exp%_input518}"
+  VDA_APPEND_SCORES=1 \
   VDA_EXPERIMENT="$exp" \
   VDA_GT="data/${gt_exp}/ground_truth.npz" \
   bash scripts/evaluate.sh vda_independent_windows vda_oi_kr

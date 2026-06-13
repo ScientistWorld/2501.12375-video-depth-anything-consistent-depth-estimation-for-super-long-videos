@@ -17,6 +17,7 @@
 # Example usage:
 #   ./evaluate.sh <method_and_run_name>
 #   ./evaluate.sh vda_oi_kr custom_method=path/to/predictions.npz
+#   VDA_APPEND_SCORES=1 ./evaluate.sh vda_oi_kr
 #
 # Called from run.sh after training, or independently.
 
@@ -62,6 +63,10 @@ done
 if [ "${#args[@]}" -eq 0 ]; then
   echo "No requested prediction artifacts found. Run scripts/baseline.sh or scripts/method.sh first." >&2
   exit 1
+fi
+
+if [ "${VDA_APPEND_SCORES:-0}" = "1" ]; then
+  args+=(--append)
 fi
 
 python eval/metrics.py "${args[@]}" --gt "$gt_path" --output scoring/scores.json --experiment "$experiment"

@@ -1,3 +1,5 @@
-action: done
+action: submit
+gpus: 0
+test: true
 milestone: core_claim_plus
-notes: "Final verification passed; workspace is ready as a synthetic long-video depth gym with documented limitations."
+notes: "CPU container test for explicit append-mode scoring fix; regenerates score artifacts and runs validate.py --compare."

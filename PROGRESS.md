@@ -10,6 +10,7 @@
 - Added method and baseline runners that write prediction artifacts for the evaluator.
 - Added an artifact-only evaluator in `eval/metrics.py`.
 - Extended `scripts/evaluate.sh` so future methods can be scored with `name=artifact.npz` without editing the script.
+- Made score-file appending an explicit opt-in so standalone evaluation cannot preserve stale experiments.
 - Kept `scripts/download.sh` limited to network downloads so it does not require NumPy/Pillow on the login node.
 - Validated the workspace with `python validate.py --compare`.
 - Audited the scoring target. `absrel` is the primary paper-comparable metric for validator consistency, while `temporal_gradient_error` remains the key local temporal-consistency benefit metric.
@@ -70,6 +71,8 @@ These additional settings preserve `core_claim_plus`: OI+KR reduces temporal-gra
 - A continuation audit found the previous target wording was too strict because it required `delta1` to maintain or improve. The scoring contract now makes `absrel` the paper-comparable primary metric and keeps temporal consistency as the strongest local benefit metric.
 - Job `6c4a8f31-83f` initially failed validation because the score file included two new `input518` experiments that were not yet present in `reference.json`. The scoring reference and experiment documentation now include all four evaluated settings.
 - Final verification restored canonical score artifacts from completed full-evaluator container output, tightened method-agnostic documentation, removed tracked generated cache files, verified the checkpoint URL, and confirmed `python validate.py --compare` passes. In the finalized public scores, OI+KR reduces `boundary_temporal_error` on all four settings; `temporal_gradient_error` improves on the 128-frame settings and is mixed on the 256-frame full-sequence settings.
+- A follow-up scoring audit found that standalone `scripts/evaluate.sh` could keep stale experiments in `scores.json`. `eval/metrics.py` now replaces outputs by default, while `scripts/run.sh` and `scripts/reproduce.sh` explicitly opt into append mode after clearing old score files.
+- Local login-node Python still lacks NumPy, so the append-mode runtime change is being verified with a CPU test job in the compute container.
 
 ## Deviations from Paper
 
