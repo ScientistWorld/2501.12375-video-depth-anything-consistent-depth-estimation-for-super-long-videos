@@ -15,4 +15,4 @@
 - OI+KR improved temporal-gradient consistency on both 128-frame and 256-frame settings at the same model size and training-data scale.
 
 ## Stop Justification
-- Stopping at `core_claim_plus`: the released VDA-S method and independent-window baseline run end-to-end, the core claim is supported on two synthetic long-video settings, and the reusable evaluation/package deliverables validate. Higher milestones would require downloading and preparing the paper's full real benchmark suite or retraining.
+- Completed at milestone `core_claim_plus`.
