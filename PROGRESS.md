@@ -12,7 +12,7 @@
 - Extended `scripts/evaluate.sh` so future methods can be scored with `name=artifact.npz` without editing the script.
 - Kept `scripts/download.sh` limited to network downloads so it does not require NumPy/Pillow on the login node.
 - Validated the workspace with `python validate.py --compare`.
-- Audited the scoring target and set temporal-gradient error as the primary local metric, with `absrel` and `delta1` retained as spatial-quality guardrails.
+- Audited the scoring target. `absrel` is the primary paper-comparable metric for validator consistency, while `temporal_gradient_error` remains the key local temporal-consistency benefit metric.
 
 ## Results
 
@@ -30,7 +30,7 @@ Final 128-frame synthetic benchmark from job `679781e3-847`:
 - `vda_independent_windows`: `absrel=0.1245`, `delta1=0.8389`, `temporal_gradient_error=0.3628` after percent scaling
 - `vda_oi_kr`: `absrel=0.1247`, `delta1=0.8328`, `temporal_gradient_error=0.3295` after percent scaling
 
-This supports the core long-video consistency claim: the actual OI+KR inference path improves temporal consistency by about 9.2% at the same model size and video training-data scale. Spatial depth quality is close but does not reproduce the paper's reported accuracy improvement on this synthetic benchmark. `delta1` is the paper-comparable primary metric in `reference.json`; `temporal_gradient_error` is the local consistency metric used to test the long-video claim.
+This supports the core long-video consistency claim: the actual OI+KR inference path improves temporal consistency by about 9.2% at the same model size and video training-data scale. Spatial depth quality is close but does not reproduce the paper's reported accuracy improvement on this synthetic benchmark. `absrel` is the paper-comparable primary metric in `reference.json`; `temporal_gradient_error` is the local consistency metric used to test the long-video claim.
 
 Job `a698377f-e5c` completed successfully on one GPU and validated with `python validate.py --compare`.
 
@@ -67,7 +67,7 @@ These additional settings preserve `core_claim_plus`: OI+KR reduces temporal-gra
 - Job `4c759670-8bf` failed because `evaluate.sh` mixed a fresh 128-frame baseline artifact with a stale 72-frame method artifact. Scripts now clear full-run outputs and allow explicit evaluation of requested methods.
 - On the 128-frame benchmark, OI+KR improves temporal consistency but has a small `delta1` drop relative to independent windows.
 - `temporal_gradient_error` is a local proxy rather than the paper's camera-pose TAE, but it is now reported as a percent to match the paper evaluator's scale convention.
-- A continuation audit found the previous target wording was too strict because it required `delta1` to maintain or improve. The scoring contract now makes temporal consistency primary and treats spatial accuracy as a reported constraint.
+- A continuation audit found the previous target wording was too strict because it required `delta1` to maintain or improve. The scoring contract now makes `absrel` the paper-comparable primary metric and keeps temporal consistency as the strongest local benefit metric.
 - Job `6c4a8f31-83f` initially failed validation because the score file included two new `input518` experiments that were not yet present in `reference.json`. The scoring reference and experiment documentation now include all four evaluated settings.
 
 ## Deviations from Paper

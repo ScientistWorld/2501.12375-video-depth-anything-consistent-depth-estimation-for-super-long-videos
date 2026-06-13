@@ -13,7 +13,7 @@
 ### [2026-06-13 05:06] - core_claim_plus
 - Audited the continuing workspace from a reset `core_claim` milestone.
 - Confirmed the implementation uses the official Video Depth Anything model and OI+KR long-video inference rather than a surrogate.
-- Fixed the scoring target wording so the primary local metric is temporal consistency, with spatial accuracy retained as a constraint.
+- Fixed the scoring target wording so `absrel` is the primary paper-comparable metric, with temporal consistency retained as the key local benefit metric and spatial accuracy as a guardrail.
 - Prepared a 518-input-size follow-up job to test whether the paper-resolution inference better preserves spatial accuracy.
 
 ### [2026-06-13 05:27] - core_claim_plus

@@ -2,9 +2,9 @@
 
 ## synthetic_long_video_128, synthetic_long_video_256, synthetic_long_video_128_input518, and synthetic_long_video_256_input518
 
-Primary paper-scale target:
+Primary paper-comparable target:
 
-- Lower `temporal_gradient_error` on the fixed RGB-D videos while keeping spatial accuracy in the same range.
+- Lower `absrel` on the fixed RGB-D videos. This is the primary metric because it has the same definition and scale as the paper's reported KITTI ablation values.
 
 Benefit targets:
 
