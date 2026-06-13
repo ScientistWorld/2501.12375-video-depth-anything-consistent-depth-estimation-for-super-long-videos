@@ -8,6 +8,19 @@ from pathlib import Path
 
 import numpy as np
 
+METRIC_KEYS = (
+    "absrel",
+    "delta1",
+    "temporal_gradient_error",
+    "boundary_temporal_error",
+    "scale_drift_error",
+    "param_count_M",
+    "video_training_frames_M",
+)
+BOUNDARY_STRIDE = 32
+DEFAULT_PARAM_COUNT_M = 28.4
+DEFAULT_VIDEO_TRAINING_FRAMES_M = 0.55
+
 
 def _align_inverse_prediction(pred: np.ndarray, gt_depth: np.ndarray):
     mask = np.isfinite(pred) & np.isfinite(gt_depth) & (pred > 0) & (gt_depth > 0)
@@ -48,6 +61,50 @@ def _temporal_gradient_error(pred_depth: np.ndarray, gt_depth: np.ndarray, mask:
     return float(np.mean(np.abs(pred_grad[valid] - gt_grad[valid]) / np.maximum(gt_depth[:-1][valid], 1e-6)) * 100.0)
 
 
+def _boundary_temporal_error(pred_depth: np.ndarray, gt_depth: np.ndarray):
+    starts = np.arange(BOUNDARY_STRIDE, pred_depth.shape[0], BOUNDARY_STRIDE)
+    if starts.size == 0:
+        raise ValueError("No boundary pairs available for boundary temporal error")
+    prev = starts - 1
+    finite = (
+        np.isfinite(pred_depth[starts])
+        & np.isfinite(pred_depth[prev])
+        & np.isfinite(gt_depth[starts])
+        & np.isfinite(gt_depth[prev])
+    )
+    pred_jump = np.abs(pred_depth[starts] - pred_depth[prev])
+    gt_jump = np.abs(gt_depth[starts] - gt_depth[prev])
+    stable = gt_jump < (0.05 * (np.max(gt_depth) - np.min(gt_depth)))
+    valid = finite & stable
+    if not np.any(valid):
+        raise ValueError("No valid boundary pixels for boundary temporal error")
+    return float(np.mean(np.abs(pred_jump[valid] - gt_jump[valid]) / np.maximum(gt_depth[prev][valid], 1e-6)) * 100.0)
+
+
+def _scale_drift_error(pred_depth: np.ndarray, gt_depth: np.ndarray):
+    if pred_depth.shape[0] < 4:
+        raise ValueError("Too few frames for scale drift error")
+    chunk = max(1, pred_depth.shape[0] // 4)
+    valid = np.isfinite(pred_depth) & np.isfinite(gt_depth) & (pred_depth > 0) & (gt_depth > 0)
+    log_ratio = np.full(pred_depth.shape, np.nan, dtype=np.float64)
+    log_ratio[valid] = np.log(pred_depth[valid] / gt_depth[valid])
+    early_bias = np.nanmedian(log_ratio[:chunk], axis=(1, 2))
+    late_bias = np.nanmedian(log_ratio[-chunk:], axis=(1, 2))
+    return float(abs(np.nanmean(late_bias) - np.nanmean(early_bias)))
+
+
+def _metadata_metrics(prediction_path: Path):
+    meta_path = prediction_path.with_suffix(".json")
+    param_count = DEFAULT_PARAM_COUNT_M
+    training_frames = DEFAULT_VIDEO_TRAINING_FRAMES_M
+    if meta_path.exists():
+        with meta_path.open("r", encoding="utf-8") as f:
+            metadata = json.load(f)
+        param_count = float(metadata.get("param_count_M", param_count))
+        training_frames = float(metadata.get("video_training_frames_M", training_frames))
+    return param_count, training_frames
+
+
 def evaluate_artifact(prediction_path: Path, gt_path: Path):
     pred = np.load(prediction_path)["prediction"].astype(np.float64)
     gt_depth = np.load(gt_path)["depth"].astype(np.float64)
@@ -56,14 +113,21 @@ def evaluate_artifact(prediction_path: Path, gt_path: Path):
     aligned, mask, scale, shift = _align_inverse_prediction(pred, gt_depth)
     absrel, delta1 = _depth_metrics(aligned, gt_depth, mask)
     tge = _temporal_gradient_error(aligned, gt_depth, mask)
+    boundary_tge = _boundary_temporal_error(aligned, gt_depth)
+    drift = _scale_drift_error(aligned, gt_depth)
+    param_count, training_frames = _metadata_metrics(prediction_path)
     return {
         "absrel": absrel,
         "delta1": delta1,
         "temporal_gradient_error": tge,
-        "param_count_M": 28.4,
-        "video_training_frames_M": 0.55,
+        "boundary_temporal_error": boundary_tge,
+        "scale_drift_error": drift,
+        "param_count_M": param_count,
+        "video_training_frames_M": training_frames,
         "affine_scale": float(scale),
         "affine_shift": float(shift),
+        "artifact_path": str(prediction_path),
+        "gt_path": str(gt_path),
     }
 
 
@@ -90,11 +154,8 @@ def main() -> None:
     scores.setdefault("experiments", {})[args.experiment] = {
         "results": {
             name: {
-                "absrel": vals["absrel"],
-                "delta1": vals["delta1"],
-                "temporal_gradient_error": vals["temporal_gradient_error"],
-                "param_count_M": vals["param_count_M"],
-                "video_training_frames_M": vals["video_training_frames_M"],
+                key: vals[key]
+                for key in METRIC_KEYS
             }
             for name, vals in results.items()
         }
