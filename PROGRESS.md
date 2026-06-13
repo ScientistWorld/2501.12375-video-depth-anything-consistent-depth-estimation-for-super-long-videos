@@ -20,16 +20,24 @@ Initial 72-frame synthetic benchmark:
 
 This demonstrates that the actual method runs and that the long-video path improves temporal consistency on the local benchmark. The spatial metrics are essentially tied but slightly worse for OI+KR, so I am not claiming `core_claim` yet.
 
+Final 128-frame synthetic benchmark from job `679781e3-847`:
+
+- `vda_independent_windows`: `absrel=0.1245`, `delta1=0.8389`, `temporal_gradient_error=0.003628`
+- `vda_oi_kr`: `absrel=0.1247`, `delta1=0.8328`, `temporal_gradient_error=0.003295`
+
+This supports the core long-video consistency claim: the actual OI+KR inference path improves temporal consistency by about 9.2% at the same model size and video training-data scale. Spatial depth quality is close but does not reproduce the paper's reported accuracy improvement on this synthetic benchmark.
+
 ## Remaining
 
-- Run the 128-frame benchmark to make window-stitching effects more visible.
-- If OI+KR still only improves temporal consistency while spatial metrics remain tied, treat temporal consistency as the core reproduced claim and document the remaining spatial gap.
+- Higher milestones would require broader evaluation on the paper's real datasets or additional synthetic settings.
+- Full training reproduction remains open; this environment uses the released VDA-S checkpoint.
 
 ## Issues
 
 - Local login-node Python did not include `imageio` or NumPy, so metric/data smoke tests are run in the compute container.
 - The initial synthetic sequence was short enough that OI+KR mostly affected temporal consistency, not spatial accuracy.
 - Job `4c759670-8bf` failed because `evaluate.sh` mixed a fresh 128-frame baseline artifact with a stale 72-frame method artifact. Scripts now clear full-run outputs and allow explicit evaluation of requested methods.
+- On the 128-frame benchmark, OI+KR improves temporal consistency but has a small `delta1` drop relative to independent windows.
 
 ## Deviations from Paper
 
