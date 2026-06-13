@@ -37,5 +37,4 @@
 - Final verification found no critical issues and preserved the `core_claim_plus` milestone.
 
 ## Stop Justification
-- The workspace is ready for gym use at `core_claim_plus`.
-- Higher milestones would require broader real-dataset reproduction or training from scratch, both outside the completed verification scope.
+- Completed at milestone `core_claim_plus`.
