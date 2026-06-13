@@ -5,11 +5,41 @@
       "weight": 0.25,
       "primary_metric": "absrel",
       "metrics": {
-        "temporal_gradient_error": {"higher_is_better": false, "coefficient": -1.0},
-        "absrel": {"higher_is_better": false, "coefficient": -0.8},
-        "delta1": {"higher_is_better": true, "coefficient": 0.5},
-        "param_count_M": {"higher_is_better": false, "coefficient": -0.2},
-        "video_training_frames_M": {"higher_is_better": false, "coefficient": -0.2}
+        "temporal_gradient_error": {
+          "higher_is_better": false,
+          "coefficient": -1.0,
+          "description": "Mean selected-frame temporal gradient mismatch against RGB-D ground truth; lower values indicate steadier video depth."
+        },
+        "boundary_temporal_error": {
+          "higher_is_better": false,
+          "coefficient": -0.9,
+          "description": "Temporal gradient mismatch on held-out 32-frame window boundaries, catching stitching shortcuts that look smooth inside windows."
+        },
+        "absrel": {
+          "higher_is_better": false,
+          "coefficient": -0.8,
+          "description": "Absolute relative depth error after one global inverse-depth affine alignment."
+        },
+        "scale_drift_error": {
+          "higher_is_better": false,
+          "coefficient": -0.5,
+          "description": "Change in median log depth bias between early and late selected frames, penalizing long-video scale drift."
+        },
+        "delta1": {
+          "higher_is_better": true,
+          "coefficient": 0.5,
+          "description": "Fraction of aligned depth pixels within a 1.25 relative-error threshold."
+        },
+        "param_count_M": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Model parameter count in millions, included as a resource constraint."
+        },
+        "video_training_frames_M": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Video depth training frames in millions, included as a data-budget constraint."
+        }
       },
       "results": {
         "vda_independent_windows": {
@@ -35,11 +65,41 @@
       "weight": 0.25,
       "primary_metric": "absrel",
       "metrics": {
-        "temporal_gradient_error": {"higher_is_better": false, "coefficient": -1.0},
-        "absrel": {"higher_is_better": false, "coefficient": -0.8},
-        "delta1": {"higher_is_better": true, "coefficient": 0.5},
-        "param_count_M": {"higher_is_better": false, "coefficient": -0.2},
-        "video_training_frames_M": {"higher_is_better": false, "coefficient": -0.2}
+        "temporal_gradient_error": {
+          "higher_is_better": false,
+          "coefficient": -1.0,
+          "description": "Mean selected-frame temporal gradient mismatch against RGB-D ground truth; lower values indicate steadier video depth."
+        },
+        "boundary_temporal_error": {
+          "higher_is_better": false,
+          "coefficient": -0.9,
+          "description": "Temporal gradient mismatch on held-out 32-frame window boundaries, catching stitching shortcuts that look smooth inside windows."
+        },
+        "absrel": {
+          "higher_is_better": false,
+          "coefficient": -0.8,
+          "description": "Absolute relative depth error after one global inverse-depth affine alignment."
+        },
+        "scale_drift_error": {
+          "higher_is_better": false,
+          "coefficient": -0.5,
+          "description": "Change in median log depth bias between early and late selected frames, penalizing long-video scale drift."
+        },
+        "delta1": {
+          "higher_is_better": true,
+          "coefficient": 0.5,
+          "description": "Fraction of aligned depth pixels within a 1.25 relative-error threshold."
+        },
+        "param_count_M": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Model parameter count in millions, included as a resource constraint."
+        },
+        "video_training_frames_M": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Video depth training frames in millions, included as a data-budget constraint."
+        }
       },
       "results": {
         "vda_independent_windows": {
@@ -65,11 +125,41 @@
       "weight": 0.25,
       "primary_metric": "absrel",
       "metrics": {
-        "temporal_gradient_error": {"higher_is_better": false, "coefficient": -1.0},
-        "absrel": {"higher_is_better": false, "coefficient": -0.8},
-        "delta1": {"higher_is_better": true, "coefficient": 0.5},
-        "param_count_M": {"higher_is_better": false, "coefficient": -0.2},
-        "video_training_frames_M": {"higher_is_better": false, "coefficient": -0.2}
+        "temporal_gradient_error": {
+          "higher_is_better": false,
+          "coefficient": -1.0,
+          "description": "Mean selected-frame temporal gradient mismatch against RGB-D ground truth; lower values indicate steadier video depth."
+        },
+        "boundary_temporal_error": {
+          "higher_is_better": false,
+          "coefficient": -0.9,
+          "description": "Temporal gradient mismatch on held-out 32-frame window boundaries, catching stitching shortcuts that look smooth inside windows."
+        },
+        "absrel": {
+          "higher_is_better": false,
+          "coefficient": -0.8,
+          "description": "Absolute relative depth error after one global inverse-depth affine alignment."
+        },
+        "scale_drift_error": {
+          "higher_is_better": false,
+          "coefficient": -0.5,
+          "description": "Change in median log depth bias between early and late selected frames, penalizing long-video scale drift."
+        },
+        "delta1": {
+          "higher_is_better": true,
+          "coefficient": 0.5,
+          "description": "Fraction of aligned depth pixels within a 1.25 relative-error threshold."
+        },
+        "param_count_M": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Model parameter count in millions, included as a resource constraint."
+        },
+        "video_training_frames_M": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Video depth training frames in millions, included as a data-budget constraint."
+        }
       },
       "results": {
         "vda_independent_windows": {
@@ -95,11 +185,41 @@
       "weight": 0.25,
       "primary_metric": "absrel",
       "metrics": {
-        "temporal_gradient_error": {"higher_is_better": false, "coefficient": -1.0},
-        "absrel": {"higher_is_better": false, "coefficient": -0.8},
-        "delta1": {"higher_is_better": true, "coefficient": 0.5},
-        "param_count_M": {"higher_is_better": false, "coefficient": -0.2},
-        "video_training_frames_M": {"higher_is_better": false, "coefficient": -0.2}
+        "temporal_gradient_error": {
+          "higher_is_better": false,
+          "coefficient": -1.0,
+          "description": "Mean selected-frame temporal gradient mismatch against RGB-D ground truth; lower values indicate steadier video depth."
+        },
+        "boundary_temporal_error": {
+          "higher_is_better": false,
+          "coefficient": -0.9,
+          "description": "Temporal gradient mismatch on held-out 32-frame window boundaries, catching stitching shortcuts that look smooth inside windows."
+        },
+        "absrel": {
+          "higher_is_better": false,
+          "coefficient": -0.8,
+          "description": "Absolute relative depth error after one global inverse-depth affine alignment."
+        },
+        "scale_drift_error": {
+          "higher_is_better": false,
+          "coefficient": -0.5,
+          "description": "Change in median log depth bias between early and late selected frames, penalizing long-video scale drift."
+        },
+        "delta1": {
+          "higher_is_better": true,
+          "coefficient": 0.5,
+          "description": "Fraction of aligned depth pixels within a 1.25 relative-error threshold."
+        },
+        "param_count_M": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Model parameter count in millions, included as a resource constraint."
+        },
+        "video_training_frames_M": {
+          "higher_is_better": false,
+          "coefficient": -0.2,
+          "description": "Video depth training frames in millions, included as a data-budget constraint."
+        }
       },
       "results": {
         "vda_independent_windows": {

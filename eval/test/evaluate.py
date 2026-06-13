@@ -24,9 +24,15 @@ METRIC_KEYS = (
     "absrel",
     "delta1",
     "temporal_gradient_error",
+    "boundary_temporal_error",
+    "scale_drift_error",
     "param_count_M",
     "video_training_frames_M",
 )
+BOUNDARY_STRIDE = 32
+BOUNDARY_PARITY = 1
+DEFAULT_PARAM_COUNT_M = 28.4
+DEFAULT_VIDEO_TRAINING_FRAMES_M = 0.55
 
 
 def _selected_frames(frame_count: int) -> np.ndarray:
@@ -78,6 +84,54 @@ def _temporal_gradient_error(pred_depth: np.ndarray, gt_depth: np.ndarray, frame
     return float(np.mean(np.abs(pred_grad[valid] - gt_grad[valid]) / np.maximum(gt_depth[:-1][valid], 1e-6)) * 100.0)
 
 
+def _boundary_temporal_error(pred_depth: np.ndarray, gt_depth: np.ndarray):
+    starts = np.arange(BOUNDARY_STRIDE, pred_depth.shape[0], BOUNDARY_STRIDE)
+    starts = starts[(np.arange(starts.size) % 2) == BOUNDARY_PARITY]
+    if starts.size == 0:
+        raise ValueError("No test boundary pairs available for boundary temporal error")
+    prev = starts - 1
+    finite = (
+        np.isfinite(pred_depth[starts])
+        & np.isfinite(pred_depth[prev])
+        & np.isfinite(gt_depth[starts])
+        & np.isfinite(gt_depth[prev])
+    )
+    pred_jump = np.abs(pred_depth[starts] - pred_depth[prev])
+    gt_jump = np.abs(gt_depth[starts] - gt_depth[prev])
+    stable = gt_jump < (0.05 * (np.max(gt_depth) - np.min(gt_depth)))
+    valid = finite & stable
+    if not np.any(valid):
+        raise ValueError("No valid test boundary pixels for boundary temporal error")
+    return float(np.mean(np.abs(pred_jump[valid] - gt_jump[valid]) / np.maximum(gt_depth[prev][valid], 1e-6)) * 100.0)
+
+
+def _scale_drift_error(pred_depth: np.ndarray, gt_depth: np.ndarray, frame_mask: np.ndarray):
+    selected = np.flatnonzero(frame_mask)
+    if selected.size < 4:
+        raise ValueError("Too few selected test frames for scale drift error")
+    chunk = max(1, selected.size // 4)
+    early = selected[:chunk]
+    late = selected[-chunk:]
+    valid = np.isfinite(pred_depth) & np.isfinite(gt_depth) & (pred_depth > 0) & (gt_depth > 0)
+    log_ratio = np.full(pred_depth.shape, np.nan, dtype=np.float64)
+    log_ratio[valid] = np.log(pred_depth[valid] / gt_depth[valid])
+    early_bias = np.nanmedian(log_ratio[early], axis=(1, 2))
+    late_bias = np.nanmedian(log_ratio[late], axis=(1, 2))
+    return float(abs(np.nanmean(late_bias) - np.nanmean(early_bias)))
+
+
+def _metadata_metrics(prediction_path: Path):
+    meta_path = prediction_path.with_suffix(".json")
+    param_count = DEFAULT_PARAM_COUNT_M
+    training_frames = DEFAULT_VIDEO_TRAINING_FRAMES_M
+    if meta_path.exists():
+        with meta_path.open("r", encoding="utf-8") as f:
+            metadata = json.load(f)
+        param_count = float(metadata.get("param_count_M", param_count))
+        training_frames = float(metadata.get("video_training_frames_M", training_frames))
+    return param_count, training_frames
+
+
 def evaluate_artifact(prediction_path: Path, gt_path: Path):
     pred = np.load(prediction_path)["prediction"].astype(np.float64)
     gt_depth = np.load(gt_path)["depth"].astype(np.float64)
@@ -87,19 +141,26 @@ def evaluate_artifact(prediction_path: Path, gt_path: Path):
     aligned, spatial_mask, scale, shift = _align_inverse_prediction(pred, gt_depth, frame_mask)
     absrel, delta1 = _depth_metrics(aligned, gt_depth, spatial_mask)
     tge = _temporal_gradient_error(aligned, gt_depth, frame_mask)
+    boundary_tge = _boundary_temporal_error(aligned, gt_depth)
+    drift = _scale_drift_error(aligned, gt_depth, frame_mask)
+    param_count, training_frames = _metadata_metrics(prediction_path)
     return {
         "slice": SLICE,
         "split": {
             "block_size": BLOCK_SIZE,
             "block_parity": BLOCK_PARITY,
+            "boundary_stride": BOUNDARY_STRIDE,
+            "boundary_parity": BOUNDARY_PARITY,
             "frame_count": int(frame_mask.sum()),
             "temporal_pair_count": int(np.sum(frame_mask[1:] & frame_mask[:-1])),
         },
         "absrel": absrel,
         "delta1": delta1,
         "temporal_gradient_error": tge,
-        "param_count_M": 28.4,
-        "video_training_frames_M": 0.55,
+        "boundary_temporal_error": boundary_tge,
+        "scale_drift_error": drift,
+        "param_count_M": param_count,
+        "video_training_frames_M": training_frames,
         "affine_scale": float(scale),
         "affine_shift": float(shift),
         "artifact_path": str(prediction_path),
