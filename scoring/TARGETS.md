@@ -4,7 +4,7 @@
 
 Primary paper-scale target:
 
-- Lower `temporal_gradient_error` on the fixed RGB-D videos while keeping spatial metrics close to the baseline.
+- Maintain or improve `delta1` on the fixed RGB-D videos while improving temporal consistency.
 
 Benefit targets:
 

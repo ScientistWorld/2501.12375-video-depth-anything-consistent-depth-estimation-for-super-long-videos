@@ -25,7 +25,7 @@ Final 128-frame synthetic benchmark from job `679781e3-847`:
 - `vda_independent_windows`: `absrel=0.1245`, `delta1=0.8389`, `temporal_gradient_error=0.3628` after percent scaling
 - `vda_oi_kr`: `absrel=0.1247`, `delta1=0.8328`, `temporal_gradient_error=0.3295` after percent scaling
 
-This supports the core long-video consistency claim: the actual OI+KR inference path improves temporal consistency by about 9.2% at the same model size and video training-data scale. Spatial depth quality is close but does not reproduce the paper's reported accuracy improvement on this synthetic benchmark. `temporal_gradient_error` is the primary local metric for the long-video consistency claim; `absrel` and `delta1` remain required spatial quality metrics.
+This supports the core long-video consistency claim: the actual OI+KR inference path improves temporal consistency by about 9.2% at the same model size and video training-data scale. Spatial depth quality is close but does not reproduce the paper's reported accuracy improvement on this synthetic benchmark. `delta1` is the paper-comparable primary metric in `reference.json`; `temporal_gradient_error` is the local consistency metric used to test the long-video claim.
 
 Job `a698377f-e5c` completed successfully on one GPU and validated with `python validate.py --compare`.
 
