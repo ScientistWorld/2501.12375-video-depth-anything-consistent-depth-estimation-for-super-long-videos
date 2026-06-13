@@ -3,4 +3,4 @@ action: done
 gpus: 0
 test: false
 milestone: core_claim_plus
-notes: "Disjoint block-parity train/test split; 56 train metrics and 56 test metrics across 4 experiments x 2 methods. Benefit metrics vary by method and split; resource constraints are constant for current VDA-S artifacts. No nulls, no paper-agreement metrics, no byte-identical train/test collapse."
+notes: "Packaging audit complete: download.sh fetches the public VDA-S checkpoint into data/downloads and now resolves the repo root from its own path."
