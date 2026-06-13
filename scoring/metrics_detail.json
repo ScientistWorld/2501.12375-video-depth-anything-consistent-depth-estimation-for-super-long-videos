@@ -1,0 +1,20 @@
+{
+  "vda_independent_windows": {
+    "absrel": 0.12362865064230467,
+    "delta1": 0.8354972718253968,
+    "temporal_gradient_error": 0.004763819309329986,
+    "param_count_M": 28.4,
+    "video_training_frames_M": 0.55,
+    "affine_scale": 0.06672860498474191,
+    "affine_shift": 0.07797088165013423
+  },
+  "vda_oi_kr": {
+    "absrel": 0.12469209527832552,
+    "delta1": 0.8349407862103174,
+    "temporal_gradient_error": 0.004494067177027,
+    "param_count_M": 28.4,
+    "video_training_frames_M": 0.55,
+    "affine_scale": 0.06678347215173802,
+    "affine_shift": 0.07763362171102241
+  }
+}

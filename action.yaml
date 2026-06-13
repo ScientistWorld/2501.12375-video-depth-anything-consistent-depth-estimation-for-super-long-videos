@@ -27,8 +27,8 @@
 #   milestone: core_claim
 #   notes: "Reproduced the core claim. Environment packaged."
 
-action: pending
+action: submit
 gpus: 1
-test: false
+test: true
 milestone: none
-notes: ""
+notes: "GPU smoke reproduction: run VDA-S independent-window baseline and OI+KR long-video inference on the synthetic RGB-D sequence, then evaluate and compare scores."
