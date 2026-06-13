@@ -3,16 +3,16 @@
     "synthetic_long_video": {
       "results": {
         "vda_independent_windows": {
-          "absrel": 0.12362865064230467,
-          "delta1": 0.8354972718253968,
-          "temporal_gradient_error": 0.004763819309329986,
+          "absrel": 0.12448491090621908,
+          "delta1": 0.8388963971819197,
+          "temporal_gradient_error": 0.003627604961340364,
           "param_count_M": 28.4,
           "video_training_frames_M": 0.55
         },
         "vda_oi_kr": {
-          "absrel": 0.12469209527832552,
-          "delta1": 0.8349407862103174,
-          "temporal_gradient_error": 0.004494067177027,
+          "absrel": 0.12465690464927298,
+          "delta1": 0.832814679827009,
+          "temporal_gradient_error": 0.003294589201729428,
           "param_count_M": 28.4,
           "video_training_frames_M": 0.55
         }

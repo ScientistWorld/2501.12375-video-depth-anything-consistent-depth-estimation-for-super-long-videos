@@ -31,4 +31,4 @@ action: submit
 gpus: 1
 test: true
 milestone: method_runs
-notes: "Run the longer 128-frame synthetic benchmark after the successful smoke run to test the core temporal-consistency claim more clearly."
+notes: "Retry the 128-frame synthetic benchmark after fixing stale-artifact evaluation; expect both baseline and OI+KR artifacts to be regenerated and scored together."
