@@ -19,8 +19,8 @@ Spatial-quality guardrails:
 
 Constraint targets:
 
-- Keep `param_count_M` at or below the VDA-S scale unless explicitly reporting a separate larger-model result.
-- Keep `video_training_frames_M` fixed when comparing against the provided VDA-S reproduction.
+- Keep `param_count_M` at or below the provided small-model scale unless explicitly reporting a separate larger-model result.
+- Keep `video_training_frames_M` fixed when comparing against the provided reproduction baseline.
 
 Ablation target:
 
@@ -28,4 +28,4 @@ Ablation target:
 
 Coverage target:
 
-- The `input518` variants use the released model's default inference size and should remain in the score set when testing future improvements. The 252-size variants are faster smoke tests that exercise the same benchmark at lower compute cost.
+- The `input518` variants use the higher reference inference size and should remain in the score set when testing future improvements. The 252-size variants are faster smoke tests that exercise the same benchmark at lower compute cost.

@@ -21,5 +21,10 @@
 - Added reference and documentation entries for all four scored experiments.
 - The 518-input-size runs again show OI+KR reducing temporal-gradient error at fixed model scale and training-data scale, with spatial metrics close to the independent-window baseline.
 
+### [2026-06-13 05:40] - core_claim_plus
+- Completed final verification of structure, scoring, documentation separation, and download URL reachability.
+- Restored canonical score artifacts from completed full-evaluator container output and confirmed `python validate.py --compare` passes.
+- Removed generated CUDA cache files from version control and documented the final gym-readiness judgment in `VERIFICATION.md`.
+
 ## Stop Justification
 - Completed at milestone `core_claim_plus`.

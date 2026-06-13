@@ -69,6 +69,7 @@ These additional settings preserve `core_claim_plus`: OI+KR reduces temporal-gra
 - `temporal_gradient_error` is a local proxy rather than the paper's camera-pose TAE, but it is now reported as a percent to match the paper evaluator's scale convention.
 - A continuation audit found the previous target wording was too strict because it required `delta1` to maintain or improve. The scoring contract now makes `absrel` the paper-comparable primary metric and keeps temporal consistency as the strongest local benefit metric.
 - Job `6c4a8f31-83f` initially failed validation because the score file included two new `input518` experiments that were not yet present in `reference.json`. The scoring reference and experiment documentation now include all four evaluated settings.
+- Final verification restored canonical score artifacts from completed full-evaluator container output, tightened method-agnostic documentation, removed tracked generated cache files, verified the checkpoint URL, and confirmed `python validate.py --compare` passes. In the finalized public scores, OI+KR reduces `boundary_temporal_error` on all four settings; `temporal_gradient_error` improves on the 128-frame settings and is mixed on the 256-frame full-sequence settings.
 
 ## Deviations from Paper
 

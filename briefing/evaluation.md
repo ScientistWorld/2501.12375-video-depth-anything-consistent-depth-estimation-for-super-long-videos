@@ -5,14 +5,16 @@
 - `absrel`: mean absolute relative depth error after globally aligning predicted inverse depth to ground-truth inverse depth. Lower is better.
 - `delta1`: fraction of pixels whose predicted depth is within a 1.25 ratio of ground truth after alignment. Higher is better.
 - `temporal_gradient_error`: mean absolute error between consecutive-frame depth changes on stable ground-truth regions. Lower is better.
+- `boundary_temporal_error`: mean temporal-gradient error on frames near fixed chunk boundaries. Lower is better.
+- `scale_drift_error`: standard deviation of per-frame scale ratios after alignment. Lower is better.
 - `param_count_M`: model parameter count in millions. Lower is better when accuracy and consistency are comparable.
 - `video_training_frames_M`: number of video training frames in millions. Lower is better when accuracy and consistency are comparable.
 
 ## Baselines and Targets
 
-The paper reports a long-video inference ablation on KITTI. The independent-window baseline reports `absrel=0.157`, `delta1=0.826`, and temporal alignment error `0.874`. The full long-video strategy with the reproduced 32-frame window setting reports `absrel=0.144`, `delta1=0.851`, and temporal alignment error `0.718`.
+The source paper reports a long-video benchmark ablation on KITTI. Its independent-window reference reports `absrel=0.157`, `delta1=0.826`, and temporal alignment error `0.874`; its best long-video reference at the comparable 32-frame window setting reports `absrel=0.144`, `delta1=0.851`, and temporal alignment error `0.718`.
 
-This environment mirrors that comparison on reproducible synthetic RGB-D long videos. The target is not exact equality to KITTI numbers, but the same pattern for the central long-video claim: the temporally consistent long-video mode should improve temporal consistency over independent-window processing without using a larger model, while spatial metrics remain comparable and are reported as guardrails.
+This environment mirrors that comparison on reproducible synthetic RGB-D long videos. The target is not exact equality to KITTI numbers, but the same high-level pattern: a submitted long-video depth system should improve temporal consistency over independent-window processing without using a larger model, while spatial metrics remain comparable and are reported as guardrails.
 
 ## Evaluation Protocol
 

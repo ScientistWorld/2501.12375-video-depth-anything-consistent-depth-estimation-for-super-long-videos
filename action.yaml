@@ -1,6 +1,3 @@
-# This design phase is complete. Once action is set to done, stop.
 action: done
-gpus: 0
-test: false
 milestone: core_claim_plus
-notes: "Packaging audit complete: download.sh fetches the public VDA-S checkpoint into data/downloads and now resolves the repo root from its own path."
+notes: "Final verification passed; workspace is ready as a synthetic long-video depth gym with documented limitations."

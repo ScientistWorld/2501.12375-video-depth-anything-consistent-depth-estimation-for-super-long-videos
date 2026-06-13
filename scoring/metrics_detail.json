@@ -1,82 +1,98 @@
 {
   "synthetic_long_video_128": {
     "vda_independent_windows": {
-      "absrel": 0.12448491090621908,
-      "delta1": 0.8388963971819197,
-      "temporal_gradient_error": 0.3627604961340364,
+      "absrel": 0.12252163865539459,
+      "delta1": 0.84381103515625,
+      "temporal_gradient_error": 0.31658947205203025,
+      "boundary_temporal_error": 1.5710145668274837,
+      "scale_drift_error": 0.034718174046545404,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
-      "affine_scale": 0.06589856146300715,
-      "affine_shift": 0.07880216363243092
+      "artifact_path": "baseline/outputs/synthetic_long_video_128/vda_independent_windows.npz",
+      "gt_path": "data/synthetic_long_video_128/ground_truth.npz"
     },
     "vda_oi_kr": {
-      "absrel": 0.12465690464927298,
-      "delta1": 0.832814679827009,
-      "temporal_gradient_error": 0.3294589201729428,
+      "absrel": 0.12343691937391935,
+      "delta1": 0.8406049455915179,
+      "temporal_gradient_error": 0.315168949214551,
+      "boundary_temporal_error": 0.3314989136538708,
+      "scale_drift_error": 0.04419719739186247,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
-      "affine_scale": 0.06625771628982861,
-      "affine_shift": 0.07729567072856894
+      "artifact_path": "method/outputs/synthetic_long_video_128/vda_oi_kr.npz",
+      "gt_path": "data/synthetic_long_video_128/ground_truth.npz"
     }
   },
   "synthetic_long_video_256": {
     "vda_independent_windows": {
-      "absrel": 0.12679553350619477,
-      "delta1": 0.8353785923549107,
-      "temporal_gradient_error": 0.3071149767666051,
+      "absrel": 0.12654611344260158,
+      "delta1": 0.8359723772321429,
+      "temporal_gradient_error": 0.23021435096143555,
+      "boundary_temporal_error": 2.740822831045665,
+      "scale_drift_error": 0.02615506159145977,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
-      "affine_scale": 0.06571486906642446,
-      "affine_shift": 0.0800592063279971
+      "artifact_path": "baseline/outputs/synthetic_long_video_256/vda_independent_windows.npz",
+      "gt_path": "data/synthetic_long_video_256/ground_truth.npz"
     },
     "vda_oi_kr": {
-      "absrel": 0.12499071125440331,
-      "delta1": 0.8313160487583705,
-      "temporal_gradient_error": 0.2532390317846777,
+      "absrel": 0.12498128271898773,
+      "delta1": 0.8319998604910714,
+      "temporal_gradient_error": 0.24986120518763263,
+      "boundary_temporal_error": 0.5658486810411885,
+      "scale_drift_error": 0.02855124001883376,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
-      "affine_scale": 0.06671455980225986,
-      "affine_shift": 0.07761040774702987
+      "artifact_path": "method/outputs/synthetic_long_video_256/vda_oi_kr.npz",
+      "gt_path": "data/synthetic_long_video_256/ground_truth.npz"
     }
   },
   "synthetic_long_video_128_input518": {
     "vda_independent_windows": {
-      "absrel": 0.14047789034282468,
-      "delta1": 0.7983311244419643,
-      "temporal_gradient_error": 0.26435948016924044,
+      "absrel": 0.13737085298815252,
+      "delta1": 0.8065028599330357,
+      "temporal_gradient_error": 0.21558079904016314,
+      "boundary_temporal_error": 1.8347829515076224,
+      "scale_drift_error": 0.030762936062492117,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
-      "affine_scale": 0.03831931998055015,
-      "affine_shift": 0.13004090670485538
+      "artifact_path": "baseline/outputs/synthetic_long_video_128_input518/vda_independent_windows.npz",
+      "gt_path": "data/synthetic_long_video_128/ground_truth.npz"
     },
     "vda_oi_kr": {
-      "absrel": 0.14061612544631047,
-      "delta1": 0.7941628592354911,
-      "temporal_gradient_error": 0.22245331798994555,
+      "absrel": 0.13807993223584888,
+      "delta1": 0.80186767578125,
+      "temporal_gradient_error": 0.21547151327766556,
+      "boundary_temporal_error": 0.35802885303850635,
+      "scale_drift_error": 0.03778463007912228,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
-      "affine_scale": 0.03876961106236921,
-      "affine_shift": 0.12871870060240292
+      "artifact_path": "method/outputs/synthetic_long_video_128_input518/vda_oi_kr.npz",
+      "gt_path": "data/synthetic_long_video_128/ground_truth.npz"
     }
   },
   "synthetic_long_video_256_input518": {
     "vda_independent_windows": {
-      "absrel": 0.14093821019748934,
-      "delta1": 0.7974360874720983,
-      "temporal_gradient_error": 0.18423674424270048,
+      "absrel": 0.1392201519401509,
+      "delta1": 0.8004895891462054,
+      "temporal_gradient_error": 0.13703750374545037,
+      "boundary_temporal_error": 1.5272620050278654,
+      "scale_drift_error": 0.03187331268347314,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
-      "affine_scale": 0.03818364792767423,
-      "affine_shift": 0.13071021889219042
+      "artifact_path": "baseline/outputs/synthetic_long_video_256_input518/vda_independent_windows.npz",
+      "gt_path": "data/synthetic_long_video_256/ground_truth.npz"
     },
     "vda_oi_kr": {
-      "absrel": 0.14062936285936764,
-      "delta1": 0.7948826381138393,
-      "temporal_gradient_error": 0.14835567255525015,
+      "absrel": 0.1392075903032995,
+      "delta1": 0.797100830078125,
+      "temporal_gradient_error": 0.14539291974848564,
+      "boundary_temporal_error": 0.19227226032828237,
+      "scale_drift_error": 0.03292579881419544,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
-      "affine_scale": 0.03918933264675854,
-      "affine_shift": 0.13046262243016724
+      "artifact_path": "method/outputs/synthetic_long_video_256_input518/vda_oi_kr.npz",
+      "gt_path": "data/synthetic_long_video_256/ground_truth.npz"
     }
   }
 }
