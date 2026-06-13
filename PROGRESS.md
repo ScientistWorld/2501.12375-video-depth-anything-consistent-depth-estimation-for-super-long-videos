@@ -27,10 +27,18 @@ Final 128-frame synthetic benchmark from job `679781e3-847`:
 
 This supports the core long-video consistency claim: the actual OI+KR inference path improves temporal consistency by about 9.2% at the same model size and video training-data scale. Spatial depth quality is close but does not reproduce the paper's reported accuracy improvement on this synthetic benchmark. `temporal_gradient_error` is the primary local metric for the long-video consistency claim; `absrel` and `delta1` remain required spatial quality metrics.
 
+Job `a698377f-e5c` completed successfully on one GPU and validated with `python validate.py --compare`.
+
+Final 256-frame synthetic benchmark:
+
+- `vda_independent_windows`: `absrel=0.1268`, `delta1=0.8354`, `temporal_gradient_error=0.3071`
+- `vda_oi_kr`: `absrel=0.1250`, `delta1=0.8313`, `temporal_gradient_error=0.2532`
+
+The additional setting supports `core_claim_plus`: OI+KR improves the temporal metric by about 17.5% on the longer sequence while keeping spatial quality in the same range. On this synthetic benchmark, OI+KR improves `absrel` at 256 frames but still has a small `delta1` drop.
+
 ## Remaining
 
-- Higher milestones would require broader evaluation on the paper's real datasets or additional synthetic settings.
-- A new 256-frame synthetic setting has been added and is ready for the next submitted job.
+- Higher milestones would require broader evaluation on the paper's real datasets.
 - Full training reproduction remains open; this environment uses the released VDA-S checkpoint.
 
 ## Issues
