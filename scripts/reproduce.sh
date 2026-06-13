@@ -18,6 +18,9 @@ set -euo pipefail
 
 cd /home/user
 
+rm -rf baseline/outputs method/outputs
+rm -f scoring/scores.json scoring/metrics_detail.json
+
 bash scripts/baseline.sh vda_independent_windows
 bash scripts/method.sh
-bash scripts/evaluate.sh
+bash scripts/evaluate.sh vda_independent_windows vda_oi_kr

@@ -29,6 +29,7 @@ This demonstrates that the actual method runs and that the long-video path impro
 
 - Local login-node Python did not include `imageio` or NumPy, so metric/data smoke tests are run in the compute container.
 - The initial synthetic sequence was short enough that OI+KR mostly affected temporal consistency, not spatial accuracy.
+- Job `4c759670-8bf` failed because `evaluate.sh` mixed a fresh 128-frame baseline artifact with a stale 72-frame method artifact. Scripts now clear full-run outputs and allow explicit evaluation of requested methods.
 
 ## Deviations from Paper
 

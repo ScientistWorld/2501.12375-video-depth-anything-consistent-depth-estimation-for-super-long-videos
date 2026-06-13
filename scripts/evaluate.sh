@@ -27,15 +27,31 @@ cd /home/user
 mkdir -p scoring
 
 args=()
-if [ -f baseline/outputs/vda_independent_windows.npz ]; then
-  args+=(--prediction vda_independent_windows baseline/outputs/vda_independent_windows.npz)
-fi
-if [ -f method/outputs/vda_oi_kr.npz ]; then
-  args+=(--prediction vda_oi_kr method/outputs/vda_oi_kr.npz)
+methods=("$@")
+if [ "${#methods[@]}" -eq 0 ]; then
+  methods=(vda_independent_windows vda_oi_kr)
 fi
 
+for method in "${methods[@]}"; do
+  case "$method" in
+    vda_independent_windows)
+      artifact=baseline/outputs/vda_independent_windows.npz
+      ;;
+    vda_oi_kr)
+      artifact=method/outputs/vda_oi_kr.npz
+      ;;
+    *)
+      echo "Unknown evaluation method: $method" >&2
+      exit 2
+      ;;
+  esac
+  if [ -f "$artifact" ]; then
+    args+=(--prediction "$method" "$artifact")
+  fi
+done
+
 if [ "${#args[@]}" -eq 0 ]; then
-  echo "No prediction artifacts found. Run scripts/baseline.sh or scripts/method.sh first." >&2
+  echo "No requested prediction artifacts found. Run scripts/baseline.sh or scripts/method.sh first." >&2
   exit 1
 fi
 

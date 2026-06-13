@@ -18,4 +18,4 @@ python method/run_vda.py \
   --mode oi_kr \
   --input-size "${VDA_INPUT_SIZE:-252}"
 
-bash scripts/evaluate.sh
+bash scripts/evaluate.sh vda_oi_kr
