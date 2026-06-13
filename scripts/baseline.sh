@@ -23,7 +23,7 @@ if [ "$name" != "vda_independent_windows" ]; then
   exit 2
 fi
 
-python data/synthetic_rgbd.py --output data/synthetic_video --frames 72 --height 112 --width 160 --seed 7
+python data/synthetic_rgbd.py --output data/synthetic_video --frames "${VDA_SYNTH_FRAMES:-128}" --height 112 --width 160 --seed 7
 python method/run_vda.py \
   --video-dir data/synthetic_video \
   --output baseline/outputs/vda_independent_windows.npz \

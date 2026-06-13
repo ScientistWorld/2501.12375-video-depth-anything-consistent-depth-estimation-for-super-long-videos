@@ -9,7 +9,7 @@
 ## Scoring
 - [x] `scoring/reference.json` — paper's reported numbers
 - [x] Workspace validated via `python validate.py --reference-only`
-- [ ] `scoring/scores.json` — reproduced numbers
+- [x] `scoring/scores.json` — reproduced numbers
 - [x] `scoring/EXPERIMENTS.md`
 - [x] `scoring/TARGETS.md`
 - [x] `scoring/CONSTRAINTS.md`
@@ -34,7 +34,7 @@
 - [x] Pretrained VDA-S checkpoint downloaded
 
 ## Milestones
-- [ ] `method_runs` — executes end-to-end without errors
+- [x] `method_runs` — executes end-to-end without errors
 - [ ] `core_claim` — minimum experiment supports central claim
 - [ ] `core_claim_plus` — additional settings
 - [ ] `secondary_claims`

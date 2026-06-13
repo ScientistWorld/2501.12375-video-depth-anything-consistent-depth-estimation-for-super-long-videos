@@ -83,9 +83,9 @@ def generate_sequence(frames: int = 72, height: int = 112, width: int = 160, see
             hit = t_box < d
             if np.any(hit):
                 d[hit] = t_box[hit]
-                p = cam + rays * t_box[..., None]
-                stripes = ((np.floor((p[..., 0] + p[..., 1]) * 8.0) % 2) * 34) - 17
-                color[hit] = box_color + stripes[hit, None]
+                p_hit = cam + rays[hit] * t_box[hit, None]
+                stripes = ((np.floor((p_hit[:, 0] + p_hit[:, 1]) * 8.0) % 2) * 34) - 17
+                color[hit] = box_color + stripes[:, None]
 
         vignette = 1.0 - 0.45 * (x**2 + y**2)
         color = color * vignette[..., None]

@@ -11,22 +11,24 @@
 
 ## Results
 
-No compute-node results yet. The first submitted job will run:
+Job `57ef9201-abf` completed successfully on one GPU.
 
-- `vda_independent_windows`
-- `vda_oi_kr`
+Initial 72-frame synthetic benchmark:
 
-on the fixed synthetic long-video benchmark and write `scoring/scores.json`.
+- `vda_independent_windows`: `absrel=0.1236`, `delta1=0.8355`, `temporal_gradient_error=0.004764`
+- `vda_oi_kr`: `absrel=0.1247`, `delta1=0.8349`, `temporal_gradient_error=0.004494`
+
+This demonstrates that the actual method runs and that the long-video path improves temporal consistency on the local benchmark. The spatial metrics are essentially tied but slightly worse for OI+KR, so I am not claiming `core_claim` yet.
 
 ## Remaining
 
-- Run the submitted GPU job and inspect `scoring/scores.json`.
-- If the long-video strategy does not improve temporal consistency, diagnose whether the synthetic sequence is too easy, too short, or mismatched to the checkpoint and adjust the data scale without changing the method.
-- After a successful run, update `MILESTONES.md` and compare against `scoring/reference.json`.
+- Run the 128-frame benchmark to make window-stitching effects more visible.
+- If OI+KR still only improves temporal consistency while spatial metrics remain tied, treat temporal consistency as the core reproduced claim and document the remaining spatial gap.
 
 ## Issues
 
-- Local login-node Python did not include `imageio`; the synthetic data generator now treats MP4 writing as optional. The container installs `imageio` for normal runs.
+- Local login-node Python did not include `imageio` or NumPy, so metric/data smoke tests are run in the compute container.
+- The initial synthetic sequence was short enough that OI+KR mostly affected temporal consistency, not spatial accuracy.
 
 ## Deviations from Paper
 

@@ -4,7 +4,7 @@
 
 Primary target:
 
-- Improve `delta1` on the fixed 72-frame RGB-D video.
+- Lower `temporal_gradient_error` on the fixed 128-frame RGB-D video.
 
 Benefit targets:
 

@@ -26,4 +26,4 @@ if [ ! -f data/downloads/video_depth_anything_vits.pth ]; then
     -P data/downloads/
 fi
 
-python data/synthetic_rgbd.py --output data/synthetic_video --frames 72 --height 112 --width 160 --seed 7
+python data/synthetic_rgbd.py --output data/synthetic_video --frames "${VDA_SYNTH_FRAMES:-128}" --height 112 --width 160 --seed 7
