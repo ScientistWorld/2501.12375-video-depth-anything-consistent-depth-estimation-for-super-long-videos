@@ -1,8 +1,8 @@
 # IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends. Sleeping blocks the entire pipeline.
-action: done
+action: pending
 gpus: 1
 test: false
-milestone: core_claim_plus
-notes: "Reproduced the official VDA-S long-video OI+KR inference strategy against independent-window baseline on 128-frame and 256-frame synthetic RGB-D benchmarks. Scores validate and show temporal-consistency gains at fixed model/training scale."
+milestone: core_claim
+notes: ""
