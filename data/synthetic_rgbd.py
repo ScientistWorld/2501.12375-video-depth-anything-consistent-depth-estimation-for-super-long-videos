@@ -108,6 +108,8 @@ def main() -> None:
     out = Path(args.output)
     frames_dir = out / "frames"
     frames_dir.mkdir(parents=True, exist_ok=True)
+    for old_frame in frames_dir.glob("*.png"):
+        old_frame.unlink()
     rgb, depth = generate_sequence(args.frames, args.height, args.width, args.seed)
 
     for i, frame in enumerate(rgb):
