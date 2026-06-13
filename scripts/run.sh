@@ -13,8 +13,11 @@ set -euo pipefail
 
 cd /home/user
 
-# Follow-up audit run: use the paper's default inference input size to test
-# whether OI+KR preserves spatial quality better than the earlier 252 run.
+# Rebuild the full local score suite from scratch. `reproduce.sh` runs the
+# faster 252-input-size benchmarks and clears stale scores; the loop below adds
+# the paper-default 518-input-size variants before validation.
+bash scripts/reproduce.sh
+
 for frames in 128 256; do
   export VDA_INPUT_SIZE=518
   export VDA_SYNTH_FRAMES="$frames"

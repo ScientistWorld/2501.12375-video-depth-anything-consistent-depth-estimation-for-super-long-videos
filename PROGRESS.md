@@ -41,6 +41,20 @@ Final 256-frame synthetic benchmark:
 
 The additional setting supports `core_claim_plus`: OI+KR improves the temporal metric by about 17.5% on the longer sequence while keeping spatial quality in the same range. On this synthetic benchmark, OI+KR improves `absrel` at 256 frames but still has a small `delta1` drop.
 
+Job `6c4a8f31-83f` completed both default-input-size experiments on one GPU. The job exited with code 1 only because `scoring/reference.json` did not yet contain entries for the new experiments; the prediction artifacts and metrics were written successfully.
+
+128-frame synthetic benchmark at input size 518:
+
+- `vda_independent_windows`: `absrel=0.1405`, `delta1=0.7983`, `temporal_gradient_error=0.2644`
+- `vda_oi_kr`: `absrel=0.1406`, `delta1=0.7942`, `temporal_gradient_error=0.2225`
+
+256-frame synthetic benchmark at input size 518:
+
+- `vda_independent_windows`: `absrel=0.1409`, `delta1=0.7974`, `temporal_gradient_error=0.1842`
+- `vda_oi_kr`: `absrel=0.1406`, `delta1=0.7949`, `temporal_gradient_error=0.1484`
+
+These additional settings preserve `core_claim_plus`: OI+KR reduces temporal-gradient error by about 15.9% at 128 frames and 19.5% at 256 frames at the paper's default input size, while keeping model size and video-training-data scale fixed. Spatial quality remains close; `absrel` is tied at 128 frames and slightly better at 256 frames, while `delta1` is lower by less than half a percentage point.
+
 ## Remaining
 
 - Higher milestones would require broader evaluation on the paper's real datasets.
@@ -54,7 +68,7 @@ The additional setting supports `core_claim_plus`: OI+KR improves the temporal m
 - On the 128-frame benchmark, OI+KR improves temporal consistency but has a small `delta1` drop relative to independent windows.
 - `temporal_gradient_error` is a local proxy rather than the paper's camera-pose TAE, but it is now reported as a percent to match the paper evaluator's scale convention.
 - A continuation audit found the previous target wording was too strict because it required `delta1` to maintain or improve. The scoring contract now makes temporal consistency primary and treats spatial accuracy as a reported constraint.
-- A continuation audit also found that higher-resolution inference is needed before confidently restoring `core_claim_plus`; `scripts/run.sh` now submits a 518-input-size follow-up experiment.
+- Job `6c4a8f31-83f` initially failed validation because the score file included two new `input518` experiments that were not yet present in `reference.json`. The scoring reference and experiment documentation now include all four evaluated settings.
 
 ## Deviations from Paper
 

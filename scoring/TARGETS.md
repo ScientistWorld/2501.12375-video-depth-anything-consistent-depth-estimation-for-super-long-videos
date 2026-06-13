@@ -1,6 +1,6 @@
 # Scoring Targets
 
-## synthetic_long_video_128 and synthetic_long_video_256
+## synthetic_long_video_128, synthetic_long_video_256, synthetic_long_video_128_input518, and synthetic_long_video_256_input518
 
 Primary paper-scale target:
 
@@ -25,3 +25,7 @@ Constraint targets:
 Ablation target:
 
 - Compare against `vda_independent_windows`, which processes the same sequence without the paper's long-video consistency strategy.
+
+Coverage target:
+
+- The `input518` variants use the released model's default inference size and should remain in the score set when testing future improvements. The 252-size variants are faster smoke tests that exercise the same benchmark at lower compute cost.

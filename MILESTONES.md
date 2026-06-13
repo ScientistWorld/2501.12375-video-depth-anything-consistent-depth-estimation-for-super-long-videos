@@ -16,5 +16,10 @@
 - Fixed the scoring target wording so the primary local metric is temporal consistency, with spatial accuracy retained as a constraint.
 - Prepared a 518-input-size follow-up job to test whether the paper-resolution inference better preserves spatial accuracy.
 
+### [2026-06-13 05:27] - core_claim_plus
+- Reviewed failed job `6c4a8f31-83f`; inference and evaluation completed for both 518-input-size experiments, but validation failed because the new experiment names were missing from `reference.json`.
+- Added reference and documentation entries for all four scored experiments.
+- The 518-input-size runs again show OI+KR reducing temporal-gradient error at fixed model scale and training-data scale, with spatial metrics close to the independent-window baseline.
+
 ## Stop Justification
 - Completed at milestone `core_claim_plus`.
