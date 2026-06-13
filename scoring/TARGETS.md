@@ -10,7 +10,7 @@ Benefit targets:
 
 - Lower `absrel`.
 - Higher `delta1`.
-- Lower `temporal_gradient_error`. This is a local temporal-gradient proxy for the paper's temporal alignment error, so it should be used for method comparison within this benchmark rather than absolute paper-number matching.
+- Lower `temporal_gradient_error`. This is a percent-scaled local temporal-gradient proxy for the paper's temporal alignment error, so it should be used for method comparison within this benchmark rather than exact paper-number matching.
 
 Constraint targets:
 

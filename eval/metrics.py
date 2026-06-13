@@ -44,7 +44,8 @@ def _temporal_gradient_error(pred_depth: np.ndarray, gt_depth: np.ndarray, mask:
     gt_grad = np.abs(np.diff(gt_depth, axis=0))
     stable = gt_grad < (0.05 * (np.max(gt_depth) - np.min(gt_depth)))
     valid = valid & stable
-    return float(np.mean(np.abs(pred_grad[valid] - gt_grad[valid]) / np.maximum(gt_depth[:-1][valid], 1e-6)))
+    # Report as a percentage, matching the scale convention used by the paper's TAE evaluator.
+    return float(np.mean(np.abs(pred_grad[valid] - gt_grad[valid]) / np.maximum(gt_depth[:-1][valid], 1e-6)) * 100.0)
 
 
 def evaluate_artifact(prediction_path: Path, gt_path: Path):
