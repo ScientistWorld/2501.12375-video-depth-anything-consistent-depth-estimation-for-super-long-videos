@@ -2,15 +2,15 @@
 
 ## synthetic_long_video
 
-Primary target:
+Primary paper-scale target:
 
-- Lower `temporal_gradient_error` on the fixed 128-frame RGB-D video.
+- Maintain or improve `delta1` on the fixed 128-frame RGB-D video.
 
 Benefit targets:
 
 - Lower `absrel`.
 - Higher `delta1`.
-- Lower `temporal_gradient_error`.
+- Lower `temporal_gradient_error`. This is a local temporal-gradient proxy for the paper's temporal alignment error, so it should be used for method comparison within this benchmark rather than absolute paper-number matching.
 
 Constraint targets:
 

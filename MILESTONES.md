@@ -20,7 +20,7 @@
 
 ### [2026-06-13 04:52] - core_claim
 - Job `679781e3-847` completed successfully on the 128-frame benchmark.
-- OI+KR improved temporal gradient error from `0.003628` to `0.003295` with the same VDA-S parameter count and video training-data scale.
+- OI+KR improved the local temporal gradient error from `0.003628` to `0.003295` with the same VDA-S parameter count and video training-data scale.
 - Spatial accuracy stayed close but did not improve (`absrel` 0.1245 to 0.1247, `delta1` 0.8389 to 0.8328), so the reproduced claim is limited to long-video temporal consistency rather than the full paper benchmark profile.
 
 ## Stop Justification
