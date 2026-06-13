@@ -3,7 +3,7 @@
     "vda_independent_windows": {
       "absrel": 0.12448491090621908,
       "delta1": 0.8388963971819197,
-      "temporal_gradient_error": 0.003627604961340364,
+      "temporal_gradient_error": 0.3627604961340364,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
       "affine_scale": 0.06589856146300715,
@@ -12,11 +12,31 @@
     "vda_oi_kr": {
       "absrel": 0.12465690464927298,
       "delta1": 0.832814679827009,
-      "temporal_gradient_error": 0.003294589201729428,
+      "temporal_gradient_error": 0.3294589201729428,
       "param_count_M": 28.4,
       "video_training_frames_M": 0.55,
       "affine_scale": 0.06625771628982861,
       "affine_shift": 0.07729567072856894
+    }
+  },
+  "synthetic_long_video_256": {
+    "vda_independent_windows": {
+      "absrel": 0.12679553350619477,
+      "delta1": 0.8353785923549107,
+      "temporal_gradient_error": 0.3071149767666051,
+      "param_count_M": 28.4,
+      "video_training_frames_M": 0.55,
+      "affine_scale": 0.06571486906642446,
+      "affine_shift": 0.0800592063279971
+    },
+    "vda_oi_kr": {
+      "absrel": 0.12499071125440331,
+      "delta1": 0.8313160487583705,
+      "temporal_gradient_error": 0.2532390317846777,
+      "param_count_M": 28.4,
+      "video_training_frames_M": 0.55,
+      "affine_scale": 0.06671455980225986,
+      "affine_shift": 0.07761040774702987
     }
   }
 }
