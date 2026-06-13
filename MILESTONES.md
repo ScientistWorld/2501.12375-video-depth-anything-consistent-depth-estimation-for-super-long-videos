@@ -31,5 +31,11 @@
 - Updated full-run scripts to opt into append mode only after clearing previous score artifacts.
 - Submitted a CPU-only container test to verify score regeneration with the runtime dependencies available.
 
-## Next Verification
-- CPU-only container test should regenerate all score artifacts with explicit append mode and rerun `python validate.py --compare`.
+### [2026-06-13 05:51] - core_claim_plus
+- Confirmed CPU test job `af51b2f2-70e` completed successfully in the compute container.
+- Re-ran `python validate.py --compare` locally after the job; scoring, train/test, and separation checks pass.
+- Final verification found no critical issues and preserved the `core_claim_plus` milestone.
+
+## Stop Justification
+- The workspace is ready for gym use at `core_claim_plus`.
+- Higher milestones would require broader real-dataset reproduction or training from scratch, both outside the completed verification scope.

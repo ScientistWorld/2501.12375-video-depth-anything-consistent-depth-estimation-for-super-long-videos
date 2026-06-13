@@ -6,7 +6,7 @@
 - `delta1`: fraction of pixels whose predicted depth is within a 1.25 ratio of ground truth after alignment. Higher is better.
 - `temporal_gradient_error`: mean absolute error between consecutive-frame depth changes on stable ground-truth regions. Lower is better.
 - `boundary_temporal_error`: mean temporal-gradient error on frames near fixed chunk boundaries. Lower is better.
-- `scale_drift_error`: standard deviation of per-frame scale ratios after alignment. Lower is better.
+- `scale_drift_error`: absolute change in median log-depth bias between early and late frames after alignment. Lower is better.
 - `param_count_M`: model parameter count in millions. Lower is better when accuracy and consistency are comparable.
 - `video_training_frames_M`: number of video training frames in millions. Lower is better when accuracy and consistency are comparable.
 

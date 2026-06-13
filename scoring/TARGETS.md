@@ -24,7 +24,7 @@ Constraint targets:
 
 Ablation target:
 
-- Compare against `vda_independent_windows`, which processes the same sequence without the paper's long-video consistency strategy.
+- Compare against the provided independent-window reference, which processes the same sequence without cross-window temporal stabilization.
 
 Coverage target:
 

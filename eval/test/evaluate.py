@@ -1,4 +1,4 @@
-"""Held-out test-slice evaluator for artifact-only VDA benchmarks."""
+"""Held-out test-slice evaluator for artifact-only video-depth benchmarks."""
 
 from __future__ import annotations
 

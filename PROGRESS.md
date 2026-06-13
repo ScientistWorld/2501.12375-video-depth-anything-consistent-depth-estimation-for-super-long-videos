@@ -72,7 +72,7 @@ These additional settings preserve `core_claim_plus`: OI+KR reduces temporal-gra
 - Job `6c4a8f31-83f` initially failed validation because the score file included two new `input518` experiments that were not yet present in `reference.json`. The scoring reference and experiment documentation now include all four evaluated settings.
 - Final verification restored canonical score artifacts from completed full-evaluator container output, tightened method-agnostic documentation, removed tracked generated cache files, verified the checkpoint URL, and confirmed `python validate.py --compare` passes. In the finalized public scores, OI+KR reduces `boundary_temporal_error` on all four settings; `temporal_gradient_error` improves on the 128-frame settings and is mixed on the 256-frame full-sequence settings.
 - A follow-up scoring audit found that standalone `scripts/evaluate.sh` could keep stale experiments in `scores.json`. `eval/metrics.py` now replaces outputs by default, while `scripts/run.sh` and `scripts/reproduce.sh` explicitly opt into append mode after clearing old score files.
-- Local login-node Python still lacks NumPy, so the append-mode runtime change is being verified with a CPU test job in the compute container.
+- CPU test job `af51b2f2-70e` verified the append-mode runtime change in the compute container and completed `scripts/run.sh` successfully.
 
 ## Deviations from Paper
 

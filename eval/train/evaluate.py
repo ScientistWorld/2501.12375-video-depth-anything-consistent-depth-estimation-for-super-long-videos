@@ -1,4 +1,4 @@
-"""Visible train-slice evaluator for artifact-only VDA benchmarks."""
+"""Visible train-slice evaluator for artifact-only video-depth benchmarks."""
 
 from __future__ import annotations
 
