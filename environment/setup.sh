@@ -16,4 +16,16 @@
 
 set -e
 
-# uv pip install --system <packages>
+uv pip install --system \
+  torch==2.1.1 \
+  torchvision==0.16.1 \
+  numpy==1.24.0 \
+  opencv-python-headless \
+  matplotlib \
+  pillow \
+  imageio==2.37.0 \
+  imageio-ffmpeg==0.4.7 \
+  decord \
+  einops==0.4.1 \
+  easydict \
+  tqdm

@@ -20,11 +20,23 @@
 #
 # Called from run.sh after training, or independently.
 
-set -e
+set -euo pipefail
 
 cd /home/user
 
 mkdir -p scoring
 
-# TODO: implement evaluation using code in eval/
-# Must write scoring/scores.json at the end
+args=()
+if [ -f baseline/outputs/vda_independent_windows.npz ]; then
+  args+=(--prediction vda_independent_windows baseline/outputs/vda_independent_windows.npz)
+fi
+if [ -f method/outputs/vda_oi_kr.npz ]; then
+  args+=(--prediction vda_oi_kr method/outputs/vda_oi_kr.npz)
+fi
+
+if [ "${#args[@]}" -eq 0 ]; then
+  echo "No prediction artifacts found. Run scripts/baseline.sh or scripts/method.sh first." >&2
+  exit 1
+fi
+
+python eval/metrics.py "${args[@]}" --gt data/synthetic_video/ground_truth.npz --output scoring/scores.json

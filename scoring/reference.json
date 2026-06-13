@@ -1,0 +1,34 @@
+{
+  "experiments": {
+    "synthetic_long_video": {
+      "description": "Scaled long-video RGB-D benchmark for Video Depth Anything. Paper reference values are from the VDA-S long-video setting in Table 1 and the inference-strategy ablation in Table 5; reproduced scores are computed on the local synthetic benchmark.",
+      "weight": 1.0,
+      "primary_metric": "delta1",
+      "metrics": {
+        "absrel": {"higher_is_better": false, "coefficient": -1.0},
+        "delta1": {"higher_is_better": true, "coefficient": 1.0},
+        "temporal_gradient_error": {"higher_is_better": false, "coefficient": -0.8},
+        "param_count_M": {"higher_is_better": false, "coefficient": -0.2},
+        "video_training_frames_M": {"higher_is_better": false, "coefficient": -0.2}
+      },
+      "results": {
+        "vda_independent_windows": {
+          "type": "baseline",
+          "absrel": 0.157,
+          "delta1": 0.826,
+          "temporal_gradient_error": 0.874,
+          "param_count_M": 28.4,
+          "video_training_frames_M": 0.55
+        },
+        "vda_oi_kr": {
+          "type": "proposed",
+          "absrel": 0.145,
+          "delta1": 0.849,
+          "temporal_gradient_error": 0.761,
+          "param_count_M": 28.4,
+          "video_training_frames_M": 0.55
+        }
+      }
+    }
+  }
+}

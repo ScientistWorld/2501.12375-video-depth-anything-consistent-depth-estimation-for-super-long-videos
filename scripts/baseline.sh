@@ -13,8 +13,22 @@
 # Usage:
 #   bash scripts/baseline.sh <name>
 
-set -e
+set -euo pipefail
 
 cd /home/user
 
-# TODO: run baseline
+name="${1:-vda_independent_windows}"
+if [ "$name" != "vda_independent_windows" ]; then
+  echo "Unknown baseline: $name" >&2
+  exit 2
+fi
+
+python data/synthetic_rgbd.py --output data/synthetic_video --frames 72 --height 112 --width 160 --seed 7
+python method/run_vda.py \
+  --video-dir data/synthetic_video \
+  --output baseline/outputs/vda_independent_windows.npz \
+  --checkpoint data/downloads/video_depth_anything_vits.pth \
+  --mode independent_windows \
+  --input-size "${VDA_INPUT_SIZE:-252}"
+
+bash scripts/evaluate.sh

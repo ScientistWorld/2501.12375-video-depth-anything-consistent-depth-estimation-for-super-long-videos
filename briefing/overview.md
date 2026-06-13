@@ -1,14 +1,5 @@
 # Overview
 
-- **Paper ID:** <!-- e.g. 1706.03762 -->
-- **Title:** <!-- e.g. Attention Is All You Need -->
-- **Domain:** <!-- e.g. Computer Vision / Object Detection -->
-- **TL;DR:** <!-- One sentence: what this paper does and why it matters -->
+This workspace reproduces the core long-video inference claim of Video Depth Anything. It packages the official VDA-S implementation, a reproducible RGB-D video benchmark, an independent-window baseline, and an artifact-only evaluator that measures spatial depth accuracy, temporal consistency, parameter count, and video training-data scale.
 
-## Short Summary
-
-<!-- 3-5 sentences covering the problem, approach, and main findings -->
-
-## Key Results
-
-<!-- 2-3 bullet points: main findings or numbers in bullet points -->
+The first submitted job runs both inference strategies on the fixed synthetic long video and writes comparable metrics to `scoring/scores.json`.
