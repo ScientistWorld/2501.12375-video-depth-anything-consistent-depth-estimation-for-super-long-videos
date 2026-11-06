@@ -1,127 +1,30 @@
-# Overview
+# Video Depth Anything: Consistent Depth Estimation for Super-Long Videos
+
+| This paper | Scientist World, the framework this environment belongs to |
+|:---:|:---:|
+| <a href="https://arxiv.org/abs/2501.12375"><img alt="This paper on arXiv" src="https://img.shields.io/badge/arXiv-2501.12375-b31b1b?logo=arxiv&logoColor=white"></a> | <a href="https://arxiv.org/abs/2611.08478"><img alt="Scientist World on arXiv" src="https://img.shields.io/badge/arXiv-2611.08478-b31b1b?logo=arxiv&logoColor=white"></a> <a href="https://github.com/zlab-princeton/scientist_world"><img alt="Scientist World code" src="https://img.shields.io/badge/Code-Scientist_World-181717?logo=github&logoColor=white"></a> <a href="https://github.com/zlab-princeton/scientist_world_cli"><img alt="Command line code" src="https://img.shields.io/badge/Code-Command_line-181717?logo=github&logoColor=white"></a> |
+
+| | |
+|---|---|
+| **Paper ID** | [2501.12375](https://arxiv.org/abs/2501.12375) |
+
+## Summary
 
 This workspace reproduces the core long-video inference claim of Video Depth Anything. It packages the official VDA-S implementation, a reproducible 128-frame RGB-D video benchmark, an independent-window baseline, and an artifact-only evaluator that measures spatial depth accuracy, temporal consistency, parameter count, and video training-data scale.
 
-The first submitted job runs both inference strategies on the fixed synthetic long video and writes comparable metrics to `scoring/scores.json`.
-
----
-
-# Problem Definition
-
-## Research Question
+## Problem
 
 Estimate dense metric-consistent depth for long monocular videos while keeping predictions spatially accurate and temporally stable across hundreds or thousands of frames. The benchmark asks for one depth map per input RGB frame.
 
-## Why It Matters
+## Run it
 
-Long-video depth is useful for robotics, mapping, editing, and scene reconstruction. Image-only depth estimators often produce plausible single-frame maps but drift in scale or flicker over time, which makes the output hard to use in downstream video pipelines.
+```bash
+pip install git+https://github.com/zlab-princeton/scientist_world_cli
+sw research 2501.12375 --mode innovate --agent claude-code
+sw evaluate 2501.12375
+```
 
-## Success Criteria
+## More
 
-A successful system should:
+The full problem statement, method notes, evaluation protocol and reproduction log are in [DETAILS.md](DETAILS.md).
 
-- Predict per-frame depth with low relative error after the standard global affine alignment used by monocular depth benchmarks.
-- Preserve temporal consistency, especially across long clips where independent short-window processing can introduce scale jumps.
-- Maintain reasonable resource constraints, including model size and training-data scale, so gains are not obtained only by using a substantially larger model or more supervision.
-
----
-
-# Method
-
-The paper, "Video Depth Anything: Consistent Depth Estimation for Super-Long Videos", adapts the Depth Anything V2 monocular depth model to long videos.
-
-The implemented method follows the released Video Depth Anything code:
-
-- Start from a Depth Anything V2 image encoder and use a video depth head with temporal self-attention inserted into the DPT head.
-- Process videos as fixed-length clips.
-- During long-video inference, keep overlap frames between clips, use selected key frames as references for the next clip, and interpolate overlap regions to reduce scale jumps between windows.
-- Use the released VDA-S checkpoint for this reproduction. The checkpoint corresponds to the paper's small model family with about 28.4M parameters.
-
-The full paper trains on 0.55M video frames plus image datasets using a scale-shift-invariant spatial loss, a temporal gradient matching loss, and an image-model distillation loss. This environment focuses first on reproducing the core long-video inference claim with the released checkpoint and the official algorithm.
-
----
-
-# Evaluation
-
-## Metrics
-
-- `absrel`: mean absolute relative depth error after globally aligning predicted inverse depth to ground-truth inverse depth. Lower is better.
-- `delta1`: fraction of pixels whose predicted depth is within a 1.25 ratio of ground truth after alignment. Higher is better.
-- `temporal_gradient_error`: mean absolute error between consecutive-frame depth changes on stable ground-truth regions. Lower is better.
-- `param_count_M`: model parameter count in millions. Lower is better when accuracy and consistency are comparable.
-- `video_training_frames_M`: number of video training frames in millions. Lower is better when accuracy and consistency are comparable.
-
-## Baselines and Targets
-
-The paper reports a long-video inference ablation on KITTI. For 16-frame windows, the baseline independent-window strategy reports `absrel=0.157`, `delta1=0.826`, and temporal alignment error `0.874`. The full long-video strategy reports `absrel=0.145`, `delta1=0.849`, and temporal alignment error `0.761`.
-
-This environment mirrors that comparison on a reproducible synthetic RGB-D long video. The target is not exact equality to KITTI numbers, but the same pattern: the temporally consistent long-video mode should improve spatial depth accuracy or temporal consistency over independent-window processing without using a larger model.
-
-## Evaluation Protocol
-
-Run methods to produce `.npz` prediction artifacts containing a `prediction` array with shape `[frames, height, width]`. Then run `scripts/evaluate.sh`, which reads only those artifacts and the benchmark ground truth. Evaluation does not import from `method/`, so future methods can be scored by writing the same output format.
-
-The local benchmark uses a fixed synthetic 128-frame RGB-D sequence generated by `data/synthetic_rgbd.py` with seed 7. The same sequence, alignment, masks, and metrics must be used for all methods.
-
----
-
-# Reproduction Log
-
-### Iteration 1: gpt-5.5
-- **Milestone**: `core_claim` | **Status**: done
-- **Working time**: 14m | **GPU**: 0.1h
-- **Jobs**: 3 total (2 completed, 1 failed)
-
-<details>
-<summary>Progress Log</summary>
-
-### [2026-06-13 04:30] - none
-- Read the paper and identified the core long-video inference claim.
-- Vendored the official Video Depth Anything implementation.
-- Added synthetic benchmark generation, artifact-based evaluation, scripts, and packaging for the first compute-node reproduction run.
-
-### [2026-06-13 04:46] - method_runs
-- GPU smoke job `57ef9201-abf` completed successfully.
-- Ran the actual VDA-S model and official long-video inference path end to end on the synthetic benchmark.
-- Scored both `vda_independent_windows` and `vda_oi_kr`; OI+KR improved temporal gradient error but not spatial metrics on the initial 72-frame sequence.
-
-### [2026-06-13 04:49] - method_runs
-- Job `4c759670-8bf` failed during evaluation because stale 72-frame output was mixed with fresh 128-frame ground truth.
-- Patched scripts to clear full-run outputs and evaluate explicit method artifacts.
-
-### [2026-06-13 04:52] - core_claim
-- Job `679781e3-847` completed successfully on the 128-frame benchmark.
-- OI+KR improved temporal gradient error from `0.003628` to `0.003295` with the same VDA-S parameter count and video training-data scale.
-- Spatial accuracy stayed close but did not improve (`absrel` 0.1245 to 0.1247, `delta1` 0.8389 to 0.8328), so the reproduced claim is limited to long-video temporal consistency rather than the full paper benchmark profile.
-
-</details>
-
-### Iteration 2: gpt-5.5
-- **Milestone**: `core_claim_plus` | **Status**: done
-- **Working time**: 6m | **GPU**: 0.0h
-- **Jobs**: 4 total (3 completed, 1 failed)
-
-<details>
-<summary>Progress Log</summary>
-
-### [2026-06-13 04:50] - core_claim
-- Ran the released VDA-S model through the official OI+KR long-video inference path on a 128-frame RGB-D benchmark.
-- Compared against independent 32-frame window inference with the same checkpoint and model scale.
-- OI+KR improved the local temporal-gradient consistency metric while preserving close spatial depth quality.
-
-### [2026-06-13 04:56] - core_claim_plus
-- Re-ran the full reproduction after fixing temporal metric scaling.
-- Added and completed a 256-frame setting to test the long-video strategy over more inference windows.
-- OI+KR improved temporal-gradient consistency on both 128-frame and 256-frame settings at the same model size and training-data scale.
-
-</details>
-
-
----
-
-# Reproduction Milestones
-
-**Current: core_claim**
-
-## Stop Justification
-- Completed at milestone `core_claim`.
