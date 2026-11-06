@@ -19,7 +19,7 @@ Estimate dense metric-consistent depth for long monocular videos while keeping p
 ## Run it
 
 ```bash
-pip install git+https://github.com/zlab-princeton/scientist_world_cli
+pip install sciworld
 sw research 2501.12375 --mode innovate --agent claude-code
 sw evaluate 2501.12375
 ```
