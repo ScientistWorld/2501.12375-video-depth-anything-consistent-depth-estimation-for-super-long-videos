@@ -1,5 +1,7 @@
 # Progress
 
+> Note: the "What Works", "Results" and "Issues" sections are the history of iterations 1-10 on the earlier single-video benchmark (`eval/metrics.py`, `temporal_gradient_error`, `input518` experiments), all of which were replaced in iteration 11. The current state is under "Iteration 11" and in `HARDENING.md`.
+
 ## What Works
 
 - Read the paper and identified the core reproducible claim: long-video inference improves temporal consistency over independent short-window processing while keeping the same model scale.
@@ -74,8 +76,15 @@ These additional settings preserve `core_claim_plus`: OI+KR reduces temporal-gra
 - A follow-up scoring audit found that standalone `scripts/evaluate.sh` could keep stale experiments in `scores.json`. `eval/metrics.py` now replaces outputs by default, while `scripts/run.sh` and `scripts/reproduce.sh` explicitly opt into append mode after clearing old score files.
 - CPU test job `af51b2f2-70e` verified the append-mode runtime change in the compute container and completed `scripts/run.sh` successfully.
 
+## Iteration 11 (hardening, 2026-11-09 17:00)
+
+- Replaced the single-video benchmark with procedurally rendered long corridor videos. Test videos are rendered inside `eval/test/` from hidden seeds and run through every registered predictor; train videos use the visible `data/synthetic_rgbd.py`.
+- Added the paper's TAE metric, a validity gate, and the predictor contract. Removed the self-reported resource metrics.
+- Job `c657cb7c-2b5`: OI+KR beats independent windows on absrel, delta1, TAE and scale drift in both experiments, on train and test. Two label-free variants (bidirectional and flip ensembles) beat the reference. All tested shortcuts fail or tie. Details in `HARDENING.md`.
+
 ## Deviations from Paper
 
-- The paper evaluates on KITTI, ScanNet, Bonn, NYUv2, and Sintel. This first reproduction uses a small synthetic RGB-D video because the full benchmark suite is large and the minimum core claim can be tested on a fixed long sequence with known ground truth.
+- The paper evaluates on KITTI, ScanNet, Bonn, NYUv2, and Sintel. This environment uses rendered RGB-D corridor videos with exact poses (since iteration 11; earlier iterations used one small synthetic RGB-D video) because the full benchmark suite is large and the minimum core claim can be tested on a fixed long sequence with known ground truth.
 - The paper trains VDA on 0.55M video frames plus image data. This workspace uses the released VDA-S checkpoint for the first reproduction rather than retraining, preserving the paper's algorithm and model family while fitting the available compute budget.
-- The evaluator uses percent-scaled `temporal_gradient_error` on ground-truth stable regions as the local temporal consistency metric. `scoring/reference.json` records the paper's inference-strategy ablation values as the external reference for the same claimed effect.
+- Since iteration 11 the evaluator uses the paper's Temporal Alignment Error with exact camera poses (nearest-pixel reprojection with a z-buffer). `scoring/reference.json` keeps the paper's Table 5 inference-strategy ablation values unchanged for orientation; they come from real benchmarks and are not targets.
+- The released VDA-S checkpoint is used as is; training is not reproduced.

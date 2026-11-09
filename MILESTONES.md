@@ -36,5 +36,9 @@
 - Re-ran `python validate.py --compare` locally after the job; scoring, train/test, and separation checks pass.
 - Final verification found no critical issues and preserved the `core_claim_plus` milestone.
 
+### [2026-11-09 17:00] - core_claim_plus
+- Hardened the gym: hidden test videos are rendered in `eval/test/` and every registered predictor runs on them. Added the paper's TAE metric and a validity gate, and removed the unverifiable resource metrics.
+- The reproduced OI+KR inference (released VDA-S checkpoint) now beats independent windows on AbsRel, delta1, TAE and scale drift on 500- and 1500-frame videos, matching the paper's Table 5 direction.
+
 ## Stop Justification
 - Completed at milestone `core_claim_plus`.

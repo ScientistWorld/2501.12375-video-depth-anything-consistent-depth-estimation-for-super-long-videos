@@ -1,8 +1,6 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: submit
-gpus: 1
-test: false
+action: done
 milestone: core_claim_plus
-notes: "Hardening check: hidden-test (rendered in eval/test, predictors run on hidden frames) + train reference/baseline runs, then variants and shortcuts through the same hidden-test evaluator, rank analysis, validate.py"
+notes: "Hardened: hidden test videos rendered in eval/test and run through every registered predictor; paper TAE metric; validity gate; resources unscored. OI+KR beats independent windows on all 4 metrics (train+test); flip/bidirectional ensembles beat the reference; all shortcuts fail or tie. See HARDENING.md."

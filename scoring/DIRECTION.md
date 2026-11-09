@@ -1,5 +1,5 @@
 # Research Direction
 
-Future work should stay within monocular long-video depth estimation. Acceptable improvements include better temporal consistency mechanisms, more robust long-video stitching, improved video-depth models, or stronger training strategies that still solve the same RGB-video-to-depth task.
+Future work should stay within monocular long-video depth estimation from RGB alone. Acceptable directions include better ways of processing videos longer than a model's temporal window, better temporal modelling inside the window, test-time ensembling or refinement that uses only the frames, keeping one depth scale over minutes-long videos, and training or fine-tuning strategies within the model-size and data budget in `scoring/CONSTRAINTS.md`.
 
-Out-of-scope changes include replacing the task with multi-view reconstruction requiring camera poses, using paid external APIs, evaluating on a different dataset without also reporting the fixed benchmark, or gaining performance by directly fitting the evaluation ground truth.
+Out of scope: using camera poses, intrinsics or depth that the evaluator does not provide, larger pretrained depth models, paid external APIs, evaluating only on other data, or gaining performance by reproducing the rendered scenes' labels.

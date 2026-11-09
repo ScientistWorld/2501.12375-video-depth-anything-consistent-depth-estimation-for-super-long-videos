@@ -1,31 +1,21 @@
 # Scoring Targets
 
-## synthetic_long_video_128, synthetic_long_video_256, synthetic_long_video_128_input518, and synthetic_long_video_256_input518
+Both experiments (`long_video_500`, weight 0.6; `super_long_video_1500`, weight 0.4) score the same four metrics on hidden test videos. The reference is `vda_oi_kr` in `scoring/scores_test.json`; improvements are measured against it.
 
-Primary paper-comparable target:
+## Benefit targets
 
-- Lower `absrel` on the fixed RGB-D videos. This is the primary metric because it has the same definition and scale as the paper's reported KITTI ablation values.
+- Lower `absrel` and higher `delta1` (primary metric; the paper's headline accuracy metric): spatial accuracy under one scale/shift per video. Coefficients 1.0 each.
+- Lower `tae`: the paper's Temporal Alignment Error, using the true camera motion. Coefficient 1.0.
+- Lower `scale_drift`: one depth scale for the whole video. Coefficient 0.5.
 
-Benefit targets:
+Reference (hidden test): `long_video_500` 0.1504 / 0.8146 / 1.173 / 12.96 and `super_long_video_1500` 0.1274 / 0.8616 / 1.377 / 10.10 (absrel / delta1 / tae / scale_drift). Exact ground truth reaches 0 / 1 / about 0.4 / 0, so every metric has room to improve.
 
-- Lower `temporal_gradient_error`. This is a percent-scaled local temporal-gradient proxy for the paper's temporal alignment error, so it should be used for method comparison within this benchmark rather than exact paper-number matching.
-- Lower `absrel`.
-- Higher `delta1`.
+## Constraint targets
 
-Spatial-quality guardrails:
+- Validity gate (scored): outputs must be finite and correctly shaped for every video, and in every experiment the mean `absrel`/`delta1` must beat the best image-agnostic static depth template (about 0.39 / 0.35) with `tae` < 30 and `scale_drift` < 50. A failed run scores worse than any passing run on every metric.
+- Accuracy is not traded for smoothness: temporal gains that cost more spatial accuracy than they earn are not improvements, and the rank sums all four metrics.
+- Model scale and training data stay within `scoring/CONSTRAINTS.md` (small-model scale, 0.55M video training frames). These cannot be measured from predictions, so they are rules checked on the submitted code rather than scored metrics.
 
-- `absrel` and `delta1` should remain close to the independent-window baseline unless a run is explicitly reported as a temporal-only ablation.
-- Improvements obtained by smoothing depth so aggressively that spatial quality collapses do not satisfy the paper's claim.
+## Ablation / baseline target
 
-Constraint targets:
-
-- Keep `param_count_M` at or below the provided small-model scale unless explicitly reporting a separate larger-model result.
-- Keep `video_training_frames_M` fixed when comparing against the provided reproduction baseline.
-
-Ablation target:
-
-- Compare against the provided independent-window reference, which processes the same sequence without cross-window temporal stabilization.
-
-Coverage target:
-
-- The `input518` variants use the higher reference inference size and should remain in the score set when testing future improvements. The 252-size variants are faster smoke tests that exercise the same benchmark at lower compute cost.
+- The independent-window baseline (`vda_independent_windows`, same network, no cross-window stabilisation) scores clearly below the reference on all four metrics in both experiments: 0.1734 / 0.7511 / 1.580 / 15.86 and 0.1585 / 0.8024 / 1.782 / 13.56.

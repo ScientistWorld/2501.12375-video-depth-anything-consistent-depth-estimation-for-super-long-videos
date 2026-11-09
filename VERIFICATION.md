@@ -29,3 +29,7 @@ The workspace is ready to serve as a research gym. Improve-mode agents can run t
 - Ready for gym use: yes
 - Confidence: high
 - Key limitation: synthetic RGB-D benchmark and released-checkpoint inference only; full real-dataset training reproduction remains out of scope.
+
+## Iteration 11 note
+
+The benchmark described above was replaced in iteration 11 (hidden rendered long videos, predictor contract, TAE, validity gate). See `HARDENING.md` for the current design and its verification.

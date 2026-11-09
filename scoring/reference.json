@@ -69,7 +69,7 @@
       }
     },
     "super_long_video_1500": {
-      "description": "Super-long-video depth on 1500-frame hidden corridor videos, where the scene at the end shares nothing with the start, so scale must be carried across ~70 inference windows. The paper reports no numbers at this length (Fig. 7 is qualitative); results repeat the Table 5 values for orientation only. results hold the paper's Table 5 inference-strategy ablation for VDA-S (Baseline = independent windows, window 16; OI+KR = overlap interpolation + key-frame referencing, window 32), means over the paper's real video benchmarks with up to 500 frames. This gym measures the same metrics (same alignment protocol and TAE definition) on procedurally rendered corridor videos, so absolute values are not expected to match; the comparable quantity is the direction of the difference between the two strategies.",
+      "description": "Super-long-video depth on 1500-frame hidden corridor videos, where the scene at the end shares nothing with the start, so a model with a bounded temporal window has to carry one depth scale across dozens of windows. The paper reports no numbers at this length (Fig. 7 is qualitative); results repeat the Table 5 values for orientation only. results hold the paper's Table 5 inference-strategy ablation for VDA-S (Baseline = independent windows, window 16; OI+KR = overlap interpolation + key-frame referencing, window 32), means over the paper's real video benchmarks with up to 500 frames. This gym measures the same metrics (same alignment protocol and TAE definition) on procedurally rendered corridor videos, so absolute values are not expected to match; the comparable quantity is the direction of the difference between the two strategies.",
       "weight": 0.4,
       "primary_metric": "delta1",
       "metrics": {
@@ -109,5 +109,6 @@
         }
       }
     }
-  }
+  },
+  "_weights_note": "Weights 0.6/0.4: the paper's quantitative long-video protocol is <=500 frames (long_video_500); the super-long setting is its headline claim (consistent depth for minutes-long videos, Fig. 1/7) but has no numeric result, so it gets the smaller weight. Coefficients: absrel, delta1 and tae 1.0 each (the paper's three video metrics, Table 5); scale_drift 0.5 (the paper's drift claim is qualitative and drift also lowers absrel/delta1 under the single per-video alignment)."
 }

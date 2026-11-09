@@ -1,8 +1,8 @@
 # Overview
 
-This workspace reproduces the core long-video inference claim of Video Depth Anything. It packages the official VDA-S implementation, a reproducible 128-frame RGB-D video benchmark, an independent-window baseline, and an artifact-only evaluator that measures spatial depth accuracy, temporal consistency, parameter count, and video training-data scale.
+This workspace reproduces the long-video inference claim of Video Depth Anything: processing a long video with overlap interpolation and key-frame referencing (OI+KR) gives more accurate, more temporally consistent and more scale-stable depth than processing fixed windows independently, with the same small network.
 
-The first submitted job runs both inference strategies on the fixed synthetic long video and writes comparable metrics to `scoring/scores.json`.
+It packages the official implementation with the released VDA-S checkpoint, a procedural RGB-D corridor-video generator with exact depth and camera poses, and evaluators that run every registered predictor on rendered videos: visible train scenes in `eval/train/`, hidden test scenes rendered at test time in `eval/test/`. Metrics are AbsRel, delta1 and the paper's Temporal Alignment Error under one per-video scale/shift alignment, plus a scale-drift measure, on 500-frame and 1500-frame videos. Run `bash scripts/reproduce.sh` (one GPU, about 50 minutes) to regenerate the reference scores.
 
 ---
 
@@ -10,60 +10,119 @@ The first submitted job runs both inference strategies on the fixed synthetic lo
 
 ## Research Question
 
-Estimate dense metric-consistent depth for long monocular videos while keeping predictions spatially accurate and temporally stable across hundreds or thousands of frames. The benchmark asks for one depth map per input RGB frame.
+Estimate dense depth for long monocular videos so that the predictions are both spatially accurate and temporally consistent over hundreds to thousands of frames. The input is an RGB video only (no camera poses, no intrinsics, no depth); the output is one relative depth map per frame. Relative means affine-invariant in inverse depth, but a single scale and shift must hold for the whole video: if the depth scale of frame 1400 does not match frame 10, the prediction is wrong.
 
 ## Why It Matters
 
-Long-video depth is useful for robotics, mapping, editing, and scene reconstruction. Image-only depth estimators often produce plausible single-frame maps but drift in scale or flicker over time, which makes the output hard to use in downstream video pipelines.
+Video depth feeds robotics, mapping, 3D video conversion and video editing. Single-image depth estimators give plausible per-frame maps, but on video they flicker, and any model that sees only a bounded number of frames at a time tends to produce scale jumps between the pieces it processed, or a scale that drifts slowly over a long video. Downstream uses such as fusing frames into a point cloud need one consistent geometry for the whole clip.
+
+## Setting in this environment
+
+Videos are static indoor corridors (floor, ceiling, walls, partition walls with doorways, furniture) rendered with exact ray casting while a camera walks forward, sways, turns towards the walls and tilts. The visible depth range therefore changes a lot over time: some stretches look far down the corridor, others face a nearby wall. Lighting has a slow exposure drift, frame-to-frame gain flicker, fog and sensor noise. Frames are 144x192 at 12 fps. Two lengths are evaluated: 500 frames and 1500 frames (about two minutes, where the end of the video shares no content with the start).
 
 ## Success Criteria
 
-A successful system should:
+A successful system:
 
-- Predict per-frame depth with low relative error after the standard global affine alignment used by monocular depth benchmarks.
-- Preserve temporal consistency, especially across long clips where independent short-window processing can introduce scale jumps.
-- Maintain reasonable resource constraints, including model size and training-data scale, so gains are not obtained only by using a substantially larger model or more supervision.
+- has low depth error after one global scale/shift alignment per video (AbsRel, delta1);
+- is temporally consistent: depth reprojected from one frame to the next with the true camera motion agrees with the next frame's depth (Temporal Alignment Error);
+- keeps one depth scale over the whole video, without jumps or slow drift;
+- does this at the small-model scale and training-data budget given in `scoring/CONSTRAINTS.md`, so gains come from better video-depth methods rather than a much larger model or extra supervision.
 
 ---
 
 # Method
 
-The paper, "Video Depth Anything: Consistent Depth Estimation for Super-Long Videos", adapts the Depth Anything V2 monocular depth model to long videos.
+The paper, "Video Depth Anything: Consistent Depth Estimation for Super-Long Videos" (arXiv 2501.12375), turns the Depth Anything V2 image model into a video depth model:
 
-The implemented method follows the released Video Depth Anything code:
+- **Architecture.** The frozen Depth Anything V2 ViT encoder processes every frame; the DPT head becomes a spatio-temporal head by inserting four temporal self-attention layers (attention along the time axis at each spatial position, absolute temporal position embeddings). The model consumes 32-frame clips.
+- **Training.** Scale-shift-invariant spatial loss plus a temporal gradient matching loss (the change of depth between consecutive frames should match the ground truth change, on stable regions), on 0.55M synthetic video frames, jointly with distillation on unlabeled images. Only the head is trained.
+- **Long-video inference (OI+KR).** The video is processed as 32-frame clips that advance by 22 frames. Each new clip contains 22 new frames, 8 overlap frames from the previous clip and 2 key frames (the first frame of the video and one earlier frame), so the network sees context it has already predicted. The new clip's predictions are scale/shift-aligned to the stored predictions of the key frames, and the 8 overlap frames are linearly cross-faded between the two clips. The paper's ablation (Table 5) shows this beats independent windows, overlap alignment and overlap interpolation alone.
 
-- Start from a Depth Anything V2 image encoder and use a video depth head with temporal self-attention inserted into the DPT head.
-- Process videos as fixed-length clips.
-- During long-video inference, keep overlap frames between clips, use selected key frames as references for the next clip, and interpolate overlap regions to reduce scale jumps between windows.
-- Use the released VDA-S checkpoint for this reproduction. The checkpoint corresponds to the paper's small model family with about 28.4M parameters.
+## Implementation in this workspace
 
-The full paper trains on 0.55M video frames plus image datasets using a scale-shift-invariant spatial loss, a temporal gradient matching loss, and an image-model distillation loss. This environment focuses first on reproducing the core long-video inference claim with the released checkpoint and the official algorithm.
+- `method/official/`: the released Video Depth Anything code (`video_depth_anything/video_depth.py::infer_video_depth` implements OI+KR with `INFER_LEN=32`, `OVERLAP=10`, `KEYFRAMES=[0,12,...]`, `INTERP_LEN=8`).
+- `method/predict_vda.py`: predictor entry point (contract in `briefing/evaluation.md`); `--mode oi_kr` is the paper's inference, `--mode independent_windows` the no-stabilisation baseline. Both use the released VDA-S checkpoint (`data/downloads/video_depth_anything_vits.pth`, 28.4M parameters), 518-pixel input and fp32.
+- `method/predictors/vda_oi_kr.json`, `baseline/predictors/vda_independent_windows.json`: the registered reference and baseline.
+- `method/run_vda.py`: model loading and the independent-window loop (also a small CLI for PNG frame folders).
+
+The checkpoint is used as released; nothing is retrained here.
 
 ---
 
 # Evaluation
 
+## Splits
+
+- **Train (visible).** `eval/train/` renders 4 videos of 500 frames (seeds 101-104) and 2 videos of 1500 frames (seeds 201-202) with `data/synthetic_rgbd.py`. You can render as many further videos as you like with that module (any other seed); each comes with RGB frames, z-depth, intrinsics and camera poses (`python data/synthetic_rgbd.py --seed S --frames N --output DIR`).
+- **Test (hidden).** Same scene family, different scenes: 6 videos of 500 frames and 2 videos of 1500 frames. They are rendered inside the test evaluator at test time; only their RGB frames are handed to your predictor. Labels never touch the disk.
+
+Both splits use the same experiments, metrics, alignment, gate and predictor contract.
+
+## Predictor contract
+
+A method is scored by running it, so register it as a predictor: a JSON manifest at `method/predictors/<name>.json` (or `baseline/predictors/<name>.json`):
+
+```json
+{"command": ["python", "method/my_predictor.py", "--some-flag"]}
+```
+
+The evaluator runs `command + ["--jobs", "<path>/jobs.json"]` with the workspace root as working directory, once per evaluation (all videos in one call, so a model is loaded once). `jobs.json` is
+
+```json
+{"videos": [{"id": "video_000", "frames": "/abs/path/video_000.npy", "fps": 12,
+             "num_frames": 500, "height": 144, "width": 192,
+             "output": "/abs/path/video_000.npz"}, ...]}
+```
+
+`frames` is a uint8 RGB array `[T, H, W, 3]`. For every video write `output` as an `.npz` holding `prediction`: a real-valued array of shape `[T, H, W]` with relative inverse depth (any scale and shift; larger = closer). Every predictor on disk is scored, each independently; the name of the manifest is the method name in the score files.
+
+Rules: the predictor must be inference only (train beforehand and load your weights), must run offline, must finish within 4 hours for the whole test set (the reference takes about 6 minutes on one A100; the test node has a GPU), and may read only the frames it is given and your own files. Reading labels, evaluator files or anything under `eval/` from a predictor is not allowed.
+
 ## Metrics
 
-- `absrel`: mean absolute relative depth error after globally aligning predicted inverse depth to ground-truth inverse depth. Lower is better.
-- `delta1`: fraction of pixels whose predicted depth is within a 1.25 ratio of ground truth after alignment. Higher is better.
-- `temporal_gradient_error`: mean absolute error between consecutive-frame depth changes on stable ground-truth regions. Lower is better.
-- `boundary_temporal_error`: mean temporal-gradient error on frames near fixed chunk boundaries. Lower is better.
-- `scale_drift_error`: absolute change in median log-depth bias between early and late frames after alignment. Lower is better.
-- `param_count_M`: model parameter count in millions. Lower is better when accuracy and consistency are comparable.
-- `video_training_frames_M`: number of video training frames in millions. Lower is better when accuracy and consistency are comparable.
+Per video, the prediction is aligned to ground truth with one least-squares scale and shift in inverse depth shared by all frames of the video, using pixels whose true depth is in [0.2, 20]; aligned inverse depth is clipped at 1e-3 and depth at 20. Metrics are averaged over the videos of an experiment.
 
-## Baselines and Targets
+- `absrel` (lower is better): mean |d - d*| / d* over evaluated pixels.
+- `delta1` (higher is better): fraction of evaluated pixels with max(d/d*, d*/d) < 1.25.
+- `tae` (lower is better): Temporal Alignment Error, x100. The aligned depth of each frame is back-projected with the true intrinsics, moved with the true relative camera motion into the next frame, projected (nearest pixel, closest surface wins), and compared with the next frame's aligned depth by AbsRel; averaged over all consecutive pairs and both directions. Exact ground truth scores about 0.4 here (pixel rounding at depth edges).
+- `scale_drift` (lower is better): standard deviation over frames (x100) of the per-frame median of log(aligned depth / true depth). Scale jumps between parts of the video and slow drift both raise it.
 
-The source paper reports a long-video benchmark ablation on KITTI. Its independent-window reference reports `absrel=0.157`, `delta1=0.826`, and temporal alignment error `0.874`; its best long-video reference at the comparable 32-frame window setting reports `absrel=0.144`, `delta1=0.851`, and temporal alignment error `0.718`.
+## Validity gate
 
-This environment mirrors that comparison on reproducible synthetic RGB-D long videos. The target is not exact equality to KITTI numbers, but the same high-level pattern: a submitted long-video depth system should improve temporal consistency over independent-window processing without using a larger model, while spatial metrics remain comparable and are reported as guardrails.
+A run is failed if any video's output is missing, has the wrong shape, contains NaN/inf, or if the predictor exits non-zero; or if, in any experiment, its mean `absrel` is not below and its mean `delta1` not above the level of the best image-agnostic answer (a static per-pixel depth template fitted to the test labels: about 0.39 / 0.35), or its mean `tae` reaches 30 or `scale_drift` reaches 50. A failed run receives, in every experiment, those level values as its metrics (worse than any passing run on every metric), and the reason is recorded under `_status` in the score file.
 
-## Evaluation Protocol
+## Ranking
 
-Run methods to produce `.npz` prediction artifacts containing a `prediction` array with shape `[frames, height, width]`. Then run `scripts/evaluate.sh`, which reads only those artifacts and the benchmark ground truth. Evaluation does not import from `method/`, so future methods can be scored by writing the same output format.
+`scoring/reference.json` gives each experiment's weight (0.6 for `long_video_500`, 0.4 for `super_long_video_1500`) and each metric's coefficient (absrel 1, delta1 1, tae 1, scale_drift 0.5) and direction. Improvement is measured against the frozen reference scores in `scoring/scores_test.json`.
 
-The local benchmark uses fixed synthetic 128-frame and 256-frame RGB-D sequences generated by `data/synthetic_rgbd.py` with seed 7. Each sequence is evaluated at a fast 252-pixel inference size and at the paper's default 518-pixel inference size. The same sequence, alignment, masks, and metrics must be used for all methods.
+Current hidden-test scores:
+
+| experiment | method | absrel | delta1 | tae | scale_drift |
+|---|---|---:|---:|---:|---:|
+| long_video_500 | reference (`vda_oi_kr`) | 0.1504 | 0.8146 | 1.173 | 12.96 |
+| long_video_500 | independent-window baseline | 0.1734 | 0.7511 | 1.580 | 15.86 |
+| super_long_video_1500 | reference (`vda_oi_kr`) | 0.1274 | 0.8616 | 1.377 | 10.10 |
+| super_long_video_1500 | independent-window baseline | 0.1585 | 0.8024 | 1.782 | 13.56 |
+
+The baseline uses the same released network but processes each 32-frame window independently and concatenates the results. For orientation, the paper reports AbsRel / delta1 / TAE of 0.157 / 0.826 / 0.874 for independent windows and 0.144 / 0.851 / 0.718 for its method on real benchmarks (<= 500 frames); those numbers are on different data and are not targets.
+
+## Commands
+
+```bash
+bash scripts/evaluate_train.sh                 # all predictors on the train split -> scoring/scores_train.json
+bash scripts/evaluate_train.sh --only NAME     # one predictor
+bash scripts/evaluate.sh                       # same as train, written to scoring/scores.json
+bash scripts/evaluate_test.sh                  # hidden test (no arguments) -> scoring/scores_test.json
+```
+
+Score files are always rewritten from scratch; per-video numbers are in `scoring/metrics_detail_*.json`.
+
+---
+
+# Hardening (iteration 11)
+
+The benchmark, evaluators and scoring were rebuilt in iteration 11 after the red-team audit; see `HARDENING.md` for what changed, why, and the before/after scores of the reference, variants and shortcuts. Earlier iterations below describe the previous single-video benchmark (128/256-frame synthetic sequence split by frame blocks), which no longer exists.
 
 ---
 
@@ -369,6 +428,12 @@ The local benchmark uses fixed synthetic 128-frame and 256-frame RGB-D sequences
 
 </details>
 
+
+### Iteration 11: claude-opus-5.5 (hardener)
+- **Milestone**: `core_claim_plus`
+- Rebuilt the benchmark as hidden rendered long corridor videos (500 and 1500 frames) with exact depth and poses; test videos are rendered inside `eval/test/` and only their frames reach predictors.
+- Added the paper's Temporal Alignment Error, a validity gate, and a predictor contract that both evaluators share; removed self-reported resource metrics.
+- The reproduced OI+KR inference now beats independent windows on AbsRel, delta1, TAE and scale drift in both experiments (train and test).
 
 ---
 

@@ -1,19 +1,11 @@
 # Experiments
 
-## synthetic_long_video_128
+Both experiments use hidden, procedurally rendered indoor corridor videos (static scenes, moving and turning camera, changing exposure, fog and noise) with exact depth and camera motion. Methods see only RGB frames. All metrics use one depth scale and shift per video, so every frame of a video has to agree on scale.
 
-This experiment checks whether a long-video depth estimator can keep predictions temporally stable on a fixed 128-frame RGB-D sequence while preserving comparable single-frame depth quality. It compares submitted prediction artifacts against an independent-window reference under the same model-size and training-data constraints.
+## long_video_500
 
-The key question is whether long-video processing improves temporal behavior without changing the resource budget or collapsing spatial depth metrics.
+Six 500-frame videos (about 40 seconds at 12 fps), the length of the paper's long-video evaluation. The camera alternately looks far down the corridor and faces nearby walls, so the visible depth range changes many times within a video. This establishes whether a video depth method stays accurate (AbsRel, delta1) and consistent from frame to frame (Temporal Alignment Error) while the scene content changes, and whether its depth scale stays the same across the whole clip (scale drift). The comparison point is the same network applied to fixed windows independently, which is markedly worse on all four metrics here.
 
-## synthetic_long_video_256
+## super_long_video_1500
 
-This experiment repeats the same comparison on a longer 256-frame RGB-D sequence. It stresses transitions across more windows and checks whether the same temporal-consistency benefit persists as video length increases.
-
-## synthetic_long_video_128_input518
-
-This experiment repeats the 128-frame comparison at a 518-pixel inference input size. It checks whether the temporal-consistency effect remains visible at the higher preprocessing scale used for the reference artifacts.
-
-## synthetic_long_video_256_input518
-
-This experiment combines the longer 256-frame sequence with the 518-pixel inference setting. It is the strongest local stress test in this environment because it includes more window transitions and the higher reference input scale.
+Two 1500-frame videos (about two minutes). By the end of each video the camera has passed through several rooms and sees nothing that was visible at the start, so a method has to carry one consistent depth scale over a long horizon rather than anchoring to shared content. This establishes whether accuracy and consistency hold up as videos get much longer than any processing window, which is the setting where long-horizon scale drift would show up.
