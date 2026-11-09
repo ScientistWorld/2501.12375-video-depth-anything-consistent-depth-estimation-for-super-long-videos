@@ -1,92 +1,44 @@
 {
   "experiments": {
-    "synthetic_long_video_128": {
+    "long_video_500": {
       "results": {
-        "vda_independent_windows": {
-          "absrel": 0.126156893870323,
-          "delta1": 0.8355861118861607,
-          "temporal_gradient_error": 0.33593509512819203,
-          "boundary_temporal_error": 1.96117104506168,
-          "scale_drift_error": 0.03310675063441331,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        },
         "vda_oi_kr": {
-          "absrel": 0.12558311487858553,
-          "delta1": 0.8262904575892858,
-          "temporal_gradient_error": 0.32934520317375543,
-          "boundary_temporal_error": 0.5740748453119023,
-          "scale_drift_error": 0.046236318905810044,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
+          "absrel": 0.15043815597696017,
+          "delta1": 0.8146131548897793,
+          "tae": 1.1733588008229634,
+          "scale_drift": 12.961048487800097
+        },
+        "vda_independent_windows": {
+          "absrel": 0.17343958814995739,
+          "delta1": 0.7510683476180627,
+          "tae": 1.5797378981722503,
+          "scale_drift": 15.862473704821232
         }
       }
     },
-    "synthetic_long_video_256": {
+    "super_long_video_1500": {
       "results": {
-        "vda_independent_windows": {
-          "absrel": 0.1270466001302182,
-          "delta1": 0.8348018101283482,
-          "temporal_gradient_error": 0.2747247492765405,
-          "boundary_temporal_error": 1.6582658244325237,
-          "scale_drift_error": 0.031220871776005583,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        },
         "vda_oi_kr": {
-          "absrel": 0.12501928734115678,
-          "delta1": 0.8305062430245536,
-          "temporal_gradient_error": 0.24725631037843587,
-          "boundary_temporal_error": 0.2459373127519743,
-          "scale_drift_error": 0.049764499658773415,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
+          "absrel": 0.12737206709083373,
+          "delta1": 0.8615665890566864,
+          "tae": 1.3765756436989456,
+          "scale_drift": 10.098816386132292
+        },
+        "vda_independent_windows": {
+          "absrel": 0.15846545980824756,
+          "delta1": 0.8024379234678456,
+          "tae": 1.7819730028678158,
+          "scale_drift": 13.564651381129508
         }
       }
+    }
+  },
+  "_status": {
+    "vda_oi_kr": {
+      "status": "ok"
     },
-    "synthetic_long_video_128_input518": {
-      "results": {
-        "vda_independent_windows": {
-          "absrel": 0.1433513574856734,
-          "delta1": 0.7911211286272322,
-          "temporal_gradient_error": 0.2385846435465137,
-          "boundary_temporal_error": 1.9874499316893144,
-          "scale_drift_error": 0.040241248974573526,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        },
-        "vda_oi_kr": {
-          "absrel": 0.14295061130314343,
-          "delta1": 0.7888270786830357,
-          "temporal_gradient_error": 0.22601657303803474,
-          "boundary_temporal_error": 0.3850726143005692,
-          "scale_drift_error": 0.04366185231546789,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        }
-      }
-    },
-    "synthetic_long_video_256_input518": {
-      "results": {
-        "vda_independent_windows": {
-          "absrel": 0.14262798376652772,
-          "delta1": 0.7945805140904018,
-          "temporal_gradient_error": 0.15928322976762135,
-          "boundary_temporal_error": 1.3912516035231943,
-          "scale_drift_error": 0.04119163031080003,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        },
-        "vda_oi_kr": {
-          "absrel": 0.14201720579178767,
-          "delta1": 0.7932233537946428,
-          "temporal_gradient_error": 0.15017085741762418,
-          "boundary_temporal_error": 0.16522047924732686,
-          "scale_drift_error": 0.04525437219155525,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        }
-      }
+    "vda_independent_windows": {
+      "status": "ok"
     }
   }
 }

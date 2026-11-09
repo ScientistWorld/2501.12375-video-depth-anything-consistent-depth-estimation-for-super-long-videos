@@ -1,0 +1,287 @@
+{
+  "experiments": {
+    "long_video_500": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.15043815597696017,
+          "delta1": 0.8146131548897793,
+          "tae": 1.1733588008229634,
+          "scale_drift": 12.961048487800097
+        },
+        "vda_independent_windows": {
+          "absrel": 0.17343958814995739,
+          "delta1": 0.7510683476180627,
+          "tae": 1.5797378981722503,
+          "scale_drift": 15.862473704821232
+        },
+        "better_bidirectional": {
+          "absrel": 0.1480681017541046,
+          "delta1": 0.828849587503437,
+          "tae": 1.1152970086308913,
+          "scale_drift": 12.637702394901249
+        },
+        "better_flip_ensemble": {
+          "absrel": 0.14998850419878662,
+          "delta1": 0.8157779081027914,
+          "tae": 1.115056003505497,
+          "scale_drift": 12.964555653795758
+        },
+        "better_temporal3": {
+          "absrel": 0.15082638767883313,
+          "delta1": 0.8126927619500058,
+          "tae": 0.9963005737565435,
+          "scale_drift": 12.972082126240801
+        },
+        "ref_repeat": {
+          "absrel": 0.15043815597696017,
+          "delta1": 0.8146131548897793,
+          "tae": 1.1733588008229634,
+          "scale_drift": 12.961048487800097
+        },
+        "shortcut_constant": {
+          "absrel": 0.38480469634028486,
+          "delta1": 0.3482237248912015,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_empty": {
+          "absrel": 0.38480469634028486,
+          "delta1": 0.3482237248912015,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_generator_answers": {
+          "absrel": 0.15043815597696017,
+          "delta1": 0.8146131548897793,
+          "tae": 1.1733588008229634,
+          "scale_drift": 12.961048487800097
+        },
+        "shortcut_inf": {
+          "absrel": 0.38480469634028486,
+          "delta1": 0.3482237248912015,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_metadata_zero": {
+          "absrel": 0.15043815597696017,
+          "delta1": 0.8146131548897793,
+          "tae": 1.1733588008229634,
+          "scale_drift": 12.961048487800097
+        },
+        "shortcut_nan": {
+          "absrel": 0.38480469634028486,
+          "delta1": 0.3482237248912015,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_negative": {
+          "absrel": 0.38480469634028486,
+          "delta1": 0.3482237248912015,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_static_template": {
+          "absrel": 0.38480469634028486,
+          "delta1": 0.3482237248912015,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_zero": {
+          "absrel": 0.38480469634028486,
+          "delta1": 0.3482237248912015,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "weaker_scale_jitter": {
+          "absrel": 0.151504862584849,
+          "delta1": 0.8081186547643942,
+          "tae": 4.250806308847669,
+          "scale_drift": 13.332271631869412
+        }
+      }
+    },
+    "super_long_video_1500": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.12737206709083373,
+          "delta1": 0.8615665890566864,
+          "tae": 1.3765756436989456,
+          "scale_drift": 10.098816386132292
+        },
+        "vda_independent_windows": {
+          "absrel": 0.15846545980824756,
+          "delta1": 0.8024379234678456,
+          "tae": 1.7819730028678158,
+          "scale_drift": 13.564651381129508
+        },
+        "better_bidirectional": {
+          "absrel": 0.12416602439954856,
+          "delta1": 0.8664680676173737,
+          "tae": 1.3603246918124068,
+          "scale_drift": 9.725622009618496
+        },
+        "better_flip_ensemble": {
+          "absrel": 0.12186963460412809,
+          "delta1": 0.8724586496623297,
+          "tae": 1.29278835765446,
+          "scale_drift": 9.496990705550056
+        },
+        "better_temporal3": {
+          "absrel": 0.12900398413799657,
+          "delta1": 0.8562056441786368,
+          "tae": 1.1531108838109017,
+          "scale_drift": 10.11380469544243
+        },
+        "ref_repeat": {
+          "absrel": 0.12737206709083373,
+          "delta1": 0.8615665890566864,
+          "tae": 1.3765756436989456,
+          "scale_drift": 10.098816386132292
+        },
+        "shortcut_constant": {
+          "absrel": 0.3976457223323476,
+          "delta1": 0.3477807834309838,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_empty": {
+          "absrel": 0.3976457223323476,
+          "delta1": 0.3477807834309838,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_generator_answers": {
+          "absrel": 0.12737206709083373,
+          "delta1": 0.8615665890566864,
+          "tae": 1.3765756436989456,
+          "scale_drift": 10.098816386132292
+        },
+        "shortcut_inf": {
+          "absrel": 0.3976457223323476,
+          "delta1": 0.3477807834309838,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_metadata_zero": {
+          "absrel": 0.12737206709083373,
+          "delta1": 0.8615665890566864,
+          "tae": 1.3765756436989456,
+          "scale_drift": 10.098816386132292
+        },
+        "shortcut_nan": {
+          "absrel": 0.3976457223323476,
+          "delta1": 0.3477807834309838,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_negative": {
+          "absrel": 0.3976457223323476,
+          "delta1": 0.3477807834309838,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_static_template": {
+          "absrel": 0.3976457223323476,
+          "delta1": 0.3477807834309838,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "shortcut_zero": {
+          "absrel": 0.3976457223323476,
+          "delta1": 0.3477807834309838,
+          "tae": 30.0,
+          "scale_drift": 50.0
+        },
+        "weaker_scale_jitter": {
+          "absrel": 0.12991116724250026,
+          "delta1": 0.851519725663596,
+          "tae": 4.408461649452873,
+          "scale_drift": 10.717941505156862
+        }
+      }
+    }
+  },
+  "_status": {
+    "vda_oi_kr": {
+      "status": "ok"
+    },
+    "vda_independent_windows": {
+      "status": "ok"
+    },
+    "better_bidirectional": {
+      "status": "ok"
+    },
+    "better_flip_ensemble": {
+      "status": "ok"
+    },
+    "better_temporal3": {
+      "status": "ok"
+    },
+    "ref_repeat": {
+      "status": "ok"
+    },
+    "shortcut_constant": {
+      "status": "failed",
+      "reasons": [
+        "long_video_500: absrel 0.4039 is not below the static-template level 0.3848",
+        "long_video_500: delta1 0.3317 is not above the static-template level 0.3482",
+        "super_long_video_1500: absrel 0.4110 is not below the static-template level 0.3976",
+        "super_long_video_1500: delta1 0.3267 is not above the static-template level 0.3478"
+      ]
+    },
+    "shortcut_empty": {
+      "status": "failed",
+      "reasons": [
+        "video_000: prediction shape (0, 144, 192) != expected (500, 144, 192)"
+      ]
+    },
+    "shortcut_generator_answers": {
+      "status": "ok"
+    },
+    "shortcut_inf": {
+      "status": "failed",
+      "reasons": [
+        "video_000: prediction contains NaN or infinite values"
+      ]
+    },
+    "shortcut_metadata_zero": {
+      "status": "ok"
+    },
+    "shortcut_nan": {
+      "status": "failed",
+      "reasons": [
+        "video_000: prediction contains NaN or infinite values"
+      ]
+    },
+    "shortcut_negative": {
+      "status": "failed",
+      "reasons": [
+        "long_video_500: absrel 0.4039 is not below the static-template level 0.3848",
+        "long_video_500: delta1 0.3317 is not above the static-template level 0.3482",
+        "super_long_video_1500: absrel 0.4110 is not below the static-template level 0.3976",
+        "super_long_video_1500: delta1 0.3267 is not above the static-template level 0.3478"
+      ]
+    },
+    "shortcut_static_template": {
+      "status": "failed",
+      "reasons": [
+        "long_video_500: absrel 0.3921 is not below the static-template level 0.3848",
+        "long_video_500: delta1 0.3472 is not above the static-template level 0.3482",
+        "super_long_video_1500: absrel 0.4028 is not below the static-template level 0.3976",
+        "super_long_video_1500: delta1 0.3401 is not above the static-template level 0.3478"
+      ]
+    },
+    "shortcut_zero": {
+      "status": "failed",
+      "reasons": [
+        "long_video_500: absrel 0.4039 is not below the static-template level 0.3848",
+        "long_video_500: delta1 0.3317 is not above the static-template level 0.3482",
+        "super_long_video_1500: absrel 0.4110 is not below the static-template level 0.3976",
+        "super_long_video_1500: delta1 0.3267 is not above the static-template level 0.3478"
+      ]
+    },
+    "weaker_scale_jitter": {
+      "status": "ok"
+    }
+  }
+}
