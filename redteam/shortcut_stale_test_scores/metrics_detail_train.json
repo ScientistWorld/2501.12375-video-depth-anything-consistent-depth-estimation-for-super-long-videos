@@ -1,0 +1,33 @@
+{
+  "synthetic_long_video_128": {
+    "slice": "train",
+    "split": {
+      "block_size": 16,
+      "block_parity": 0
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "train",
+        "split": {
+          "block_size": 16,
+          "block_parity": 0,
+          "boundary_stride": 32,
+          "boundary_parity": 0,
+          "frame_count": 64,
+          "temporal_pair_count": 60
+        },
+        "absrel": 0.12343691937391935,
+        "delta1": 0.8406049455915179,
+        "temporal_gradient_error": 0.315168949214551,
+        "boundary_temporal_error": 0.3314989136538708,
+        "scale_drift_error": 0.04419719739186247,
+        "param_count_M": 28.4,
+        "video_training_frames_M": 0.55,
+        "affine_scale": 0.06617005976313692,
+        "affine_shift": 0.0758381364506913,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/shortcut_stale_test_scores/synthetic_long_video_128/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_128/ground_truth.npz"
+      }
+    }
+  }
+}

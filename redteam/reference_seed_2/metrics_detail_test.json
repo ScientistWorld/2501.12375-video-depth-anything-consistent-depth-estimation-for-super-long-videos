@@ -1,0 +1,126 @@
+{
+  "synthetic_long_video_128": {
+    "slice": "test",
+    "split": {
+      "block_size": 16,
+      "block_parity": 1
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "test",
+        "split": {
+          "block_size": 16,
+          "block_parity": 1,
+          "boundary_stride": 32,
+          "boundary_parity": 1,
+          "frame_count": 64,
+          "temporal_pair_count": 60
+        },
+        "absrel": 0.12560206065352864,
+        "delta1": 0.826190185546875,
+        "temporal_gradient_error": 0.3288360503990029,
+        "boundary_temporal_error": 0.5785458931371497,
+        "scale_drift_error": 0.04613646011266112,
+        "param_count_M": 28.4,
+        "video_training_frames_M": 0.55,
+        "affine_scale": 0.06635580879411532,
+        "affine_shift": 0.07872269265344464,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/reference_seed_2/synthetic_long_video_128/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_128/ground_truth.npz"
+      }
+    }
+  },
+  "synthetic_long_video_256": {
+    "slice": "test",
+    "split": {
+      "block_size": 16,
+      "block_parity": 1
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "test",
+        "split": {
+          "block_size": 16,
+          "block_parity": 1,
+          "boundary_stride": 32,
+          "boundary_parity": 1,
+          "frame_count": 128,
+          "temporal_pair_count": 120
+        },
+        "absrel": 0.12500609641336824,
+        "delta1": 0.8304700578962053,
+        "temporal_gradient_error": 0.24698148017213797,
+        "boundary_temporal_error": 0.245977282605285,
+        "scale_drift_error": 0.04965207088782422,
+        "param_count_M": 28.4,
+        "video_training_frames_M": 0.55,
+        "affine_scale": 0.06675213190341336,
+        "affine_shift": 0.07803523789556135,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/reference_seed_2/synthetic_long_video_256/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_256/ground_truth.npz"
+      }
+    }
+  },
+  "synthetic_long_video_128_input518": {
+    "slice": "test",
+    "split": {
+      "block_size": 16,
+      "block_parity": 1
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "test",
+        "split": {
+          "block_size": 16,
+          "block_parity": 1,
+          "boundary_stride": 32,
+          "boundary_parity": 1,
+          "frame_count": 64,
+          "temporal_pair_count": 60
+        },
+        "absrel": 0.14296551315552955,
+        "delta1": 0.788812255859375,
+        "temporal_gradient_error": 0.22611508723104232,
+        "boundary_temporal_error": 0.384876142028152,
+        "scale_drift_error": 0.04370574188692458,
+        "param_count_M": 28.4,
+        "video_training_frames_M": 0.55,
+        "affine_scale": 0.03847564101951427,
+        "affine_shift": 0.1313895757527308,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/reference_seed_2/synthetic_long_video_128_input518/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_128/ground_truth.npz"
+      }
+    }
+  },
+  "synthetic_long_video_256_input518": {
+    "slice": "test",
+    "split": {
+      "block_size": 16,
+      "block_parity": 1
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "test",
+        "split": {
+          "block_size": 16,
+          "block_parity": 1,
+          "boundary_stride": 32,
+          "boundary_parity": 1,
+          "frame_count": 128,
+          "temporal_pair_count": 120
+        },
+        "absrel": 0.14201992562282093,
+        "delta1": 0.7931993756975446,
+        "temporal_gradient_error": 0.15008312882577693,
+        "boundary_temporal_error": 0.16550647705835783,
+        "scale_drift_error": 0.04524991873652931,
+        "param_count_M": 28.4,
+        "video_training_frames_M": 0.55,
+        "affine_scale": 0.03906642564374705,
+        "affine_shift": 0.13155087387719902,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/reference_seed_2/synthetic_long_video_256_input518/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_256/ground_truth.npz"
+      }
+    }
+  }
+}

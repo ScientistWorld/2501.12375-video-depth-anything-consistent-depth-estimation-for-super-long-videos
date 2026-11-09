@@ -1,0 +1,126 @@
+{
+  "synthetic_long_video_128": {
+    "slice": "test",
+    "split": {
+      "block_size": 16,
+      "block_parity": 1
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "test",
+        "split": {
+          "block_size": 16,
+          "block_parity": 1,
+          "boundary_stride": 32,
+          "boundary_parity": 1,
+          "frame_count": 64,
+          "temporal_pair_count": 60
+        },
+        "absrel": 0.3080438366452746,
+        "delta1": 0.35920322963169643,
+        "temporal_gradient_error": 0.2952046648994248,
+        "boundary_temporal_error": 0.4608345496710505,
+        "scale_drift_error": 0.12547572385423264,
+        "param_count_M": 0.0,
+        "video_training_frames_M": 0.0,
+        "affine_scale": 1.0,
+        "affine_shift": 0.0,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/shortcut_constant_zero_resources/synthetic_long_video_128/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_128/ground_truth.npz"
+      }
+    }
+  },
+  "synthetic_long_video_256": {
+    "slice": "test",
+    "split": {
+      "block_size": 16,
+      "block_parity": 1
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "test",
+        "split": {
+          "block_size": 16,
+          "block_parity": 1,
+          "boundary_stride": 32,
+          "boundary_parity": 1,
+          "frame_count": 128,
+          "temporal_pair_count": 120
+        },
+        "absrel": 0.30784101541868836,
+        "delta1": 0.359710693359375,
+        "temporal_gradient_error": 0.1459513536029102,
+        "boundary_temporal_error": 0.21378146512731686,
+        "scale_drift_error": 0.1262746078136653,
+        "param_count_M": 0.0,
+        "video_training_frames_M": 0.0,
+        "affine_scale": 1.0,
+        "affine_shift": 0.0,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/shortcut_constant_zero_resources/synthetic_long_video_256/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_256/ground_truth.npz"
+      }
+    }
+  },
+  "synthetic_long_video_128_input518": {
+    "slice": "test",
+    "split": {
+      "block_size": 16,
+      "block_parity": 1
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "test",
+        "split": {
+          "block_size": 16,
+          "block_parity": 1,
+          "boundary_stride": 32,
+          "boundary_parity": 1,
+          "frame_count": 64,
+          "temporal_pair_count": 60
+        },
+        "absrel": 0.3080438366452746,
+        "delta1": 0.35920322963169643,
+        "temporal_gradient_error": 0.2952046648994248,
+        "boundary_temporal_error": 0.4608345496710505,
+        "scale_drift_error": 0.12547572385423264,
+        "param_count_M": 0.0,
+        "video_training_frames_M": 0.0,
+        "affine_scale": 1.0,
+        "affine_shift": 0.0,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/shortcut_constant_zero_resources/synthetic_long_video_128_input518/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_128/ground_truth.npz"
+      }
+    }
+  },
+  "synthetic_long_video_256_input518": {
+    "slice": "test",
+    "split": {
+      "block_size": 16,
+      "block_parity": 1
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "test",
+        "split": {
+          "block_size": 16,
+          "block_parity": 1,
+          "boundary_stride": 32,
+          "boundary_parity": 1,
+          "frame_count": 128,
+          "temporal_pair_count": 120
+        },
+        "absrel": 0.30784101541868836,
+        "delta1": 0.359710693359375,
+        "temporal_gradient_error": 0.1459513536029102,
+        "boundary_temporal_error": 0.21378146512731686,
+        "scale_drift_error": 0.1262746078136653,
+        "param_count_M": 0.0,
+        "video_training_frames_M": 0.0,
+        "affine_scale": 1.0,
+        "affine_shift": 0.0,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/shortcut_constant_zero_resources/synthetic_long_video_256_input518/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_256/ground_truth.npz"
+      }
+    }
+  }
+}

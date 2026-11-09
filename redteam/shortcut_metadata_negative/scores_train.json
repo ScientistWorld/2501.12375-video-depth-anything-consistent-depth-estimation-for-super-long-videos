@@ -1,0 +1,56 @@
+{
+  "experiments": {
+    "synthetic_long_video_128": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.12343691937391935,
+          "delta1": 0.8406049455915179,
+          "temporal_gradient_error": 0.315168949214551,
+          "boundary_temporal_error": 0.3314989136538708,
+          "scale_drift_error": 0.04419719739186247,
+          "param_count_M": -1000000.0,
+          "video_training_frames_M": -1000000.0
+        }
+      }
+    },
+    "synthetic_long_video_256": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.12498128271898773,
+          "delta1": 0.8319998604910714,
+          "temporal_gradient_error": 0.24986120518763263,
+          "boundary_temporal_error": 0.5658486810411885,
+          "scale_drift_error": 0.02855124001883376,
+          "param_count_M": -1000000.0,
+          "video_training_frames_M": -1000000.0
+        }
+      }
+    },
+    "synthetic_long_video_128_input518": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.13807993223584888,
+          "delta1": 0.80186767578125,
+          "temporal_gradient_error": 0.21547151327766556,
+          "boundary_temporal_error": 0.35802885303850635,
+          "scale_drift_error": 0.03778463007912228,
+          "param_count_M": -1000000.0,
+          "video_training_frames_M": -1000000.0
+        }
+      }
+    },
+    "synthetic_long_video_256_input518": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.1392075903032995,
+          "delta1": 0.797100830078125,
+          "temporal_gradient_error": 0.14539291974848564,
+          "boundary_temporal_error": 0.19227226032828237,
+          "scale_drift_error": 0.03292579881419544,
+          "param_count_M": -1000000.0,
+          "video_training_frames_M": -1000000.0
+        }
+      }
+    }
+  }
+}

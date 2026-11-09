@@ -1,0 +1,10 @@
+{
+  "scored_reference_metrics_at_bound": [],
+  "seed_rank_improvements": [
+    -0.0008467990154872364,
+    -0.0008467990154872364,
+    -0.0008467990154872364
+  ],
+  "seed_rank_range": 0.0,
+  "seed_note": "Seeds control inference RNG, not data or a nonexistent training run."
+}

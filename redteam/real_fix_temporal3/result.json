@@ -1,0 +1,53 @@
+{
+  "case": "real_fix_temporal3",
+  "seed": 0,
+  "candidate_name": "vda_oi_kr",
+  "test_command": [
+    "bash",
+    "scripts/evaluate_test.sh"
+  ],
+  "method_returncode": 0,
+  "train_returncode": 0,
+  "test_returncode": 0,
+  "rank_improvement": 0.050107314784706834,
+  "weighted_metric_contributions": {
+    "synthetic_long_video_128": {
+      "temporal_gradient_error": 0.011692598022007769,
+      "boundary_temporal_error": 0.018431216508896692,
+      "absrel": -3.945365657769817e-05,
+      "scale_drift_error": 1.213377367897256e-05,
+      "delta1": -5.2751813616080945e-05,
+      "param_count_M": -0.0,
+      "video_training_frames_M": -0.0
+    },
+    "synthetic_long_video_256": {
+      "temporal_gradient_error": 0.012158893949541588,
+      "boundary_temporal_error": 0.010455103966754678,
+      "absrel": -1.7320765116884963e-05,
+      "scale_drift_error": 9.792877768508707e-06,
+      "delta1": -3.4604753766737106e-05,
+      "param_count_M": -0.0,
+      "video_training_frames_M": -0.0
+    },
+    "synthetic_long_video_128_input518": {
+      "temporal_gradient_error": 0.002149813853615387,
+      "boundary_temporal_error": -0.011178115019241494,
+      "absrel": -3.2634931794550684e-05,
+      "scale_drift_error": 1.0064003267319307e-05,
+      "delta1": -4.643031529018293e-05,
+      "param_count_M": -0.0,
+      "video_training_frames_M": -0.0
+    },
+    "synthetic_long_video_256_input518": {
+      "temporal_gradient_error": 0.0037803393923364487,
+      "boundary_temporal_error": 0.0028385786981390596,
+      "absrel": -1.543552315255159e-05,
+      "scale_drift_error": 2.038706849224331e-06,
+      "delta1": -1.6512189592629567e-05,
+      "param_count_M": -0.0,
+      "video_training_frames_M": -0.0
+    }
+  },
+  "elapsed_seconds": 7.120755672454834,
+  "protected_evaluator_unchanged": true
+}

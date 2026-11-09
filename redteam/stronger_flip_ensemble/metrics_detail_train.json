@@ -1,0 +1,126 @@
+{
+  "synthetic_long_video_128": {
+    "slice": "train",
+    "split": {
+      "block_size": 16,
+      "block_parity": 0
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "train",
+        "split": {
+          "block_size": 16,
+          "block_parity": 0,
+          "boundary_stride": 32,
+          "boundary_parity": 0,
+          "frame_count": 64,
+          "temporal_pair_count": 60
+        },
+        "absrel": 0.12219233811605272,
+        "delta1": 0.8346409388950893,
+        "temporal_gradient_error": 0.289074375182195,
+        "boundary_temporal_error": 0.3709126601562366,
+        "scale_drift_error": 0.043413682992576114,
+        "param_count_M": 28.4,
+        "video_training_frames_M": 0.55,
+        "affine_scale": 0.06641135698604557,
+        "affine_shift": 0.07515516778364087,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/stronger_flip_ensemble/synthetic_long_video_128/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_128/ground_truth.npz"
+      }
+    }
+  },
+  "synthetic_long_video_256": {
+    "slice": "train",
+    "split": {
+      "block_size": 16,
+      "block_parity": 0
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "train",
+        "split": {
+          "block_size": 16,
+          "block_parity": 0,
+          "boundary_stride": 32,
+          "boundary_parity": 0,
+          "frame_count": 128,
+          "temporal_pair_count": 120
+        },
+        "absrel": 0.12356425174125252,
+        "delta1": 0.8315355573381696,
+        "temporal_gradient_error": 0.2227558426317799,
+        "boundary_temporal_error": 0.41721869492769464,
+        "scale_drift_error": 0.028924108096011515,
+        "param_count_M": 28.4,
+        "video_training_frames_M": 0.55,
+        "affine_scale": 0.06700211003330492,
+        "affine_shift": 0.07608489243235206,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/stronger_flip_ensemble/synthetic_long_video_256/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_256/ground_truth.npz"
+      }
+    }
+  },
+  "synthetic_long_video_128_input518": {
+    "slice": "train",
+    "split": {
+      "block_size": 16,
+      "block_parity": 0
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "train",
+        "split": {
+          "block_size": 16,
+          "block_parity": 0,
+          "boundary_stride": 32,
+          "boundary_parity": 0,
+          "frame_count": 64,
+          "temporal_pair_count": 60
+        },
+        "absrel": 0.13729298865205303,
+        "delta1": 0.8036385672433036,
+        "temporal_gradient_error": 0.20397988973810613,
+        "boundary_temporal_error": 0.30661328255231995,
+        "scale_drift_error": 0.03804376122762295,
+        "param_count_M": 28.4,
+        "video_training_frames_M": 0.55,
+        "affine_scale": 0.039117156854379866,
+        "affine_shift": 0.12584017822957239,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/stronger_flip_ensemble/synthetic_long_video_128_input518/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_128/ground_truth.npz"
+      }
+    }
+  },
+  "synthetic_long_video_256_input518": {
+    "slice": "train",
+    "split": {
+      "block_size": 16,
+      "block_parity": 0
+    },
+    "results": {
+      "vda_oi_kr": {
+        "slice": "train",
+        "split": {
+          "block_size": 16,
+          "block_parity": 0,
+          "boundary_stride": 32,
+          "boundary_parity": 0,
+          "frame_count": 128,
+          "temporal_pair_count": 120
+        },
+        "absrel": 0.13831579004915684,
+        "delta1": 0.7986576625279018,
+        "temporal_gradient_error": 0.13407167019914998,
+        "boundary_temporal_error": 0.15524410417453774,
+        "scale_drift_error": 0.03349815754834555,
+        "param_count_M": 28.4,
+        "video_training_frames_M": 0.55,
+        "affine_scale": 0.039376315905702106,
+        "affine_shift": 0.12917711837094936,
+        "artifact_path": "/home/user/method/outputs/redteam_audit/stronger_flip_ensemble/synthetic_long_video_256_input518/vda_oi_kr.npz",
+        "gt_path": "data/synthetic_video_256/ground_truth.npz"
+      }
+    }
+  }
+}

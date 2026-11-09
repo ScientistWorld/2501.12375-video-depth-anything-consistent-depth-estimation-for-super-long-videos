@@ -1,0 +1,14 @@
+{
+  "synthetic_long_video_128": {
+    "max_depth_difference": 0.0
+  },
+  "synthetic_long_video_256": {
+    "max_depth_difference": 0.0
+  },
+  "synthetic_long_video_128_input518": {
+    "max_depth_difference": 0.0
+  },
+  "synthetic_long_video_256_input518": {
+    "max_depth_difference": 0.0
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "experiments": {
+    "synthetic_long_video_128": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.0,
+          "delta1": 1.0,
+          "temporal_gradient_error": 0.0,
+          "boundary_temporal_error": 0.0,
+          "scale_drift_error": 0.0,
+          "param_count_M": 0.0,
+          "video_training_frames_M": 0.0
+        }
+      }
+    },
+    "synthetic_long_video_256": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.0,
+          "delta1": 1.0,
+          "temporal_gradient_error": 0.0,
+          "boundary_temporal_error": 0.0,
+          "scale_drift_error": 0.0,
+          "param_count_M": 0.0,
+          "video_training_frames_M": 0.0
+        }
+      }
+    },
+    "synthetic_long_video_128_input518": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.0,
+          "delta1": 1.0,
+          "temporal_gradient_error": 0.0,
+          "boundary_temporal_error": 0.0,
+          "scale_drift_error": 0.0,
+          "param_count_M": 0.0,
+          "video_training_frames_M": 0.0
+        }
+      }
+    },
+    "synthetic_long_video_256_input518": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.0,
+          "delta1": 1.0,
+          "temporal_gradient_error": 0.0,
+          "boundary_temporal_error": 0.0,
+          "scale_drift_error": 0.0,
+          "param_count_M": 0.0,
+          "video_training_frames_M": 0.0
+        }
+      }
+    }
+  }
+}
