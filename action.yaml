@@ -1,8 +1,8 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: pending
-gpus: 0
+action: submit
+gpus: 1
 test: false
 milestone: core_claim_plus
-notes: ""
+notes: "Hardening check: hidden-test (rendered in eval/test, predictors run on hidden frames) + train reference/baseline runs, then variants and shortcuts through the same hidden-test evaluator, rank analysis, validate.py"

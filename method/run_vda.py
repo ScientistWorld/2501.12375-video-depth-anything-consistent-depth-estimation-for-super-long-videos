@@ -52,7 +52,7 @@ def _infer_independent_windows(model: VideoDepthAnything, frames: np.ndarray, in
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--video-dir", default="data/synthetic_video")
+    parser.add_argument("--video-dir", default="data/train_videos/seed101", help="directory with frames/*.png (see data/synthetic_rgbd.py)")
     parser.add_argument("--output", default="method/outputs/vda_oi_kr.npz")
     parser.add_argument("--checkpoint", default="data/downloads/video_depth_anything_vits.pth")
     parser.add_argument("--mode", choices=["oi_kr", "independent_windows"], default="oi_kr")

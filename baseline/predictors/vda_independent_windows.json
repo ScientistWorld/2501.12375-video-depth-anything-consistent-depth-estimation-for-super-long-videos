@@ -1,0 +1,4 @@
+{
+  "description": "Same VDA-S checkpoint, but every 32-frame window is processed independently and the window outputs are concatenated (no cross-window stabilisation), 518-pixel input, fp32.",
+  "command": ["python", "method/predict_vda.py", "--mode", "independent_windows", "--input-size", "518"]
+}

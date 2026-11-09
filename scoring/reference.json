@@ -1,44 +1,56 @@
 {
+  "_note": "Paper: Video Depth Anything (arXiv 2501.12375). Scaled setup: released VDA-S checkpoint (inference only, no retraining) on hidden procedurally rendered RGB-D corridor videos with exact poses. Paper-reported numbers are kept unchanged below; numbers that have no counterpart in this setup are under keys starting with '_'.",
+  "_paper_reported_other": {
+    "vda_s_param_count_M": 28.4,
+    "video_training_frames_M": 0.55,
+    "vda_s_latency_ms_per_frame_a100_fp32": 9.1,
+    "table5_oa_window16": {
+      "absrel": 0.146,
+      "delta1": 0.845,
+      "tae": 0.792
+    },
+    "table5_oi_window16": {
+      "absrel": 0.157,
+      "delta1": 0.826,
+      "tae": 0.783
+    },
+    "table5_oi_kr_window16": {
+      "absrel": 0.145,
+      "delta1": 0.849,
+      "tae": 0.761
+    },
+    "table5_oi_kr_window48": {
+      "absrel": 0.143,
+      "delta1": 0.852,
+      "tae": 0.732
+    },
+    "_why_not_scored": "Parameter count and training-data size cannot be verified from a predictor's outputs, and latency is wall-clock; they are documented constraints (scoring/CONSTRAINTS.md), not scored metrics."
+  },
   "experiments": {
-    "synthetic_long_video_128": {
-      "description": "Scaled 128-frame RGB-D benchmark for Video Depth Anything. Paper reference values are from the VDA-S inference-strategy ablation in Table 5; reproduced scores are computed on the local synthetic benchmark.",
-      "weight": 0.25,
-      "primary_metric": "absrel",
+    "long_video_500": {
+      "description": "Long-video depth on 500-frame hidden corridor videos (the paper's long-video evaluation length). results hold the paper's Table 5 inference-strategy ablation for VDA-S (Baseline = independent windows, window 16; OI+KR = overlap interpolation + key-frame referencing, window 32), means over the paper's real video benchmarks with up to 500 frames. This gym measures the same metrics (same alignment protocol and TAE definition) on procedurally rendered corridor videos, so absolute values are not expected to match; the comparable quantity is the direction of the difference between the two strategies.",
+      "weight": 0.6,
+      "primary_metric": "delta1",
       "metrics": {
-        "temporal_gradient_error": {
-          "higher_is_better": false,
-          "coefficient": -1.0,
-          "description": "Mean selected-frame temporal gradient mismatch against RGB-D ground truth; lower values indicate steadier video depth."
-        },
-        "boundary_temporal_error": {
-          "higher_is_better": false,
-          "coefficient": -0.9,
-          "description": "Temporal gradient mismatch on held-out 32-frame window boundaries, catching stitching shortcuts that look smooth inside windows."
-        },
         "absrel": {
           "higher_is_better": false,
-          "coefficient": -0.8,
-          "description": "Absolute relative depth error after one global inverse-depth affine alignment."
-        },
-        "scale_drift_error": {
-          "higher_is_better": false,
-          "coefficient": -0.5,
-          "description": "Change in median log depth bias between early and late selected frames, penalizing long-video scale drift."
+          "coefficient": -1.0,
+          "description": "Mean absolute relative depth error after one least-squares scale/shift alignment of predicted inverse depth to ground-truth inverse depth shared by the whole video (paper protocol); evaluated on pixels with depth in [0.2, 20]."
         },
         "delta1": {
           "higher_is_better": true,
-          "coefficient": 0.5,
-          "description": "Fraction of aligned depth pixels within a 1.25 relative-error threshold."
+          "coefficient": 1.0,
+          "description": "Fraction of evaluated pixels whose aligned depth is within a factor 1.25 of ground truth (same single per-video alignment)."
         },
-        "param_count_M": {
+        "tae": {
           "higher_is_better": false,
-          "coefficient": -0.2,
-          "description": "Model parameter count in millions, included as a resource constraint."
+          "coefficient": -1.0,
+          "description": "Temporal Alignment Error (paper Eq. 5, x100): aligned depth of each frame is reprojected into the next frame (and back) with the ground-truth camera motion and compared to that frame's aligned depth by AbsRel, averaged over consecutive pairs and both directions."
         },
-        "video_training_frames_M": {
+        "scale_drift": {
           "higher_is_better": false,
-          "coefficient": -0.2,
-          "description": "Video depth training frames in millions, included as a data-budget constraint."
+          "coefficient": -0.5,
+          "description": "Temporal standard deviation (x100) of the per-frame median log ratio between aligned predicted depth and ground truth: scale jumps between windows and slow scale drift over a long video both raise it."
         }
       },
       "results": {
@@ -46,59 +58,40 @@
           "type": "baseline",
           "absrel": 0.157,
           "delta1": 0.826,
-          "temporal_gradient_error": 0.874,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
+          "tae": 0.874
         },
         "vda_oi_kr": {
           "type": "proposed",
           "absrel": 0.144,
           "delta1": 0.851,
-          "temporal_gradient_error": 0.718,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
+          "tae": 0.718
         }
       }
     },
-    "synthetic_long_video_256": {
-      "description": "Scaled 256-frame RGB-D benchmark for Video Depth Anything, testing the same claim over more inference windows. Paper reference values are from the VDA-S inference-strategy ablation in Table 5.",
-      "weight": 0.25,
-      "primary_metric": "absrel",
+    "super_long_video_1500": {
+      "description": "Super-long-video depth on 1500-frame hidden corridor videos, where the scene at the end shares nothing with the start, so scale must be carried across ~70 inference windows. The paper reports no numbers at this length (Fig. 7 is qualitative); results repeat the Table 5 values for orientation only. results hold the paper's Table 5 inference-strategy ablation for VDA-S (Baseline = independent windows, window 16; OI+KR = overlap interpolation + key-frame referencing, window 32), means over the paper's real video benchmarks with up to 500 frames. This gym measures the same metrics (same alignment protocol and TAE definition) on procedurally rendered corridor videos, so absolute values are not expected to match; the comparable quantity is the direction of the difference between the two strategies.",
+      "weight": 0.4,
+      "primary_metric": "delta1",
       "metrics": {
-        "temporal_gradient_error": {
-          "higher_is_better": false,
-          "coefficient": -1.0,
-          "description": "Mean selected-frame temporal gradient mismatch against RGB-D ground truth; lower values indicate steadier video depth."
-        },
-        "boundary_temporal_error": {
-          "higher_is_better": false,
-          "coefficient": -0.9,
-          "description": "Temporal gradient mismatch on held-out 32-frame window boundaries, catching stitching shortcuts that look smooth inside windows."
-        },
         "absrel": {
           "higher_is_better": false,
-          "coefficient": -0.8,
-          "description": "Absolute relative depth error after one global inverse-depth affine alignment."
-        },
-        "scale_drift_error": {
-          "higher_is_better": false,
-          "coefficient": -0.5,
-          "description": "Change in median log depth bias between early and late selected frames, penalizing long-video scale drift."
+          "coefficient": -1.0,
+          "description": "Mean absolute relative depth error after one least-squares scale/shift alignment of predicted inverse depth to ground-truth inverse depth shared by the whole video (paper protocol); evaluated on pixels with depth in [0.2, 20]."
         },
         "delta1": {
           "higher_is_better": true,
-          "coefficient": 0.5,
-          "description": "Fraction of aligned depth pixels within a 1.25 relative-error threshold."
+          "coefficient": 1.0,
+          "description": "Fraction of evaluated pixels whose aligned depth is within a factor 1.25 of ground truth (same single per-video alignment)."
         },
-        "param_count_M": {
+        "tae": {
           "higher_is_better": false,
-          "coefficient": -0.2,
-          "description": "Model parameter count in millions, included as a resource constraint."
+          "coefficient": -1.0,
+          "description": "Temporal Alignment Error (paper Eq. 5, x100): aligned depth of each frame is reprojected into the next frame (and back) with the ground-truth camera motion and compared to that frame's aligned depth by AbsRel, averaged over consecutive pairs and both directions."
         },
-        "video_training_frames_M": {
+        "scale_drift": {
           "higher_is_better": false,
-          "coefficient": -0.2,
-          "description": "Video depth training frames in millions, included as a data-budget constraint."
+          "coefficient": -0.5,
+          "description": "Temporal standard deviation (x100) of the per-frame median log ratio between aligned predicted depth and ground truth: scale jumps between windows and slow scale drift over a long video both raise it."
         }
       },
       "results": {
@@ -106,137 +99,13 @@
           "type": "baseline",
           "absrel": 0.157,
           "delta1": 0.826,
-          "temporal_gradient_error": 0.874,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
+          "tae": 0.874
         },
         "vda_oi_kr": {
           "type": "proposed",
           "absrel": 0.144,
           "delta1": 0.851,
-          "temporal_gradient_error": 0.718,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        }
-      }
-    },
-    "synthetic_long_video_128_input518": {
-      "description": "128-frame RGB-D benchmark at the paper's default 518-pixel inference size. Paper reference values are from the same VDA-S inference-strategy ablation in Table 5.",
-      "weight": 0.25,
-      "primary_metric": "absrel",
-      "metrics": {
-        "temporal_gradient_error": {
-          "higher_is_better": false,
-          "coefficient": -1.0,
-          "description": "Mean selected-frame temporal gradient mismatch against RGB-D ground truth; lower values indicate steadier video depth."
-        },
-        "boundary_temporal_error": {
-          "higher_is_better": false,
-          "coefficient": -0.9,
-          "description": "Temporal gradient mismatch on held-out 32-frame window boundaries, catching stitching shortcuts that look smooth inside windows."
-        },
-        "absrel": {
-          "higher_is_better": false,
-          "coefficient": -0.8,
-          "description": "Absolute relative depth error after one global inverse-depth affine alignment."
-        },
-        "scale_drift_error": {
-          "higher_is_better": false,
-          "coefficient": -0.5,
-          "description": "Change in median log depth bias between early and late selected frames, penalizing long-video scale drift."
-        },
-        "delta1": {
-          "higher_is_better": true,
-          "coefficient": 0.5,
-          "description": "Fraction of aligned depth pixels within a 1.25 relative-error threshold."
-        },
-        "param_count_M": {
-          "higher_is_better": false,
-          "coefficient": -0.2,
-          "description": "Model parameter count in millions, included as a resource constraint."
-        },
-        "video_training_frames_M": {
-          "higher_is_better": false,
-          "coefficient": -0.2,
-          "description": "Video depth training frames in millions, included as a data-budget constraint."
-        }
-      },
-      "results": {
-        "vda_independent_windows": {
-          "type": "baseline",
-          "absrel": 0.157,
-          "delta1": 0.826,
-          "temporal_gradient_error": 0.874,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        },
-        "vda_oi_kr": {
-          "type": "proposed",
-          "absrel": 0.144,
-          "delta1": 0.851,
-          "temporal_gradient_error": 0.718,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        }
-      }
-    },
-    "synthetic_long_video_256_input518": {
-      "description": "256-frame RGB-D benchmark at the paper's default 518-pixel inference size, stressing additional window transitions under the paper-size preprocessing.",
-      "weight": 0.25,
-      "primary_metric": "absrel",
-      "metrics": {
-        "temporal_gradient_error": {
-          "higher_is_better": false,
-          "coefficient": -1.0,
-          "description": "Mean selected-frame temporal gradient mismatch against RGB-D ground truth; lower values indicate steadier video depth."
-        },
-        "boundary_temporal_error": {
-          "higher_is_better": false,
-          "coefficient": -0.9,
-          "description": "Temporal gradient mismatch on held-out 32-frame window boundaries, catching stitching shortcuts that look smooth inside windows."
-        },
-        "absrel": {
-          "higher_is_better": false,
-          "coefficient": -0.8,
-          "description": "Absolute relative depth error after one global inverse-depth affine alignment."
-        },
-        "scale_drift_error": {
-          "higher_is_better": false,
-          "coefficient": -0.5,
-          "description": "Change in median log depth bias between early and late selected frames, penalizing long-video scale drift."
-        },
-        "delta1": {
-          "higher_is_better": true,
-          "coefficient": 0.5,
-          "description": "Fraction of aligned depth pixels within a 1.25 relative-error threshold."
-        },
-        "param_count_M": {
-          "higher_is_better": false,
-          "coefficient": -0.2,
-          "description": "Model parameter count in millions, included as a resource constraint."
-        },
-        "video_training_frames_M": {
-          "higher_is_better": false,
-          "coefficient": -0.2,
-          "description": "Video depth training frames in millions, included as a data-budget constraint."
-        }
-      },
-      "results": {
-        "vda_independent_windows": {
-          "type": "baseline",
-          "absrel": 0.157,
-          "delta1": 0.826,
-          "temporal_gradient_error": 0.874,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
-        },
-        "vda_oi_kr": {
-          "type": "proposed",
-          "absrel": 0.144,
-          "delta1": 0.851,
-          "temporal_gradient_error": 0.718,
-          "param_count_M": 28.4,
-          "video_training_frames_M": 0.55
+          "tae": 0.718
         }
       }
     }

@@ -1,13 +1,14 @@
 #!/bin/bash
-# Visible train-slice artifact evaluator.
+# Visible train evaluator, same predictor contract and metrics as the test.
 #
-# Mirrors scripts/evaluate.sh's method-facing contract:
-#   bash scripts/evaluate_train.sh
-#   bash scripts/evaluate_train.sh method_name
-#   bash scripts/evaluate_train.sh custom_method=path/to/predictions.npz
+#   bash scripts/evaluate_train.sh                 # every registered predictor
+#   bash scripts/evaluate_train.sh --only NAME     # one predictor
+#   bash scripts/evaluate_train.sh --predictor-root my/extra/manifests
 #
-# The script reads existing prediction artifacts and writes
-# scoring/scores_train.json. It does not run or import method code.
+# Renders the visible train videos with data/synthetic_rgbd.py, runs every
+# predictor registered under method/predictors/*.json and
+# baseline/predictors/*.json, and writes scoring/scores_train.json plus
+# scoring/metrics_detail_train.json (always from scratch).
 
 set -euo pipefail
 

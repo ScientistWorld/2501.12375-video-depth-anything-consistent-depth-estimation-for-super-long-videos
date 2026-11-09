@@ -1,38 +1,20 @@
 #!/bin/bash
-# Run a baseline method from the paper.
+# Run and score the independent-window baseline on the visible train videos.
 #
-# Baselines are simple reference methods the paper compares against. 
-# Implement this only if applicable, i.e. the paper has baselines.
-# You do not need to implement all baselines to begin — 
-# just enough to validate that the evaluation pipeline works 
-# and provide a reference point. You can decide to expand more baselines later.
-# Each baseline must be actually run and scored through evaluate.sh
-# so the numbers are verified, not self-reported.
-# You can decide what this baseline script should do yourself.
+#   bash scripts/baseline.sh [vda_independent_windows]
 #
-# Usage:
-#   bash scripts/baseline.sh <name>
+# The baseline is registered in baseline/predictors/vda_independent_windows.json:
+# the same VDA-S checkpoint processes every 32-frame window on its own.
 
 set -euo pipefail
 
 cd /home/user
 
 name="${1:-vda_independent_windows}"
-if [ "$name" != "vda_independent_windows" ]; then
+if [ ! -f "baseline/predictors/${name}.json" ]; then
   echo "Unknown baseline: $name" >&2
   exit 2
 fi
 
-experiment="${VDA_EXPERIMENT:-synthetic_long_video_128}"
-video_dir="${VDA_VIDEO_DIR:-data/synthetic_video_128}"
-artifact="${VDA_BASELINE_ARTIFACT:-baseline/outputs/${experiment}/vda_independent_windows.npz}"
-
-python data/synthetic_rgbd.py --output "$video_dir" --frames "${VDA_SYNTH_FRAMES:-128}" --height 112 --width 160 --seed 7
-python method/run_vda.py \
-  --video-dir "$video_dir" \
-  --output "$artifact" \
-  --checkpoint data/downloads/video_depth_anything_vits.pth \
-  --mode independent_windows \
-  --input-size "${VDA_INPUT_SIZE:-252}"
-
-VDA_EXPERIMENT="$experiment" VDA_GT="$video_dir/ground_truth.npz" VDA_BASELINE_ARTIFACT="$artifact" bash scripts/evaluate.sh vda_independent_windows
+bash scripts/evaluate_train.sh --only "$name" --output "scoring/scores_${name}_train.json" \
+  --detail-output "scoring/metrics_detail_${name}_train.json"

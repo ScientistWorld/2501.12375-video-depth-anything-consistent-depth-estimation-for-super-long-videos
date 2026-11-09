@@ -1,36 +1,26 @@
 #!/bin/bash
-# Reproduce the paper's results end-to-end.
+# Reproduce the reference end to end (inference only; the released VDA-S
+# checkpoint is used, nothing is retrained).
 #
-# This script runs inside the compute container and should call
-# scripts/baseline.sh and scripts/method.sh to run baselines and
-# the paper's method, each of which calls scripts/evaluate.sh.
+#   1. visible train split  -> scoring/scores_train.json (+ scoring/scores.json)
+#   2. hidden test split    -> scoring/scores_test.json
 #
-# Assumes:
-#   - Container is built (environment/container.sif)
-#   - Data and models are downloaded (via scripts/download.sh)
-#   - Working directory is /home/user
-#
-# This is the "gold standard" reproduction — 
-# You do not need to run this, but keep this in good shape
-# so other agents can easily run a full loop of reproduction and get the paper's numbers.
+# Both evaluators render their videos, run every registered predictor
+# (method/predictors/vda_oi_kr.json and
+# baseline/predictors/vda_independent_windows.json) and score the outputs.
+# Requires data/downloads/video_depth_anything_vits.pth (scripts/download.sh).
 
 set -euo pipefail
 
 cd /home/user
 
-rm -rf baseline/outputs method/outputs
-rm -f scoring/scores.json scoring/metrics_detail.json
-export VDA_APPEND_SCORES=1
+test -f data/downloads/video_depth_anything_vits.pth || {
+  echo "Missing checkpoint; run scripts/download.sh on a node with internet." >&2
+  exit 1
+}
 
-for frames in 128 256; do
-  export VDA_SYNTH_FRAMES="$frames"
-  export VDA_EXPERIMENT="synthetic_long_video_${frames}"
-  export VDA_VIDEO_DIR="data/synthetic_video_${frames}"
-  export VDA_BASELINE_ARTIFACT="baseline/outputs/${VDA_EXPERIMENT}/vda_independent_windows.npz"
-  export VDA_METHOD_ARTIFACT="method/outputs/${VDA_EXPERIMENT}/vda_oi_kr.npz"
-  export VDA_GT="${VDA_VIDEO_DIR}/ground_truth.npz"
-
-  bash scripts/baseline.sh vda_independent_windows
-  bash scripts/method.sh
-  bash scripts/evaluate.sh vda_independent_windows vda_oi_kr
-done
+bash scripts/evaluate_train.sh
+cp scoring/scores_train.json scoring/scores.json
+cp scoring/metrics_detail_train.json scoring/metrics_detail.json
+bash scripts/evaluate_test.sh
+python validate.py --compare

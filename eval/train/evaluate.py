@@ -1,280 +1,375 @@
-"""Visible train-slice evaluator for artifact-only video-depth benchmarks."""
+"""Visible train evaluator for long-video depth estimation.
+
+Renders the visible train videos with ``data/synthetic_rgbd.py`` (seeds below),
+hands their RGB frames to every registered predictor, and scores the returned
+predictions against the rendered ground truth. It uses the same predictor
+contract and the same metric definitions as the held-out test, on different
+scenes of the same family.
+
+A predictor is registered by a JSON manifest ``<root>/<name>.json`` with a
+``command`` list; the default roots are ``method/predictors`` and
+``baseline/predictors``. The evaluator runs ``command + ["--jobs", jobs.json]``
+from the workspace root (contract in briefing/evaluation.md).
+
+Every number in the output is recomputed here from the raw predictions; the
+output file is always written from scratch.
+"""
 
 from __future__ import annotations
 
 import argparse
 import json
-import os
-import re
+import shutil
+import subprocess
+import sys
+import time
+import uuid
 from pathlib import Path
 
 import numpy as np
 
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from data.synthetic_rgbd import render_video  # noqa: E402
+DEFAULT_ROOTS = ("method/predictors", "baseline/predictors")
 
-SLICE = "train"
-BLOCK_SIZE = 16
-BLOCK_PARITY = 0
-SEARCH_ROOTS = (
-    Path("baseline/outputs"),
-    Path("method/outputs"),
-    Path("checkpoints/outputs"),
-    Path("outputs"),
-)
-METRIC_KEYS = (
-    "absrel",
-    "delta1",
-    "temporal_gradient_error",
-    "boundary_temporal_error",
-    "scale_drift_error",
-    "param_count_M",
-    "video_training_frames_M",
-)
-BOUNDARY_STRIDE = 32
-BOUNDARY_PARITY = 0
-DEFAULT_PARAM_COUNT_M = 28.4
-DEFAULT_VIDEO_TRAINING_FRAMES_M = 0.55
+# Visible train set: experiment -> frames per video and scene seeds.
+EXPERIMENTS = {
+    "long_video_500": {"frames": 500, "seeds": [101, 102, 103, 104]},
+    "super_long_video_1500": {"frames": 1500, "seeds": [201, 202]},
+}
+METRICS = ("absrel", "delta1", "tae", "scale_drift")
+
+# Evaluation depth range (pixels outside are ignored, as with max_depth_eval).
+D_MIN = 0.2
+D_MAX = 20.0
+# Validity caps: a run whose mean temporal error or scale drift reaches these
+# values does not produce usable video depth and is scored as failed.
+TAE_CAP = 30.0
+DRIFT_CAP = 50.0
+DEFAULT_TIMEOUT = 4 * 3600
 
 
-def _selected_frames(frame_count: int) -> np.ndarray:
-    frames = np.arange(frame_count)
-    return ((frames // BLOCK_SIZE) % 2) == BLOCK_PARITY
+# --------------------------------------------------------------------------- metrics
 
 
-def _align_inverse_prediction(pred: np.ndarray, gt_depth: np.ndarray, frame_mask: np.ndarray):
-    slice_mask = frame_mask[:, None, None]
-    mask = np.isfinite(pred) & np.isfinite(gt_depth) & (pred > 0) & (gt_depth > 0) & slice_mask
-    if not np.any(mask):
-        raise ValueError("No valid pixels in selected train slice")
-    target_inv = 1.0 / np.clip(gt_depth, 1e-6, None)
-    x = pred[mask].reshape(-1)
-    y = target_inv[mask].reshape(-1)
-    a00 = float(np.dot(x, x))
-    a01 = float(np.sum(x))
-    a11 = float(x.size)
-    b0 = float(np.dot(x, y))
-    b1 = float(np.sum(y))
-    det = a00 * a11 - a01 * a01
-    if abs(det) < 1e-12:
-        scale, shift = 1.0, 0.0
-    else:
-        scale = (a11 * b0 - a01 * b1) / det
-        shift = (-a01 * b0 + a00 * b1) / det
-    aligned_inv = np.maximum(scale * pred + shift, 1e-6)
-    return 1.0 / aligned_inv, mask, scale, shift
+def _align(pred: np.ndarray, gt: np.ndarray, valid: np.ndarray) -> tuple[float, float, int]:
+    """Least-squares scale/shift of the predicted inverse depth to GT inverse depth,
+    shared by every frame of the video (paper protocol)."""
+    sxx = sx = sxy = sy = 0.0
+    n = 0
+    for t in range(gt.shape[0]):
+        m = valid[t]
+        if not m.any():
+            continue
+        x = pred[t][m].astype(np.float64)
+        y = 1.0 / gt[t][m].astype(np.float64)
+        sxx += float(x @ x)
+        sx += float(x.sum())
+        sxy += float(x @ y)
+        sy += float(y.sum())
+        n += x.size
+    if n == 0:
+        raise ValueError("no valid ground-truth pixels")
+    det = sxx * n - sx * sx
+    if det <= 1e-9 * max(sxx * n, 1e-300):
+        return 0.0, sy / n, n  # constant prediction: best constant fit
+    return (n * sxy - sx * sy) / det, (sxx * sy - sx * sxy) / det, n
 
 
-def _depth_metrics(pred_depth: np.ndarray, gt_depth: np.ndarray, mask: np.ndarray):
-    pred = pred_depth[mask]
-    gt = gt_depth[mask]
-    absrel = float(np.mean(np.abs(pred - gt) / np.maximum(gt, 1e-6)))
-    ratio = np.maximum(pred / np.maximum(gt, 1e-6), gt / np.maximum(pred, 1e-6))
-    delta1 = float(np.mean(ratio < 1.25))
-    return absrel, delta1
+def _aligned_depth(pred_t: np.ndarray, scale: float, shift: float) -> np.ndarray:
+    inv = np.maximum(scale * pred_t.astype(np.float64) + shift, 1e-3)
+    return np.clip(1.0 / inv, 1e-3, D_MAX)
 
 
-def _temporal_gradient_error(pred_depth: np.ndarray, gt_depth: np.ndarray, frame_mask: np.ndarray):
-    pair_mask = frame_mask[1:] & frame_mask[:-1]
-    finite = np.isfinite(pred_depth[1:]) & np.isfinite(pred_depth[:-1]) & np.isfinite(gt_depth[1:]) & np.isfinite(gt_depth[:-1])
-    pred_grad = np.abs(np.diff(pred_depth, axis=0))
-    gt_grad = np.abs(np.diff(gt_depth, axis=0))
-    stable = gt_grad < (0.05 * (np.max(gt_depth) - np.min(gt_depth)))
-    valid = finite & stable & pair_mask[:, None, None]
-    if not np.any(valid):
-        raise ValueError("No valid temporal pairs in selected train slice")
-    return float(np.mean(np.abs(pred_grad[valid] - gt_grad[valid]) / np.maximum(gt_depth[:-1][valid], 1e-6)) * 100.0)
+def _reproj_absrel(src, dst, rel, K, valid_src, valid_dst):
+    """AbsRel between dst depth and src depth reprojected into dst (one TAE term)."""
+    h, w = src.shape
+    vs, us = np.nonzero(valid_src)
+    if vs.size == 0:
+        return None
+    z = src[vs, us]
+    x = (us - K[0, 2]) / K[0, 0] * z
+    y = (vs - K[1, 2]) / K[1, 1] * z
+    p = rel[:3, :3] @ np.stack([x, y, z]) + rel[:3, 3:4]
+    keep = p[2] > 1e-6
+    if not keep.any():
+        return None
+    zp = p[2][keep]
+    u2 = np.round(K[0, 0] * p[0][keep] / zp + K[0, 2]).astype(np.int64)
+    v2 = np.round(K[1, 1] * p[1][keep] / zp + K[1, 2]).astype(np.int64)
+    inb = (u2 >= 0) & (u2 < w) & (v2 >= 0) & (v2 < h)
+    if not inb.any():
+        return None
+    proj = np.full(h * w, np.inf)
+    np.minimum.at(proj, v2[inb] * w + u2[inb], zp[inb])
+    tgt = dst.reshape(-1)
+    m = np.isfinite(proj) & valid_dst.reshape(-1)
+    if not m.any():
+        return None
+    return float(np.mean(np.abs(tgt[m] - proj[m]) / tgt[m]))
 
 
-def _boundary_temporal_error(pred_depth: np.ndarray, gt_depth: np.ndarray):
-    starts = np.arange(BOUNDARY_STRIDE, pred_depth.shape[0], BOUNDARY_STRIDE)
-    starts = starts[(np.arange(starts.size) % 2) == BOUNDARY_PARITY]
-    if starts.size == 0:
-        raise ValueError("No train boundary pairs available for boundary temporal error")
-    prev = starts - 1
-    finite = (
-        np.isfinite(pred_depth[starts])
-        & np.isfinite(pred_depth[prev])
-        & np.isfinite(gt_depth[starts])
-        & np.isfinite(gt_depth[prev])
-    )
-    pred_jump = np.abs(pred_depth[starts] - pred_depth[prev])
-    gt_jump = np.abs(gt_depth[starts] - gt_depth[prev])
-    stable = gt_jump < (0.05 * (np.max(gt_depth) - np.min(gt_depth)))
-    valid = finite & stable
-    if not np.any(valid):
-        raise ValueError("No valid train boundary pixels for boundary temporal error")
-    return float(np.mean(np.abs(pred_jump[valid] - gt_jump[valid]) / np.maximum(gt_depth[prev][valid], 1e-6)) * 100.0)
+def score_video(pred: np.ndarray, video: dict, temporal: bool = True) -> dict:
+    gt = video["depth"]
+    valid = video["valid"]
+    K = video["K"]
+    poses = video["poses"]
+    scale, shift, n = _align(pred, gt, valid)
+    abs_sum = 0.0
+    d1_count = 0
+    bias = []
+    tae_sum = 0.0
+    tae_n = 0
+    prev = None
+    for t in range(gt.shape[0]):
+        dep = _aligned_depth(pred[t], scale, shift)
+        m = valid[t]
+        if m.any():
+            g = gt[t][m].astype(np.float64)
+            d = dep[m]
+            abs_sum += float(np.sum(np.abs(d - g) / g))
+            d1_count += int(np.count_nonzero(np.maximum(d / g, g / d) < 1.25))
+            bias.append(float(np.median(np.log(d) - np.log(g))))
+        if temporal and prev is not None:
+            fwd = np.linalg.inv(poses[t]) @ poses[t - 1]
+            for err in (
+                _reproj_absrel(prev, dep, fwd, K, valid[t - 1], valid[t]),
+                _reproj_absrel(dep, prev, np.linalg.inv(fwd), K, valid[t], valid[t - 1]),
+            ):
+                if err is not None:
+                    tae_sum += err
+                    tae_n += 1
+        prev = dep
+    out = {"absrel": abs_sum / n, "delta1": d1_count / n, "affine_scale": scale, "affine_shift": shift}
+    if temporal:
+        out["tae"] = 100.0 * tae_sum / max(tae_n, 1)
+        out["scale_drift"] = 100.0 * float(np.std(bias)) if bias else float("nan")
+    return out
 
 
-def _scale_drift_error(pred_depth: np.ndarray, gt_depth: np.ndarray, frame_mask: np.ndarray):
-    selected = np.flatnonzero(frame_mask)
-    if selected.size < 4:
-        raise ValueError("Too few selected train frames for scale drift error")
-    chunk = max(1, selected.size // 4)
-    early = selected[:chunk]
-    late = selected[-chunk:]
-    valid = np.isfinite(pred_depth) & np.isfinite(gt_depth) & (pred_depth > 0) & (gt_depth > 0)
-    log_ratio = np.full(pred_depth.shape, np.nan, dtype=np.float64)
-    log_ratio[valid] = np.log(pred_depth[valid] / gt_depth[valid])
-    early_bias = np.nanmedian(log_ratio[early], axis=(1, 2))
-    late_bias = np.nanmedian(log_ratio[late], axis=(1, 2))
-    return float(abs(np.nanmean(late_bias) - np.nanmean(early_bias)))
+# --------------------------------------------------------------------------- data
 
 
-def _metadata_metrics(prediction_path: Path):
-    meta_path = prediction_path.with_suffix(".json")
-    param_count = DEFAULT_PARAM_COUNT_M
-    training_frames = DEFAULT_VIDEO_TRAINING_FRAMES_M
-    if meta_path.exists():
-        with meta_path.open("r", encoding="utf-8") as f:
-            metadata = json.load(f)
-        param_count = float(metadata.get("param_count_M", param_count))
-        training_frames = float(metadata.get("video_training_frames_M", training_frames))
-    return param_count, training_frames
+def render_train_set() -> list[dict]:
+    videos = []
+    for exp, cfg in EXPERIMENTS.items():
+        for seed in cfg["seeds"]:
+            t0 = time.time()
+            v = render_video(seed, cfg["frames"])
+            v["valid"] = (v["depth"] >= D_MIN) & (v["depth"] <= D_MAX)
+            v["experiment"] = exp
+            v["id"] = f"video_{len(videos):03d}"
+            videos.append(v)
+            print(f"[train] rendered {v['id']} ({cfg['frames']} frames) in {time.time() - t0:.1f}s", flush=True)
+    return videos
 
 
-def evaluate_artifact(prediction_path: Path, gt_path: Path):
-    pred = np.load(prediction_path)["prediction"].astype(np.float64)
-    gt_depth = np.load(gt_path)["depth"].astype(np.float64)
-    if pred.shape != gt_depth.shape:
-        raise ValueError(f"Prediction shape {pred.shape} does not match GT shape {gt_depth.shape}")
-    frame_mask = _selected_frames(pred.shape[0])
-    aligned, spatial_mask, scale, shift = _align_inverse_prediction(pred, gt_depth, frame_mask)
-    absrel, delta1 = _depth_metrics(aligned, gt_depth, spatial_mask)
-    tge = _temporal_gradient_error(aligned, gt_depth, frame_mask)
-    boundary_tge = _boundary_temporal_error(aligned, gt_depth)
-    drift = _scale_drift_error(aligned, gt_depth, frame_mask)
-    param_count, training_frames = _metadata_metrics(prediction_path)
-    return {
-        "slice": SLICE,
-        "split": {
-            "block_size": BLOCK_SIZE,
-            "block_parity": BLOCK_PARITY,
-            "boundary_stride": BOUNDARY_STRIDE,
-            "boundary_parity": BOUNDARY_PARITY,
-            "frame_count": int(frame_mask.sum()),
-            "temporal_pair_count": int(np.sum(frame_mask[1:] & frame_mask[:-1])),
-        },
-        "absrel": absrel,
-        "delta1": delta1,
-        "temporal_gradient_error": tge,
-        "boundary_temporal_error": boundary_tge,
-        "scale_drift_error": drift,
-        "param_count_M": param_count,
-        "video_training_frames_M": training_frames,
-        "affine_scale": float(scale),
-        "affine_shift": float(shift),
-        "artifact_path": str(prediction_path),
-        "gt_path": str(gt_path),
-    }
+def reference_levels(videos: list[dict]) -> dict:
+    """Image-agnostic static template (per-pixel mean GT inverse depth, the best
+    prediction that ignores frame content) and the exact-GT floor."""
+    levels = {}
+    for v in videos:
+        inv = np.where(v["valid"], 1.0 / np.maximum(v["depth"], 1e-6), 0.0).astype(np.float64)
+        cnt = v["valid"].sum(axis=0)
+        tmpl = np.where(cnt > 0, inv.sum(axis=0) / np.maximum(cnt, 1), inv.sum() / max(cnt.sum(), 1))
+        static = np.broadcast_to(tmpl.astype(np.float32), v["depth"].shape)
+        exact = (1.0 / np.maximum(v["depth"], 1e-6)).astype(np.float32)
+        levels[v["id"]] = {
+            "static_template": score_video(static, v, temporal=False),
+            "exact_ground_truth": score_video(exact, v, temporal=True),
+        }
+    return levels
 
 
-def _reference_experiments() -> list[str]:
-    ref_path = Path("scoring/reference.json")
-    if ref_path.exists():
-        with ref_path.open("r", encoding="utf-8") as f:
-            ref = json.load(f)
-        return list(ref.get("experiments", {}).keys())
-    experiments = set()
-    for root in SEARCH_ROOTS:
-        if root.exists():
-            experiments.update(path.parent.name for path in root.glob("*/*.npz"))
-    return sorted(experiments)
+# --------------------------------------------------------------------------- predictors
 
 
-def _infer_gt_path(experiment: str, explicit_gt: str | None, experiment_count: int) -> Path:
-    if explicit_gt and experiment_count == 1:
-        return Path(explicit_gt)
-    match = re.search(r"synthetic_long_video_(\d+)", experiment)
-    if match:
-        return Path(f"data/synthetic_video_{match.group(1)}/ground_truth.npz")
-    return Path("data") / experiment / "ground_truth.npz"
-
-
-def _artifact_candidates(experiment: str, name: str) -> list[Path]:
-    return [root / experiment / f"{name}.npz" for root in SEARCH_ROOTS]
-
-
-def _discover_artifacts(experiment: str) -> dict[str, Path]:
-    found: dict[str, Path] = {}
-    for root in SEARCH_ROOTS:
-        for path in sorted((root / experiment).glob("*.npz")):
-            found.setdefault(path.stem, path)
+def discover(roots: list[str]) -> dict:
+    found: dict[str, dict] = {}
+    for root in roots:
+        base = (ROOT / root) if not Path(root).is_absolute() else Path(root)
+        for path in sorted(base.glob("*.json")):
+            name = path.stem
+            if name.startswith("_") or name in found:
+                continue
+            entry = {"manifest": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)}
+            try:
+                cmd = json.loads(path.read_text()).get("command")
+                if not (isinstance(cmd, list) and cmd and all(isinstance(c, str) for c in cmd)):
+                    raise ValueError("'command' must be a non-empty list of strings")
+                entry["command"] = cmd
+            except Exception as exc:  # malformed manifest -> failed run
+                entry["error"] = f"invalid manifest: {exc}"
+            found[name] = entry
     return found
 
 
-def _resolve_requested_artifacts(experiment: str, requested: list[str]) -> dict[str, Path]:
-    if not requested:
-        return _discover_artifacts(experiment)
-    resolved: dict[str, Path] = {}
-    for item in requested:
-        if "=" in item:
-            name, raw_path = item.split("=", 1)
-            path = Path(raw_path.format(experiment=experiment, exp=experiment))
-            if path.exists():
-                resolved[name] = path
-            continue
-        for candidate in _artifact_candidates(experiment, item):
-            if candidate.exists():
-                resolved[item] = candidate
-                break
-        else:
-            raise FileNotFoundError(f"No artifact found for method '{item}' in experiment '{experiment}'")
-    return resolved
+def load_prediction(path: Path, shape: tuple) -> np.ndarray:
+    if not path.is_file():
+        raise ValueError("prediction file missing")
+    data = np.load(path, allow_pickle=False)
+    if not hasattr(data, "files") or "prediction" not in data.files:
+        raise ValueError("expected an .npz with a 'prediction' array")
+    arr = np.asarray(data["prediction"])
+    if arr.shape != tuple(shape):
+        raise ValueError(f"prediction shape {arr.shape} != expected {tuple(shape)}")
+    if not (np.issubdtype(arr.dtype, np.floating) or np.issubdtype(arr.dtype, np.integer)):
+        raise ValueError(f"prediction dtype {arr.dtype} is not real-valued")
+    arr = arr.astype(np.float32)
+    if not np.all(np.isfinite(arr)):
+        raise ValueError("prediction contains NaN or infinite values")
+    return arr
 
 
-def _metric_subset(values: dict[str, object]) -> dict[str, float]:
-    return {key: float(values[key]) for key in METRIC_KEYS}
+def run_predictor(name: str, entry: dict, videos: list[dict], scratch: Path, timeout: int) -> dict:
+    """Run one predictor on all train videos and return per-video metrics or an error."""
+    if "error" in entry:
+        return {"error": entry["error"]}
+    inputs = scratch / "inputs"
+    shutil.rmtree(inputs, ignore_errors=True)
+    inputs.mkdir(parents=True)
+    outputs = scratch / "outputs" / name
+    shutil.rmtree(outputs, ignore_errors=True)
+    outputs.mkdir(parents=True)
+    jobs = []
+    for v in videos:
+        frames_path = inputs / f"{v['id']}.npy"
+        np.save(frames_path, v["rgb"])
+        t, h, w = v["depth"].shape
+        jobs.append({"id": v["id"], "frames": str(frames_path), "fps": int(v["fps"]), "num_frames": t,
+                     "height": h, "width": w, "output": str(outputs / f"{v['id']}.npz")})
+    jobs_path = scratch / f"jobs_{name}.json"
+    jobs_path.write_text(json.dumps({"videos": jobs}, indent=1))
+    log_path = scratch / f"{name}.log"
+    t0 = time.time()
+    try:
+        with log_path.open("w") as log:
+            rc = subprocess.run(entry["command"] + ["--jobs", str(jobs_path)], cwd=ROOT, stdout=log,
+                                stderr=subprocess.STDOUT, timeout=timeout).returncode
+    except subprocess.TimeoutExpired:
+        rc = "timeout"
+    except Exception as exc:
+        rc = f"could not start: {exc}"
+    elapsed = time.time() - t0
+    tail = log_path.read_text(errors="replace").splitlines()[-15:] if log_path.exists() else []
+    print(f"[train] predictor {name}: exit={rc} after {elapsed:.0f}s", flush=True)
+    for line in tail:
+        print(f"    | {line[-200:]}", flush=True)
+    if rc != 0:
+        shutil.rmtree(outputs, ignore_errors=True)
+        return {"error": f"predictor exited with {rc}"}
+    per_video = {}
+    try:
+        for v in videos:
+            pred = load_prediction(outputs / f"{v['id']}.npz", v["depth"].shape)
+            per_video[v["id"]] = score_video(pred, v)
+            del pred
+    except Exception as exc:
+        return {"error": f"{v['id']}: {exc}"}
+    finally:
+        shutil.rmtree(outputs, ignore_errors=True)
+    return {"per_video": per_video}
+
+
+# --------------------------------------------------------------------------- aggregation
+
+
+def _mean(rows: list[dict], key: str) -> float:
+    return float(np.mean([r[key] for r in rows]))
+
+
+def aggregate(name: str, run: dict, videos: list[dict], levels: dict, gates: dict):
+    by_exp = {exp: [v["id"] for v in videos if v["experiment"] == exp] for exp in EXPERIMENTS}
+    reasons = []
+    means = {}
+    if "error" in run:
+        reasons.append(run["error"])
+    else:
+        for exp, ids in by_exp.items():
+            rows = [run["per_video"][i] for i in ids]
+            means[exp] = {m: _mean(rows, m) for m in METRICS}
+            g = gates[exp]
+            if not all(np.isfinite(list(means[exp].values()))):
+                reasons.append(f"{exp}: non-finite metric")
+                continue
+            if not means[exp]["absrel"] < g["absrel"]:
+                reasons.append(f"{exp}: absrel {means[exp]['absrel']:.4f} is not below the static-template level {g['absrel']:.4f}")
+            if not means[exp]["delta1"] > g["delta1"]:
+                reasons.append(f"{exp}: delta1 {means[exp]['delta1']:.4f} is not above the static-template level {g['delta1']:.4f}")
+            if not means[exp]["tae"] < g["tae"]:
+                reasons.append(f"{exp}: tae {means[exp]['tae']:.3f} reaches the cap {g['tae']}")
+            if not means[exp]["scale_drift"] < g["scale_drift"]:
+                reasons.append(f"{exp}: scale_drift {means[exp]['scale_drift']:.3f} reaches the cap {g['scale_drift']}")
+    failed = bool(reasons)
+    scores = {exp: (dict(gates[exp]) if failed else means[exp]) for exp in EXPERIMENTS}
+    status = {"status": "failed" if failed else "ok"}
+    if failed:
+        status["reasons"] = reasons
+    return scores, status, means
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("methods", nargs="*", help="Method names or name=/path/to/predictions.npz entries.")
-    parser.add_argument("--experiment", action="append", default=[])
-    parser.add_argument("--gt", default=os.environ.get("VDA_GT"))
     parser.add_argument("--output", default="scoring/scores_train.json")
     parser.add_argument("--detail-output", default="scoring/metrics_detail_train.json")
+    parser.add_argument("--predictor-root", action="append", default=[], help="extra manifest directory")
+    parser.add_argument("--no-default-roots", action="store_true")
+    parser.add_argument("--only", action="append", default=[], help="score only these predictor names")
+    parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT)
     args = parser.parse_args()
 
-    experiments = args.experiment or ([os.environ["VDA_EXPERIMENT"]] if os.environ.get("VDA_EXPERIMENT") else _reference_experiments())
-    output_path = Path(args.output)
-    detail_path = Path(args.detail_output)
-    scores = {"experiments": {}}
-    if output_path.exists():
-        with output_path.open("r", encoding="utf-8") as f:
-            scores = json.load(f)
-    details = {}
-    if detail_path.exists():
-        with detail_path.open("r", encoding="utf-8") as f:
-            details = json.load(f)
+    roots = ([] if args.no_default_roots else list(DEFAULT_ROOTS)) + args.predictor_root
+    predictors = discover(roots)
+    if args.only:
+        predictors = {k: v for k, v in predictors.items() if k in set(args.only)}
+    if not predictors:
+        raise SystemExit("No predictor manifests found under " + ", ".join(roots))
+    print(f"[train] predictors: {', '.join(predictors)}", flush=True)
 
-    scored_any = False
-    for experiment in experiments:
-        artifacts = _resolve_requested_artifacts(experiment, args.methods)
-        if not artifacts:
-            continue
-        gt_path = _infer_gt_path(experiment, args.gt, len(experiments))
-        experiment_details = {
-            "slice": SLICE,
-            "split": {"block_size": BLOCK_SIZE, "block_parity": BLOCK_PARITY},
-            "results": {},
-        }
-        experiment_scores = {}
-        for name, artifact in artifacts.items():
-            metrics = evaluate_artifact(artifact, gt_path)
-            experiment_details["results"][name] = metrics
-            experiment_scores[name] = _metric_subset(metrics)
-        scores.setdefault("experiments", {})[experiment] = {"results": experiment_scores}
-        details[experiment] = experiment_details
-        scored_any = True
+    scratch = ROOT / "tmp" / f"eval_train_{uuid.uuid4().hex[:12]}"
+    scratch.mkdir(parents=True)
+    try:
+        videos = render_train_set()
+        levels = reference_levels(videos)
+        gates, level_summary = {}, {}
+        for exp in EXPERIMENTS:
+            ids = [v["id"] for v in videos if v["experiment"] == exp]
+            st = [levels[i]["static_template"] for i in ids]
+            ex = [levels[i]["exact_ground_truth"] for i in ids]
+            gates[exp] = {"absrel": _mean(st, "absrel"), "delta1": _mean(st, "delta1"),
+                          "tae": TAE_CAP, "scale_drift": DRIFT_CAP}
+            level_summary[exp] = {"static_template": {m: _mean(st, m) for m in ("absrel", "delta1")},
+                                  "exact_ground_truth": {m: _mean(ex, m) for m in METRICS}}
+        scores = {"experiments": {exp: {"results": {}} for exp in EXPERIMENTS}, "_status": {}}
+        detail = {"experiments": {exp: {"frames_per_video": EXPERIMENTS[exp]["frames"],
+                                        "videos": len(EXPERIMENTS[exp]["seeds"]),
+                                        "failure_values": gates[exp], "levels": level_summary[exp],
+                                        "results": {}} for exp in EXPERIMENTS},
+                  "per_video_levels": levels}
+        for name, entry in predictors.items():
+            run = run_predictor(name, entry, videos, scratch, args.timeout)
+            exp_scores, status, means = aggregate(name, run, videos, levels, gates)
+            scores["_status"][name] = status
+            for exp in EXPERIMENTS:
+                scores["experiments"][exp]["results"][name] = exp_scores[exp]
+                ids = [v["id"] for v in videos if v["experiment"] == exp]
+                detail["experiments"][exp]["results"][name] = {
+                    "status": status["status"],
+                    "unfailed_mean": means.get(exp),
+                    "per_video": {i: run["per_video"][i] for i in ids} if "per_video" in run else None,
+                }
+            print(f"[train] {name}: {json.dumps(status)} {json.dumps({e: exp_scores[e] for e in EXPERIMENTS})}",
+                  flush=True)
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
 
-    if not scored_any:
-        raise SystemExit("No prediction artifacts found for train-slice evaluation.")
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(scores, f, indent=2)
-    with detail_path.open("w", encoding="utf-8") as f:
-        json.dump(details, f, indent=2)
+    out = ROOT / args.output
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(scores, indent=2))
+    det = ROOT / args.detail_output
+    det.parent.mkdir(parents=True, exist_ok=True)
+    det.write_text(json.dumps(detail, indent=1))
     print(json.dumps(scores, indent=2))
 
 

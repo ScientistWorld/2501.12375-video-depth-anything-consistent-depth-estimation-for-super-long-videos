@@ -28,4 +28,4 @@ if [ ! -f data/downloads/video_depth_anything_vits.pth ]; then
     -P data/downloads/
 fi
 
-echo "Checkpoint ready. Synthetic RGB-D videos are generated inside the container by scripts/baseline.sh and scripts/method.sh."
+echo "Checkpoint ready. Train videos are rendered on the fly by data/synthetic_rgbd.py; test videos are rendered inside eval/test/ at test time."

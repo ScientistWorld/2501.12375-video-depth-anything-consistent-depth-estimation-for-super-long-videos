@@ -1,0 +1,4 @@
+{
+  "description": "Video Depth Anything (VDA-S checkpoint) with the paper's long-video inference: overlap interpolation + key-frame referencing, 518-pixel input, fp32.",
+  "command": ["python", "method/predict_vda.py", "--mode", "oi_kr", "--input-size", "518"]
+}

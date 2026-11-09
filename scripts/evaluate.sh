@@ -1,25 +1,13 @@
 #!/bin/bash
-# Evaluation script — the standard way to evaluate work in this environment.
+# Standard evaluation entry point: scores every registered predictor on the
+# visible train videos and writes scoring/scores.json.
 #
-# This script must be SELF-CONTAINED using only code in eval/.
-# Do NOT import from method/ — evaluate.sh must work even when the
-# paper's method code is hidden from a scientist agent.
+#   bash scripts/evaluate.sh                 # every predictor on disk
+#   bash scripts/evaluate.sh --only NAME     # a single predictor
 #
-# Design it so that anyone following the same output format can run
-# this script to evaluate their results.
-#
-# OUTPUT CONTRACT: This script MUST write scoring/scores.json containing
-# a JSON dict nested by experiment, e.g.:
-#   {"imagenet_classification": {"top1_accuracy": 82.1, "top5_accuracy": 94.8}}
-# Experiment and metric names must match the keys in scoring/reference.json.
-# This file is read by the system for automated comparison.
-#
-# Example usage:
-#   ./evaluate.sh <method_and_run_name>
-#   ./evaluate.sh vda_oi_kr custom_method=path/to/predictions.npz
-#   VDA_APPEND_SCORES=1 ./evaluate.sh vda_oi_kr
-#
-# Called from run.sh after training, or independently.
+# A predictor is any command registered with a JSON manifest in
+# method/predictors/ or baseline/predictors/ (contract: briefing/evaluation.md).
+# Evaluation code lives in eval/ and never imports method/.
 
 set -euo pipefail
 
@@ -27,46 +15,7 @@ cd /home/user
 
 mkdir -p scoring
 
-args=()
-methods=("$@")
-experiment="${VDA_EXPERIMENT:-synthetic_long_video_128}"
-gt_path="${VDA_GT:-data/synthetic_video_128/ground_truth.npz}"
-if [ "${#methods[@]}" -eq 0 ]; then
-  methods=(vda_independent_windows vda_oi_kr)
-fi
-
-for method in "${methods[@]}"; do
-  if [[ "$method" == *=* ]]; then
-    name="${method%%=*}"
-    artifact="${method#*=}"
-  else
-    name="$method"
-    case "$method" in
-      vda_independent_windows)
-        artifact="${VDA_BASELINE_ARTIFACT:-baseline/outputs/${experiment}/vda_independent_windows.npz}"
-        ;;
-      vda_oi_kr)
-        artifact="${VDA_METHOD_ARTIFACT:-method/outputs/${experiment}/vda_oi_kr.npz}"
-        ;;
-      *)
-        echo "Unknown evaluation method: $method" >&2
-        echo "Use name=/path/to/predictions.npz for custom artifacts." >&2
-        exit 2
-        ;;
-    esac
-  fi
-  if [ -f "$artifact" ]; then
-    args+=(--prediction "$name" "$artifact")
-  fi
-done
-
-if [ "${#args[@]}" -eq 0 ]; then
-  echo "No requested prediction artifacts found. Run scripts/baseline.sh or scripts/method.sh first." >&2
-  exit 1
-fi
-
-if [ "${VDA_APPEND_SCORES:-0}" = "1" ]; then
-  args+=(--append)
-fi
-
-python eval/metrics.py "${args[@]}" --gt "$gt_path" --output scoring/scores.json --experiment "$experiment"
+python eval/train/evaluate.py \
+  --output scoring/scores.json \
+  --detail-output scoring/metrics_detail.json \
+  "$@"

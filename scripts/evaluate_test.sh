@@ -1,9 +1,13 @@
 #!/bin/bash
-# Held-out test-slice artifact evaluator.
+# Hidden test evaluator. Run with no arguments:
 #
-# Mirrors scripts/evaluate.sh's method-facing contract while defaulting to
-# every method entry present in scoring/scores_train.json. The script reads
-# existing prediction artifacts and writes scoring/scores_test.json.
+#   bash scripts/evaluate_test.sh
+#
+# Renders the hidden test videos inside eval/test/, runs every predictor
+# registered under method/predictors/*.json and baseline/predictors/*.json on
+# their RGB frames, recomputes every metric from the raw predictions, and writes
+# scoring/scores_test.json (always from scratch) plus
+# scoring/metrics_detail_test.json. Needs no training; inference only.
 
 set -euo pipefail
 
@@ -14,6 +18,4 @@ mkdir -p scoring
 python eval/test/evaluate.py \
   --output scoring/scores_test.json \
   --detail-output scoring/metrics_detail_test.json \
-  --train-scores scoring/scores_train.json \
-  --train-detail scoring/metrics_detail_train.json \
   "$@"

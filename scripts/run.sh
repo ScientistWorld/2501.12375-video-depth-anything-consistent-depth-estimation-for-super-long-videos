@@ -1,66 +1,44 @@
 #!/bin/bash
-# Example job script submitted via the end-of-turn YAML block.
-#
-# This runs inside the compute container with:
-#   - Your workspace mounted at /home/user
-#   - GPU(s) available
-#   - No internet access
-#
-# Make sure all data, code, and dependencies are already in the
-# workspace or baked into the container before submitting.
+# Hardening job: reproduce the reference on the fixed gym, then audit it.
+#   1. stale/forged score files are planted, then the hidden test runs with no
+#      arguments (official scoring/scores_test.json) and the plant is checked
+#   2. visible train split (official scoring/scores_train.json / scores.json)
+#   3. audit: variants and shortcuts through the same hidden-test evaluator
+#   4. rank analysis + validate.py
 
-set -euo pipefail
+set -uo pipefail
 
 cd /home/user
 
-rm -f \
-  scoring/scores.json \
-  scoring/metrics_detail.json \
-  scoring/scores_train.json \
-  scoring/scores_test.json \
-  scoring/metrics_detail_train.json \
-  scoring/metrics_detail_test.json
+LOG=tmp/hardening_logs
+mkdir -p "$LOG"
+nvidia-smi -L 2>/dev/null || echo "no GPU visible"
+test -f data/downloads/video_depth_anything_vits.pth || { echo "missing checkpoint" >&2; exit 1; }
 
-for exp in \
-  synthetic_long_video_128 \
-  synthetic_long_video_256 \
-  synthetic_long_video_128_input518 \
-  synthetic_long_video_256_input518
-do
-  gt_exp="${exp%_input518}"
-  VDA_APPEND_SCORES=1 \
-  VDA_EXPERIMENT="$exp" \
-  VDA_GT="data/${gt_exp}/ground_truth.npz" \
-  bash scripts/evaluate.sh vda_independent_windows vda_oi_kr
-done
+start=$(date +%s)
+python redteam/hardening/forge_scores.py write
+bash scripts/evaluate_test.sh > "$LOG/official_test.log" 2>&1
+test_rc=$?
+echo "official test rc=$test_rc after $(( $(date +%s) - start ))s"
+grep -E "^\[test\]" "$LOG/official_test.log" | tail -n 40
+python redteam/hardening/forge_scores.py check
 
-bash scripts/evaluate_train.sh
-bash scripts/evaluate_test.sh
+bash scripts/evaluate_train.sh > "$LOG/official_train.log" 2>&1
+train_rc=$?
+echo "official train rc=$train_rc after $(( $(date +%s) - start ))s"
+grep -E "^\[train\]" "$LOG/official_train.log" | tail -n 20
+cp scoring/scores_train.json scoring/scores.json
+cp scoring/metrics_detail_train.json scoring/metrics_detail.json
 
-python - <<'PY'
-import json
-from pathlib import Path
+python eval/test/evaluate.py \
+  --predictor-root redteam/hardening/predictors \
+  --output redteam/hardening/audit_scores_test.json \
+  --detail-output redteam/hardening/audit_detail_test.json > "$LOG/audit_test.log" 2>&1
+audit_rc=$?
+echo "audit rc=$audit_rc after $(( $(date +%s) - start ))s"
+grep -E "^\[test\]" "$LOG/audit_test.log" | tail -n 80
 
-train = json.loads(Path("scoring/scores_train.json").read_text())
-test = json.loads(Path("scoring/scores_test.json").read_text())
-
-train_exps = set(train.get("experiments", {}))
-test_exps = set(test.get("experiments", {}))
-if train_exps != test_exps:
-    raise SystemExit(f"experiment mismatch: train={sorted(train_exps)} test={sorted(test_exps)}")
-
-metric_count = 0
-for exp in sorted(train_exps):
-    train_methods = set(train["experiments"][exp].get("results", {}))
-    test_methods = set(test["experiments"][exp].get("results", {}))
-    if train_methods != test_methods:
-        raise SystemExit(f"method mismatch for {exp}: train={sorted(train_methods)} test={sorted(test_methods)}")
-    for scores in train["experiments"][exp]["results"].values():
-        metric_count += len(scores)
-    for scores in test["experiments"][exp]["results"].values():
-        metric_count += len(scores)
-
-print(f"Split scoring complete: {len(train_exps)} experiments, {metric_count} train+test metric values.")
-PY
-
+python redteam/hardening/analyze.py
 python validate.py --compare
+echo "done after $(( $(date +%s) - start ))s (test=$test_rc train=$train_rc audit=$audit_rc)"
+[ "$test_rc" -eq 0 ] && [ "$train_rc" -eq 0 ]
