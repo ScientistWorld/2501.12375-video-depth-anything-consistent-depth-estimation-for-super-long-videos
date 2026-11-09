@@ -1,5 +1,8 @@
 # Benchmark audit harness
 
+Completed results: [REDTEAM.md](../REDTEAM.md). Job `2eb74ca0-118` executed all
+23 cases. Rebuild the lightweight JSON summary with `python redteam/report.py`.
+
 Run `bash redteam/batch.sh` in a scheduled GPU job. Each case has its own
 `run.sh`, installs its candidate as `method/audit_candidate.py`, writes real
 prediction artifacts, runs the visible train evaluator, and invokes exactly

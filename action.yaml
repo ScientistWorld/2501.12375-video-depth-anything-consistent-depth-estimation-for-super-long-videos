@@ -1,4 +1,8 @@
-action: submit
-gpus: 1
+# Once you set action to 'submit' or 'done', STOP immediately.
+# Do NOT sleep, poll, or wait for jobs. The system reads this file
+# only after your turn ends.
+action: pending
+gpus: 0
 test: false
-notes: "Benchmark audit: 3-seed reference, genuine stronger/weaker variants, and 14 artifact/scoring shortcut cases across four hidden-test experiments; restore after every case."
+milestone: core_claim_plus
+notes: ""

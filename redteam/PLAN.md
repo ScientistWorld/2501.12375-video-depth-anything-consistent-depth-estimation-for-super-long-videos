@@ -19,5 +19,12 @@ process, hashes the protected evaluator, and restores modified artifacts and
 scoring files after each case. The only temporary submission edits outside
 redteam are scripts/run.sh and action.yaml, as required by the scheduler.
 
-Pending: execute the bundle, assess quality ordering and noise, write REDTEAM.md,
-restore job control files, commit audit artifacts, signal done.
+Completed job `2eb74ca0-118` (exit 0): all 23 cases executed. The genuine
+variants move the rank in the expected direction; three inference seeds have
+zero observed spread. Seven shortcut cases strictly beat the reference,
+including a constant output with honest zero resources. See `../REDTEAM.md`,
+`summary.json`, `analysis.json`, and per-case score/rejection records.
+
+Final cleanup restores the temporary job script and new scheduler log files
+to the starting git state, preserves the audit artifacts, and writes the
+required done signal. Reproduction milestone is unchanged by this audit.

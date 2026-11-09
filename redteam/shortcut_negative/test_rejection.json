@@ -1,0 +1,6 @@
+{
+  "test_returncode": 1,
+  "rank_improvement": null,
+  "test_error": "ValueError: No valid pixels in selected test slice",
+  "note": "The hidden test loaded the planned candidate and rejected it; no test scores were emitted."
+}

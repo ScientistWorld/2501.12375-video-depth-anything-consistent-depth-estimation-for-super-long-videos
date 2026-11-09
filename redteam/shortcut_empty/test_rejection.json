@@ -1,0 +1,6 @@
+{
+  "test_returncode": 1,
+  "rank_improvement": null,
+  "test_error": "ValueError: Prediction shape (0, 112, 160) does not match GT shape (128, 112, 160)",
+  "note": "The hidden test loaded the planned candidate and rejected it; no test scores were emitted."
+}

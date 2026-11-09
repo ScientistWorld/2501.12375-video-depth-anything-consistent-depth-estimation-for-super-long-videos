@@ -1,0 +1,33 @@
+{
+  "start_commit": "497fe2720e7832240e31b44f258d47d6d21c02d6",
+  "original_artifacts_restored_byte_for_byte": {
+    "scoring/scores_train.json": true,
+    "scoring/scores_test.json": true,
+    "scoring/metrics_detail_train.json": true,
+    "scoring/metrics_detail_test.json": true,
+    "data/synthetic_video_128/ground_truth.npz": true,
+    "data/synthetic_video_256/ground_truth.npz": true,
+    "baseline/outputs/synthetic_long_video_128/vda_independent_windows.npz": true,
+    "baseline/outputs/synthetic_long_video_128/vda_independent_windows.json": true,
+    "baseline/outputs/synthetic_long_video_256/vda_independent_windows.npz": true,
+    "baseline/outputs/synthetic_long_video_256/vda_independent_windows.json": true,
+    "baseline/outputs/synthetic_long_video_128_input518/vda_independent_windows.npz": true,
+    "baseline/outputs/synthetic_long_video_128_input518/vda_independent_windows.json": true,
+    "baseline/outputs/synthetic_long_video_256_input518/vda_independent_windows.npz": true,
+    "baseline/outputs/synthetic_long_video_256_input518/vda_independent_windows.json": true
+  },
+  "protected_evaluator_hashes_match": {
+    "scripts/evaluate_test.sh": true,
+    "eval/metrics.py": true,
+    "eval/test/evaluate.py": true,
+    "eval/train/evaluate.py": true
+  },
+  "temporary_job_script_restored": true,
+  "new_scheduler_log_files_restored_to_start_state": true,
+  "remaining_changes_outside_audit_before_done_signal": [],
+  "preexisting_system_device_files_left_untouched": [
+    "README.md",
+    "manifest.json"
+  ],
+  "final_action_signal_exception": "action.yaml is set to done after this restoration check and commit."
+}
