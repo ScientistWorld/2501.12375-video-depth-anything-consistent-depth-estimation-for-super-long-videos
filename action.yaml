@@ -1,6 +1,8 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: done
+action: pending
+gpus: 0
+test: false
 milestone: core_claim_plus
-notes: "Hardened: hidden test videos rendered in eval/test and run through every registered predictor; paper TAE metric; validity gate; resources unscored. OI+KR beats independent windows on all 4 metrics (train+test); flip/bidirectional ensembles beat the reference; all shortcuts fail or tie. See HARDENING.md."
+notes: ""
