@@ -5,10 +5,11 @@
 #   bash scripts/evaluate_train.sh --only NAME     # one predictor
 #   bash scripts/evaluate_train.sh --predictor-root my/extra/manifests
 #
-# Renders the visible train videos with data/synthetic_rgbd.py, runs every
-# predictor registered under method/predictors/*.json and
-# baseline/predictors/*.json, and writes scoring/scores_train.json plus
-# scoring/metrics_detail_train.json (always from scratch).
+# Runs every predictor registered under method/predictors/*.json and
+# baseline/predictors/*.json on the visible train clips (data/train_clips.json,
+# real Bonn RGB-D Dynamic and KITTI videos in data/downloads/) and writes
+# scoring/scores_train.json plus scoring/metrics_detail_train.json (always from
+# scratch).
 
 set -euo pipefail
 

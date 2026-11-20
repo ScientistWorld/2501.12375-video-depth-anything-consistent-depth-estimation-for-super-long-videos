@@ -1,9 +1,9 @@
 #!/bin/bash
 # Run and score the paper's method (Video Depth Anything, OI+KR long-video
-# inference with the released VDA-S checkpoint) on the visible train videos.
+# inference with the released VDA-S checkpoint) on the visible train clips.
 #
 # The method is registered as a predictor in method/predictors/vda_oi_kr.json;
-# the evaluator renders the videos, calls method/predict_vda.py and scores it.
+# the evaluator hands it the RGB frames, calls method/predict_vda.py and scores it.
 
 set -euo pipefail
 

@@ -2,13 +2,13 @@
 # Reproduce the reference end to end (inference only; the released VDA-S
 # checkpoint is used, nothing is retrained).
 #
-#   1. visible train split  -> scoring/scores_train.json (+ scoring/scores.json)
-#   2. hidden test split    -> scoring/scores_test.json
+#   1. visible train clips  -> scoring/scores_train.json (+ scoring/scores.json)
+#   2. hidden test clips    -> scoring/scores_test.json
 #
-# Both evaluators render their videos, run every registered predictor
+# Both evaluators run every registered predictor
 # (method/predictors/vda_oi_kr.json and
-# baseline/predictors/vda_independent_windows.json) and score the outputs.
-# Requires data/downloads/video_depth_anything_vits.pth (scripts/download.sh).
+# baseline/predictors/vda_independent_windows.json) on real Bonn RGB-D Dynamic
+# and KITTI clips and score the outputs. Requires scripts/download.sh first.
 
 set -euo pipefail
 

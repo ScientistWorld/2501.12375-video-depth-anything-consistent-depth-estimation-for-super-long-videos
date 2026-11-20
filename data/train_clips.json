@@ -1,0 +1,107 @@
+{
+ "_note": "Clip list. bonn: Bonn RGB-D Dynamic sequence rgbd_bonn_<sequence>, frames [start, start+frames) in rgb.txt/depth.txt order (30 fps, 640x480). kitti: KITTI raw drive <drive>_sync, left colour camera image_02, raw frame indices [start, start+frames) (10 fps), depth from data_depth_annotated/<depth_split>. Fetched by data/fetch_clips.py. Visible train split.",
+ "videos": [
+  {
+   "id": "bonn_moving_nonobstructing_box",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "moving_nonobstructing_box",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_moving_obstructing_box",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "moving_obstructing_box",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_person_tracking",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "person_tracking",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_placing_nonobstructing_box",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "placing_nonobstructing_box",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_placing_nonobstructing_box2",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "placing_nonobstructing_box2",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_removing_nonobstructing_box2",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "removing_nonobstructing_box2",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110926_0086_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_26_drive_0086",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110926_0064_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_26_drive_0064",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110930_0020_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_30_drive_0020",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20111003_0042_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_10_03_drive_0042",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110930_0018_0005",
+   "experiment": "kitti_1500",
+   "dataset": "kitti",
+   "drive": "2011_09_30_drive_0018",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 1500
+  },
+  {
+   "id": "kitti_20110930_0033_0005",
+   "experiment": "kitti_1500",
+   "dataset": "kitti",
+   "drive": "2011_09_30_drive_0033",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 1500
+  }
+ ]
+}

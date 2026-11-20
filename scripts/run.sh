@@ -1,15 +1,16 @@
 #!/bin/bash
 # Job script: reproduce the reference end to end on the compute node.
 #
-#   visible train split -> scoring/scores_train.json (+ scoring/scores.json)
-#   hidden test split   -> scoring/scores_test.json
+#   visible train clips -> scoring/scores_train.json (+ scoring/scores.json)
+#   hidden test clips   -> scoring/scores_test.json
 #
 # Inference only (released VDA-S checkpoint); runs every registered predictor
-# (method/predictors/*.json, baseline/predictors/*.json). About 50 minutes on
-# one A100. The hardening audit is redteam/hardening/run_audit.sh.
+# (method/predictors/*.json, baseline/predictors/*.json) on real Bonn RGB-D
+# Dynamic and KITTI clips. Needs scripts/download.sh first and one GPU.
+# The iteration-12 hardening audit is redteam/hardening2/run_audit.sh.
 
 set -euo pipefail
 
 cd /home/user
 
-bash scripts/reproduce.sh
+bash redteam/hardening2/run_audit.sh

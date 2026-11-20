@@ -9,8 +9,8 @@ The paper, "Video Depth Anything: Consistent Depth Estimation for Super-Long Vid
 ## Implementation in this workspace
 
 - `method/official/`: the released Video Depth Anything code (`video_depth_anything/video_depth.py::infer_video_depth` implements OI+KR with `INFER_LEN=32`, `OVERLAP=10`, `KEYFRAMES=[0,12,...]`, `INTERP_LEN=8`).
-- `method/predict_vda.py`: predictor entry point (contract in `briefing/evaluation.md`); `--mode oi_kr` is the paper's inference, `--mode independent_windows` the no-stabilisation baseline. Both use the released VDA-S checkpoint (`data/downloads/video_depth_anything_vits.pth`, 28.4M parameters), 518-pixel input and fp32.
+- `method/predict_vda.py`: predictor entry point (contract in `briefing/evaluation.md`); `--mode oi_kr` is the paper's inference, `--mode independent_windows` the no-stabilisation baseline. Both use the released VDA-S checkpoint (`data/downloads/video_depth_anything_vits.pth`, 28.4M parameters), the paper's 518-pixel input (the official code lowers it for frames wider than 16:9, e.g. to 280 for KITTI) and fp32, run on the native-resolution frames, and submit the full-resolution output sampled on the evaluation grid.
 - `method/predictors/vda_oi_kr.json`, `baseline/predictors/vda_independent_windows.json`: the registered reference and baseline.
-- `method/run_vda.py`: model loading and the independent-window loop (also a small CLI for PNG frame folders).
+- `method/run_vda.py`: model loading and the independent-window loop.
 
 The checkpoint is used as released; nothing is retrained here.

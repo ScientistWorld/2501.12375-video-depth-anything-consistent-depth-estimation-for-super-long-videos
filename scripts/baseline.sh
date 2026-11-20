@@ -1,5 +1,5 @@
 #!/bin/bash
-# Run and score the independent-window baseline on the visible train videos.
+# Run and score the independent-window baseline on the visible train clips.
 #
 #   bash scripts/baseline.sh [vda_independent_windows]
 #

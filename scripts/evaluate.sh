@@ -1,6 +1,6 @@
 #!/bin/bash
 # Standard evaluation entry point: scores every registered predictor on the
-# visible train videos and writes scoring/scores.json.
+# visible train clips and writes scoring/scores.json.
 #
 #   bash scripts/evaluate.sh                 # every predictor on disk
 #   bash scripts/evaluate.sh --only NAME     # a single predictor

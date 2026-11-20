@@ -231,3 +231,7 @@ tmp/
 protocol.md
 *.egg-info
 core.[0-9]*
+
+# Hidden-test video data (public Bonn/KITTI frames + depth), fetched by scripts/download.sh
+eval/test/downloads/
+redteam/hardening2/logs/*.log

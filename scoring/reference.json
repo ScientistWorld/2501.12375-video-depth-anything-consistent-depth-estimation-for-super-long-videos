@@ -1,9 +1,45 @@
 {
-  "_note": "Paper: Video Depth Anything (arXiv 2501.12375). Scaled setup: released VDA-S checkpoint (inference only, no retraining) on hidden procedurally rendered RGB-D corridor videos with exact poses. Paper-reported numbers are kept unchanged below; numbers that have no counterpart in this setup are under keys starting with '_'.",
+  "_note": "Paper: Video Depth Anything (arXiv 2501.12375). Setup: the released VDA-S checkpoint (inference only, no retraining) on real long videos from two of the paper's benchmarks, Bonn RGB-D Dynamic (indoor, moving people) and KITTI (outdoor driving), with the paper's protocol (one scale/shift per video in inverse depth, AbsRel, delta1, TAE). Hidden test clips differ from the paper's exact clip selection and are scored on every 2nd pixel, so the paper's numbers are comparable in kind but not identical; they are kept unchanged below.",
   "_paper_reported_other": {
     "vda_s_param_count_M": 28.4,
     "video_training_frames_M": 0.55,
     "vda_s_latency_ms_per_frame_a100_fp32": 9.1,
+    "table1_vda_s_scannet_tae_170_frames": 0.703,
+    "table1_dav2_l": {
+      "kitti": {
+        "absrel": 0.137,
+        "delta1": 0.815
+      },
+      "bonn": {
+        "absrel": 0.127,
+        "delta1": 0.864
+      }
+    },
+    "table1_depthcrafter": {
+      "kitti": {
+        "absrel": 0.164,
+        "delta1": 0.753
+      },
+      "bonn": {
+        "absrel": 0.153,
+        "delta1": 0.803
+      }
+    },
+    "table1_vda_l": {
+      "kitti": {
+        "absrel": 0.083,
+        "delta1": 0.944
+      },
+      "bonn": {
+        "absrel": 0.071,
+        "delta1": 0.959
+      }
+    },
+    "table5_baseline_window16": {
+      "absrel": 0.157,
+      "delta1": 0.826,
+      "tae": 0.874
+    },
     "table5_oa_window16": {
       "absrel": 0.146,
       "delta1": 0.845,
@@ -19,38 +55,43 @@
       "delta1": 0.849,
       "tae": 0.761
     },
+    "table5_oi_kr_window32": {
+      "absrel": 0.144,
+      "delta1": 0.851,
+      "tae": 0.718
+    },
     "table5_oi_kr_window48": {
       "absrel": 0.143,
       "delta1": 0.852,
       "tae": 0.732
     },
-    "_why_not_scored": "Parameter count and training-data size cannot be verified from a predictor's outputs, and latency is wall-clock; they are documented constraints (scoring/CONSTRAINTS.md), not scored metrics."
+    "_why_not_scored": "Parameter count and training-data size cannot be verified from a predictor's outputs, and latency is wall-clock; they are documented constraints (scoring/CONSTRAINTS.md), not scored metrics. The paper reports TAE only on ScanNet (not redistributable), so the Bonn/KITTI results below carry no paper TAE."
   },
   "experiments": {
-    "long_video_500": {
-      "description": "Long-video depth on 500-frame hidden corridor videos (the paper's long-video evaluation length). results hold the paper's Table 5 inference-strategy ablation for VDA-S (Baseline = independent windows, window 16; OI+KR = overlap interpolation + key-frame referencing, window 32), means over the paper's real video benchmarks with up to 500 frames. This gym measures the same metrics (same alignment protocol and TAE definition) on procedurally rendered corridor videos, so absolute values are not expected to match; the comparable quantity is the direction of the difference between the two strategies.",
-      "weight": 0.6,
+    "bonn_500": {
+      "description": "Long-video depth on the first 500 frames (about 17 s at 30 fps) of 12 hidden Bonn RGB-D Dynamic sequences (handheld Kinect, people moving through the scene), the paper's long-video protocol (each video evaluated with up to 500 frames, one scale/shift per video). results.vda_oi_kr is the paper's Table 1 VDA-S Bonn entry (500-frame protocol). vda_independent_windows holds the paper's Table 5 'Baseline' inference strategy (independent windows, VDA-S, window 16), a mean over the paper's five video benchmarks, the closest reported number for this baseline; the paper gives no per-dataset value for it.",
+      "weight": 0.35,
       "primary_metric": "delta1",
       "metrics": {
         "absrel": {
           "higher_is_better": false,
           "coefficient": -1.0,
-          "description": "Mean absolute relative depth error after one least-squares scale/shift alignment of predicted inverse depth to ground-truth inverse depth shared by the whole video (paper protocol); evaluated on pixels with depth in [0.2, 20]."
+          "description": "Mean absolute relative depth error, averaged over frames then videos, after one least-squares scale/shift alignment of predicted inverse depth to ground-truth inverse depth shared by the whole video (paper / official benchmark protocol); pixels with ground-truth depth in (1e-3, max_depth) on the evaluation grid (every 2nd row and column); max_depth 10 m (Bonn) or 80 m (KITTI)."
         },
         "delta1": {
           "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of evaluated pixels whose aligned depth is within a factor 1.25 of ground truth (same single per-video alignment)."
+          "description": "Fraction of evaluated pixels whose aligned depth is within a factor 1.25 of ground truth, averaged over frames then videos (same single per-video alignment)."
         },
         "tae": {
           "higher_is_better": false,
           "coefficient": -1.0,
-          "description": "Temporal Alignment Error (paper Eq. 5, x100): aligned depth of each frame is reprojected into the next frame (and back) with the ground-truth camera motion and compared to that frame's aligned depth by AbsRel, averaged over consecutive pairs and both directions."
+          "description": "Temporal Alignment Error (paper Eq. 5, x100): the aligned depth of each frame is reprojected into the next frame (and back) with the true camera motion (Bonn motion capture, KITTI GPS/IMU) and compared with that frame's aligned depth by AbsRel; averaged over consecutive pairs and both directions."
         },
         "scale_drift": {
           "higher_is_better": false,
           "coefficient": -0.5,
-          "description": "Temporal standard deviation (x100) of the per-frame median log ratio between aligned predicted depth and ground truth: scale jumps between windows and slow scale drift over a long video both raise it."
+          "description": "Temporal standard deviation (x100) of the per-frame median log ratio between aligned predicted depth and ground truth: scale jumps between processing windows and slow scale drift over a long video both raise it."
         }
       },
       "results": {
@@ -62,36 +103,35 @@
         },
         "vda_oi_kr": {
           "type": "proposed",
-          "absrel": 0.144,
-          "delta1": 0.851,
-          "tae": 0.718
+          "absrel": 0.083,
+          "delta1": 0.95
         }
       }
     },
-    "super_long_video_1500": {
-      "description": "Super-long-video depth on 1500-frame hidden corridor videos, where the scene at the end shares nothing with the start, so a model with a bounded temporal window has to carry one depth scale across dozens of windows. The paper reports no numbers at this length (Fig. 7 is qualitative); results repeat the Table 5 values for orientation only. results hold the paper's Table 5 inference-strategy ablation for VDA-S (Baseline = independent windows, window 16; OI+KR = overlap interpolation + key-frame referencing, window 32), means over the paper's real video benchmarks with up to 500 frames. This gym measures the same metrics (same alignment protocol and TAE definition) on procedurally rendered corridor videos, so absolute values are not expected to match; the comparable quantity is the direction of the difference between the two strategies.",
-      "weight": 0.4,
+    "kitti_500": {
+      "description": "Long-video depth on 500-frame clips (50 s at 10 fps) of 10 hidden KITTI drives, including the paper's two long KITTI validation drives, scored against the official annotated (LiDAR) depth, max depth 80 m. results.vda_oi_kr is the paper's Table 1 VDA-S KITTI entry (500-frame protocol). vda_independent_windows holds the paper's Table 5 'Baseline' inference strategy (independent windows, VDA-S, window 16), a mean over the paper's five video benchmarks, the closest reported number for this baseline; the paper gives no per-dataset value for it.",
+      "weight": 0.35,
       "primary_metric": "delta1",
       "metrics": {
         "absrel": {
           "higher_is_better": false,
           "coefficient": -1.0,
-          "description": "Mean absolute relative depth error after one least-squares scale/shift alignment of predicted inverse depth to ground-truth inverse depth shared by the whole video (paper protocol); evaluated on pixels with depth in [0.2, 20]."
+          "description": "Mean absolute relative depth error, averaged over frames then videos, after one least-squares scale/shift alignment of predicted inverse depth to ground-truth inverse depth shared by the whole video (paper / official benchmark protocol); pixels with ground-truth depth in (1e-3, max_depth) on the evaluation grid (every 2nd row and column); max_depth 10 m (Bonn) or 80 m (KITTI)."
         },
         "delta1": {
           "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of evaluated pixels whose aligned depth is within a factor 1.25 of ground truth (same single per-video alignment)."
+          "description": "Fraction of evaluated pixels whose aligned depth is within a factor 1.25 of ground truth, averaged over frames then videos (same single per-video alignment)."
         },
         "tae": {
           "higher_is_better": false,
           "coefficient": -1.0,
-          "description": "Temporal Alignment Error (paper Eq. 5, x100): aligned depth of each frame is reprojected into the next frame (and back) with the ground-truth camera motion and compared to that frame's aligned depth by AbsRel, averaged over consecutive pairs and both directions."
+          "description": "Temporal Alignment Error (paper Eq. 5, x100): the aligned depth of each frame is reprojected into the next frame (and back) with the true camera motion (Bonn motion capture, KITTI GPS/IMU) and compared with that frame's aligned depth by AbsRel; averaged over consecutive pairs and both directions."
         },
         "scale_drift": {
           "higher_is_better": false,
           "coefficient": -0.5,
-          "description": "Temporal standard deviation (x100) of the per-frame median log ratio between aligned predicted depth and ground truth: scale jumps between windows and slow scale drift over a long video both raise it."
+          "description": "Temporal standard deviation (x100) of the per-frame median log ratio between aligned predicted depth and ground truth: scale jumps between processing windows and slow scale drift over a long video both raise it."
         }
       },
       "results": {
@@ -103,12 +143,51 @@
         },
         "vda_oi_kr": {
           "type": "proposed",
-          "absrel": 0.144,
-          "delta1": 0.851,
-          "tae": 0.718
+          "absrel": 0.086,
+          "delta1": 0.942
+        }
+      }
+    },
+    "kitti_1500": {
+      "description": "Super-long-video depth on 1500-frame clips (2.5 min at 10 fps) of 3 hidden KITTI drives (5 clips), where a model with a 32-frame window has to keep one depth scale across about 70 windows while the street scene changes completely. The paper claims consistent depth for minutes-long videos but reports no numbers at this length (Fig. 1/7 are qualitative); results repeat the paper's 500-frame KITTI numbers (Table 1) for orientation only. vda_independent_windows holds the paper's Table 5 'Baseline' inference strategy (independent windows, VDA-S, window 16), a mean over the paper's five video benchmarks, the closest reported number for this baseline; the paper gives no per-dataset value for it.",
+      "weight": 0.3,
+      "primary_metric": "delta1",
+      "metrics": {
+        "absrel": {
+          "higher_is_better": false,
+          "coefficient": -1.0,
+          "description": "Mean absolute relative depth error, averaged over frames then videos, after one least-squares scale/shift alignment of predicted inverse depth to ground-truth inverse depth shared by the whole video (paper / official benchmark protocol); pixels with ground-truth depth in (1e-3, max_depth) on the evaluation grid (every 2nd row and column); max_depth 10 m (Bonn) or 80 m (KITTI)."
+        },
+        "delta1": {
+          "higher_is_better": true,
+          "coefficient": 1.0,
+          "description": "Fraction of evaluated pixels whose aligned depth is within a factor 1.25 of ground truth, averaged over frames then videos (same single per-video alignment)."
+        },
+        "tae": {
+          "higher_is_better": false,
+          "coefficient": -1.0,
+          "description": "Temporal Alignment Error (paper Eq. 5, x100): the aligned depth of each frame is reprojected into the next frame (and back) with the true camera motion (Bonn motion capture, KITTI GPS/IMU) and compared with that frame's aligned depth by AbsRel; averaged over consecutive pairs and both directions."
+        },
+        "scale_drift": {
+          "higher_is_better": false,
+          "coefficient": -0.5,
+          "description": "Temporal standard deviation (x100) of the per-frame median log ratio between aligned predicted depth and ground truth: scale jumps between processing windows and slow scale drift over a long video both raise it."
+        }
+      },
+      "results": {
+        "vda_independent_windows": {
+          "type": "baseline",
+          "absrel": 0.157,
+          "delta1": 0.826,
+          "tae": 0.874
+        },
+        "vda_oi_kr": {
+          "type": "proposed",
+          "absrel": 0.086,
+          "delta1": 0.942
         }
       }
     }
   },
-  "_weights_note": "Weights 0.6/0.4: the paper's quantitative long-video protocol is <=500 frames (long_video_500); the super-long setting is its headline claim (consistent depth for minutes-long videos, Fig. 1/7) but has no numeric result, so it gets the smaller weight. Coefficients: absrel, delta1 and tae 1.0 each (the paper's three video metrics, Table 5); scale_drift 0.5 (the paper's drift claim is qualitative and drift also lowers absrel/delta1 under the single per-video alignment)."
+  "_weights_note": "Weights 0.35 / 0.35 / 0.30: bonn_500 and kitti_500 are the paper's quantitative long-video protocol (Table 1, up to 500 frames) on an indoor-dynamic and an outdoor benchmark; kitti_1500 is the paper's headline super-long claim, which it shows only qualitatively and where a bounded-window method is most likely to fall short. Coefficients: absrel, delta1 and tae 1.0 each (the paper's three video metrics; delta1 is its headline accuracy metric); scale_drift 0.5 (the drift claim is qualitative in the paper and drift also lowers absrel/delta1 under the single per-video alignment)."
 }

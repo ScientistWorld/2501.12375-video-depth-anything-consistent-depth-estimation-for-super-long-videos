@@ -1,0 +1,3 @@
+{
+  "command": ["python", "redteam/hardening2/audit_predict.py", "--case", "probe_temporal_box9"]
+}

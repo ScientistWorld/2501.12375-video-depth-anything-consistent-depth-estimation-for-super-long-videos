@@ -1,0 +1,236 @@
+{
+ "_note": "Clip list. bonn: Bonn RGB-D Dynamic sequence rgbd_bonn_<sequence>, frames [start, start+frames) in rgb.txt/depth.txt order (30 fps, 640x480). kitti: KITTI raw drive <drive>_sync, left colour camera image_02, raw frame indices [start, start+frames) (10 fps), depth from data_depth_annotated/<depth_split>. Fetched by data/fetch_clips.py. Hidden test split (sequences/drives disjoint from data/train_clips.json).",
+ "videos": [
+  {
+   "id": "bonn_balloon_tracking",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "balloon_tracking",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_crowd",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "crowd",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_crowd2",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "crowd2",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_crowd3",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "crowd3",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_kidnapping_box",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "kidnapping_box",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_kidnapping_box2",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "kidnapping_box2",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_moving_nonobstructing_box2",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "moving_nonobstructing_box2",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_moving_obstructing_box2",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "moving_obstructing_box2",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_person_tracking2",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "person_tracking2",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_placing_nonobstructing_box3",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "placing_nonobstructing_box3",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_placing_obstructing_box",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "placing_obstructing_box",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "bonn_removing_obstructing_box",
+   "experiment": "bonn_500",
+   "dataset": "bonn",
+   "sequence": "removing_obstructing_box",
+   "start": 0,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20111003_0047_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_10_03_drive_0047",
+   "depth_split": "val",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110926_0036_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_26_drive_0036",
+   "depth_split": "val",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110926_0101_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_26_drive_0101",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110926_0022_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_26_drive_0022",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110926_0087_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_26_drive_0087",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110926_0061_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_26_drive_0061",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110926_0117_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_26_drive_0117",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110929_0071_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_29_drive_0071",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110930_0027_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_30_drive_0027",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110930_0034_0005",
+   "experiment": "kitti_500",
+   "dataset": "kitti",
+   "drive": "2011_09_30_drive_0034",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 500
+  },
+  {
+   "id": "kitti_20110930_0028_0005",
+   "experiment": "kitti_1500",
+   "dataset": "kitti",
+   "drive": "2011_09_30_drive_0028",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 1500
+  },
+  {
+   "id": "kitti_20110930_0028_3005",
+   "experiment": "kitti_1500",
+   "dataset": "kitti",
+   "drive": "2011_09_30_drive_0028",
+   "depth_split": "train",
+   "start": 3005,
+   "frames": 1500
+  },
+  {
+   "id": "kitti_20111003_0034_0005",
+   "experiment": "kitti_1500",
+   "dataset": "kitti",
+   "drive": "2011_10_03_drive_0034",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 1500
+  },
+  {
+   "id": "kitti_20111003_0034_3005",
+   "experiment": "kitti_1500",
+   "dataset": "kitti",
+   "drive": "2011_10_03_drive_0034",
+   "depth_split": "train",
+   "start": 3005,
+   "frames": 1500
+  },
+  {
+   "id": "kitti_20111003_0027_0005",
+   "experiment": "kitti_1500",
+   "dataset": "kitti",
+   "drive": "2011_10_03_drive_0027",
+   "depth_split": "train",
+   "start": 5,
+   "frames": 1500
+  }
+ ]
+}
