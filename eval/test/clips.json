@@ -188,12 +188,12 @@
    "frames": 500
   },
   {
-   "id": "kitti_20110930_0028_0005",
+   "id": "kitti_20110930_0028_1505",
    "experiment": "kitti_1500",
    "dataset": "kitti",
    "drive": "2011_09_30_drive_0028",
    "depth_split": "train",
-   "start": 5,
+   "start": 1505,
    "frames": 1500
   },
   {

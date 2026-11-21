@@ -1,0 +1,60 @@
+{
+  "experiments": {
+    "bonn_500": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.08026932631032413,
+          "delta1": 0.9636174096318607,
+          "tae": 1.5723156264349702,
+          "scale_drift": 5.96326752310686
+        },
+        "vda_independent_windows": {
+          "absrel": 0.09183431475245357,
+          "delta1": 0.9460485390749489,
+          "tae": 1.8411274814140468,
+          "scale_drift": 8.825133900435594
+        }
+      }
+    },
+    "kitti_500": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.11229062591329611,
+          "delta1": 0.8859341975313446,
+          "tae": 3.9155766802515344,
+          "scale_drift": 7.135315212595702
+        },
+        "vda_independent_windows": {
+          "absrel": 0.1264674212965554,
+          "delta1": 0.8563891241045827,
+          "tae": 4.167271871279532,
+          "scale_drift": 9.25673029730613
+        }
+      }
+    },
+    "kitti_1500": {
+      "results": {
+        "vda_oi_kr": {
+          "absrel": 0.11235491505065136,
+          "delta1": 0.8863205525721206,
+          "tae": 4.687205939062428,
+          "scale_drift": 7.141348714399162
+        },
+        "vda_independent_windows": {
+          "absrel": 0.12219918162661973,
+          "delta1": 0.8639615109178995,
+          "tae": 4.99730298633658,
+          "scale_drift": 9.090199494202917
+        }
+      }
+    }
+  },
+  "_status": {
+    "vda_oi_kr": {
+      "status": "ok"
+    },
+    "vda_independent_windows": {
+      "status": "ok"
+    }
+  }
+}

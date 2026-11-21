@@ -39,6 +39,8 @@ def gt_reproj(ev, gt: np.ndarray, K: np.ndarray, rel: np.ndarray, max_depth: flo
     inb = (u2 >= 0) & (u2 < w) & (v2 >= 0) & (v2 < h)
     t = b[v2[inb], u2[inb]]
     m = (t > 1e-3) & (t < max_depth)
+    if not m.any():
+        return float("nan")  # a frame without depth (a few Bonn frames have none)
     return float(np.median(np.abs(t[m] - zp[inb][m]) / t[m]))
 
 
@@ -56,6 +58,7 @@ def main() -> None:
                 rel = np.linalg.inv(v["poses"][t + 3]) @ v["poses"][t]
                 res.append((gt_reproj(ev, gt[[t, t + 3]], v["K_eval"], rel, v["max_depth"]),
                             gt_reproj(ev, gt[[t, t + 3]], v["K_eval"], np.eye(4), v["max_depth"])))
+            res = [r for r in res if np.isfinite(r[0]) and np.isfinite(r[1])]
             pose_err, still_err = float(np.mean([r[0] for r in res])), float(np.mean([r[1] for r in res]))
             exact = np.where(gt > 1e-3, 1.0 / np.maximum(gt, 1e-3), 0.0).astype(np.float32)
             sc = ev.score_video(exact, gt, v, temporal=False)
@@ -65,8 +68,12 @@ def main() -> None:
                                  "shape": list(gt.shape)}
             print(f"[smoke] {v['clip']}: {json.dumps(report[v['clip']])}", flush=True)
             assert sc["absrel"] < 1e-3 and sc["delta1"] > 0.999, "exact labels must score perfectly"
+    sys.path.insert(0, str(ROOT / "redteam/hardening2"))
+    from oxts_scan import scan
+    report["_oxts_inconsistent_steps"] = {k: len(v) for k, v in
+                                          scan(str(ROOT / "eval/test/downloads"), str(ROOT / "eval/test/clips.json")).items()}
     (ROOT / "redteam/hardening2/smoke.json").write_text(json.dumps(report, indent=1))
-    worse = [k for k, r in report.items() if not r["gt_reproj_true_pose"] < r["gt_reproj_no_motion"]]
+    worse = [k for k, r in report.items() if not k.startswith("_") and not r["gt_reproj_true_pose"] < r["gt_reproj_no_motion"]]
     print(f"[smoke] clips where the true pose does not beat no-motion: {worse}", flush=True)
     print(f"[smoke] cuda={torch.cuda.is_available()}", flush=True)
 

@@ -1,0 +1,326 @@
+{
+ "bonn_balloon_tracking": {
+  "gt_reproj_true_pose": 0.005749534872216948,
+  "gt_reproj_no_motion": 0.01980670483742358,
+  "exact_absrel": 2.0998021645000386e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.8678771614583334,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_crowd": {
+  "gt_reproj_true_pose": 0.008605325606841087,
+  "gt_reproj_no_motion": 0.010685716341179619,
+  "exact_absrel": 2.0603705784618152e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.847640078125,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_crowd2": {
+  "gt_reproj_true_pose": 0.011385234788476174,
+  "gt_reproj_no_motion": 0.01848434930050288,
+  "exact_absrel": 2.1639822224926294e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.8328570052083333,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_crowd3": {
+  "gt_reproj_true_pose": NaN,
+  "gt_reproj_no_motion": NaN,
+  "exact_absrel": 2.2249409972080055e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.822914296875,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_kidnapping_box": {
+  "gt_reproj_true_pose": 0.007154671140820068,
+  "gt_reproj_no_motion": 0.019034145288343823,
+  "exact_absrel": 2.034491483515831e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.8646253645833333,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_kidnapping_box2": {
+  "gt_reproj_true_pose": 0.0045835688596130835,
+  "gt_reproj_no_motion": 0.014819976429520086,
+  "exact_absrel": 2.124395743838578e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.86445453125,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_moving_nonobstructing_box2": {
+  "gt_reproj_true_pose": 0.004584535292172683,
+  "gt_reproj_no_motion": 0.021266234145170027,
+  "exact_absrel": 2.090243842691322e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.8719965885416666,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_moving_obstructing_box2": {
+  "gt_reproj_true_pose": 0.008076263686654773,
+  "gt_reproj_no_motion": 0.014138842196416902,
+  "exact_absrel": 2.152852171641058e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.8655643489583333,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_person_tracking2": {
+  "gt_reproj_true_pose": 0.006100017627574517,
+  "gt_reproj_no_motion": 0.0139444455575899,
+  "exact_absrel": 2.1399569654526163e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.8639409375,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_placing_nonobstructing_box3": {
+  "gt_reproj_true_pose": 0.004993069160031131,
+  "gt_reproj_no_motion": 0.007341962012237334,
+  "exact_absrel": 2.0408082855330386e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.8619804427083333,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_placing_obstructing_box": {
+  "gt_reproj_true_pose": 0.005896635741063958,
+  "gt_reproj_no_motion": 0.012043164591944893,
+  "exact_absrel": 1.9789989489448324e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.8505495833333333,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "bonn_removing_obstructing_box": {
+  "gt_reproj_true_pose": 0.00268722115871237,
+  "gt_reproj_no_motion": 0.006384427861251385,
+  "exact_absrel": 2.0011693089395505e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.8571512239583333,
+  "shape": [
+   500,
+   240,
+   320
+  ]
+ },
+ "kitti_20111003_0047_0005": {
+  "gt_reproj_true_pose": 0.004588970134297579,
+  "gt_reproj_no_motion": 0.015239540400551711,
+  "exact_absrel": 2.177710449455803e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.1674215404118272,
+  "shape": [
+   500,
+   188,
+   621
+  ]
+ },
+ "kitti_20110926_0036_0005": {
+  "gt_reproj_true_pose": 0.005654918982303271,
+  "gt_reproj_no_motion": 0.029019739754026903,
+  "exact_absrel": 2.1836920344213305e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.16395770377222735,
+  "shape": [
+   500,
+   188,
+   621
+  ]
+ },
+ "kitti_20110926_0101_0005": {
+  "gt_reproj_true_pose": 0.006920080092281413,
+  "gt_reproj_no_motion": 0.020958734061573874,
+  "exact_absrel": 2.1734187224649934e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.17755730290882926,
+  "shape": [
+   500,
+   188,
+   621
+  ]
+ },
+ "kitti_20110926_0022_0005": {
+  "gt_reproj_true_pose": 0.0067615943089816555,
+  "gt_reproj_no_motion": 0.027837290334010084,
+  "exact_absrel": 2.1730040930754603e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.14480111008325625,
+  "shape": [
+   500,
+   188,
+   621
+  ]
+ },
+ "kitti_20110926_0087_0005": {
+  "gt_reproj_true_pose": 0.004754742060562135,
+  "gt_reproj_no_motion": 0.047940392171300465,
+  "exact_absrel": 2.167430419136786e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.11051267687669168,
+  "shape": [
+   500,
+   188,
+   621
+  ]
+ },
+ "kitti_20110926_0061_0005": {
+  "gt_reproj_true_pose": 0.005562812999491978,
+  "gt_reproj_no_motion": 0.04219778307088526,
+  "exact_absrel": 2.162700326366576e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.16310732517901805,
+  "shape": [
+   500,
+   188,
+   621
+  ]
+ },
+ "kitti_20110926_0117_0005": {
+  "gt_reproj_true_pose": 0.005335332046717851,
+  "gt_reproj_no_motion": 0.04966909637833575,
+  "exact_absrel": 2.156256115899357e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.13370204200500221,
+  "shape": [
+   500,
+   188,
+   621
+  ]
+ },
+ "kitti_20110929_0071_0005": {
+  "gt_reproj_true_pose": 0.0039772005638935275,
+  "gt_reproj_no_motion": 0.021775159198278327,
+  "exact_absrel": 2.1903375466696345e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.13781730063151712,
+  "shape": [
+   500,
+   187,
+   619
+  ]
+ },
+ "kitti_20110930_0027_0005": {
+  "gt_reproj_true_pose": 0.004303246357054125,
+  "gt_reproj_no_motion": 0.03993704169125303,
+  "exact_absrel": 2.170807727477525e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.168223129491645,
+  "shape": [
+   500,
+   185,
+   613
+  ]
+ },
+ "kitti_20110930_0034_0005": {
+  "gt_reproj_true_pose": 0.0052400757879418405,
+  "gt_reproj_no_motion": 0.07544693243782599,
+  "exact_absrel": 2.1709118610908587e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.14366257219699308,
+  "shape": [
+   500,
+   185,
+   613
+  ]
+ },
+ "kitti_20110930_0028_0005": {
+  "gt_reproj_true_pose": NaN,
+  "gt_reproj_no_motion": 0.08861684539037097,
+  "exact_absrel": 2.163489156836187e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.12396295871728172,
+  "shape": [
+   1500,
+   185,
+   613
+  ]
+ },
+ "kitti_20110930_0028_3005": {
+  "gt_reproj_true_pose": 0.005170534968442299,
+  "gt_reproj_no_motion": 0.06933489024314214,
+  "exact_absrel": 2.1715104019220286e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.13398754904986554,
+  "shape": [
+   1500,
+   185,
+   613
+  ]
+ },
+ "kitti_20111003_0034_0005": {
+  "gt_reproj_true_pose": 0.00642599420899852,
+  "gt_reproj_no_motion": 0.040199748668001294,
+  "exact_absrel": 2.1592308851518603e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.19649450097646212,
+  "shape": [
+   1500,
+   188,
+   621
+  ]
+ },
+ "kitti_20111003_0034_3005": {
+  "gt_reproj_true_pose": 0.004334821579967916,
+  "gt_reproj_no_motion": 0.04940989625394338,
+  "exact_absrel": 2.155858465023973e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.19795496282591565,
+  "shape": [
+   1500,
+   188,
+   621
+  ]
+ },
+ "kitti_20111003_0027_0005": {
+  "gt_reproj_true_pose": 0.006393829694024304,
+  "gt_reproj_no_motion": 0.05980099113675876,
+  "exact_absrel": 2.1671454207621184e-08,
+  "exact_delta1": 1.0,
+  "valid_fraction": 0.16735139502746657,
+  "shape": [
+   1500,
+   188,
+   621
+  ]
+ }
+}
