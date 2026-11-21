@@ -1,0 +1,9 @@
+{
+ "experiments_after_run": [
+  "bonn_500",
+  "kitti_1500",
+  "kitti_500"
+ ],
+ "forged_entries_surviving": [],
+ "passed": true
+}
