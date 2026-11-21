@@ -82,9 +82,31 @@ These additional settings preserve `core_claim_plus`: OI+KR reduces temporal-gra
 - Added the paper's TAE metric, a validity gate, and the predictor contract. Removed the self-reported resource metrics.
 - Job `c657cb7c-2b5`: OI+KR beats independent windows on absrel, delta1, TAE and scale drift in both experiments, on train and test. Two label-free variants (bidirectional and flip ensembles) beat the reference. All tested shortcuts fail or tie. Details in `HARDENING.md`.
 
+## Iteration 12 (hardening, 2026-11-21)
+
+- Moved train and hidden test to real long videos from the paper's benchmarks:
+  - Bonn RGB-D Dynamic: 500-frame clips;
+  - KITTI: 500-frame and 1500-frame clips.
+
+  Clips are fetched by `data/fetch_clips.py` with range requests from the public archives. Poses were checked against ground-truth depth. Bonn depth is paired by timestamp.
+- Hidden-test predictors run in a user/mount/PID namespace sandbox. In there, `eval/test/` is empty and the input frames are read-only. Ground truth is loaded after the predictor returns.
+- Job `499d2ba8-684` found a KITTI test clip with a GPS glitch, which was replaced. Job `7d38514d-b5f` is the final run:
+  - OI+KR beats independent windows on all metrics in all experiments, on train and test.
+  - Bonn reaches 0.080 / 0.964, against the paper's 0.083 / 0.950.
+  - Flip, time-reversed and 4-pass ensembles beat the reference by 3.3 to 6.3 paired SE.
+  - All tested shortcuts fail or tie, except a lookup in a private copy of the public datasets, which is left to the grader.
+
+  Details are in `HARDENING.md`.
+
 ## Deviations from Paper
 
-- The paper evaluates on KITTI, ScanNet, Bonn, NYUv2, and Sintel. This environment uses rendered RGB-D corridor videos with exact poses (since iteration 11; earlier iterations used one small synthetic RGB-D video) because the full benchmark suite is large and the minimum core claim can be tested on a fixed long sequence with known ground truth.
+- The paper evaluates on KITTI, ScanNet, Bonn, NYUv2, and Sintel. Since iteration 12 this environment uses real clips of two of them, Bonn RGB-D Dynamic and KITTI. Earlier iterations used synthetic videos.
+  - ScanNet's terms do not allow scripted redistribution.
+  - NYUv2's raw videos are about 430 GB.
+  - Sintel's clips are only about 50 frames.
+
+  Metrics are computed on every 2nd pixel.
 - The paper trains VDA on 0.55M video frames plus image data. This workspace uses the released VDA-S checkpoint for the first reproduction rather than retraining, preserving the paper's algorithm and model family while fitting the available compute budget.
-- Since iteration 11 the evaluator uses the paper's Temporal Alignment Error with exact camera poses (nearest-pixel reprojection with a z-buffer). `scoring/reference.json` keeps the paper's Table 5 inference-strategy ablation values unchanged for orientation; they come from real benchmarks and are not targets.
+- The evaluator uses the paper's Temporal Alignment Error with measured camera poses: motion capture for Bonn, GPS/IMU for KITTI. It uses nearest-pixel reprojection with a z-buffer.
+- `scoring/reference.json` keeps the paper's Table 1 (VDA-S on Bonn and KITTI) and Table 5 values unchanged.
 - The released VDA-S checkpoint is used as is; training is not reproduced.

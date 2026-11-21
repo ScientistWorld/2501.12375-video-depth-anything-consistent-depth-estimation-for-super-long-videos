@@ -40,5 +40,11 @@
 - Hardened the gym: hidden test videos are rendered in `eval/test/` and every registered predictor runs on them. Added the paper's TAE metric and a validity gate, and removed the unverifiable resource metrics.
 - The reproduced OI+KR inference (released VDA-S checkpoint) now beats independent windows on AbsRel, delta1, TAE and scale drift on 500- and 1500-frame videos, matching the paper's Table 5 direction.
 
+### [2026-11-21 09:30] - core_claim_plus
+- Moved the gym from synthetic corridors to real long videos from two of the paper's benchmarks: Bonn RGB-D Dynamic (12 hidden clips of 500 frames) and KITTI (10 hidden clips of 500 frames, 5 hidden clips of 1500 frames), with disjoint visible train clips.
+- The paper's protocol is used: per-video scale/shift, AbsRel, delta1, TAE with the true motion-capture or GPS/IMU poses.
+- The released VDA-S with OI+KR gives 0.080 / 0.964 on Bonn, against the paper's 0.083 / 0.950, and 0.112 / 0.886 on KITTI. It beats independent windows on all four metrics in all three experiments, on test and on train.
+- Hidden-test predictors run in an isolated namespace that hides `eval/test/`. Label-free test-time ensembles beat the reference by 3 to 6 paired standard errors. See `HARDENING.md`.
+
 ## Stop Justification
 - Completed at milestone `core_claim_plus`.

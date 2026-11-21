@@ -30,7 +30,7 @@
 - [x] `environment/container.def` + `environment/setup.sh`
 
 ## Data
-- [x] Synthetic benchmark generator added under `data/`
+- [x] Real-video clip fetcher (`data/fetch_clips.py`) and train clip list (`data/train_clips.json`); hidden test clips in `eval/test/clips.json`
 - [x] Pretrained VDA-S checkpoint downloaded
 
 ## Milestones

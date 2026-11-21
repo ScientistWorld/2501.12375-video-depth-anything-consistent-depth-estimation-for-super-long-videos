@@ -6,11 +6,12 @@
 #
 # Inference only (released VDA-S checkpoint); runs every registered predictor
 # (method/predictors/*.json, baseline/predictors/*.json) on real Bonn RGB-D
-# Dynamic and KITTI clips. Needs scripts/download.sh first and one GPU.
-# The iteration-12 hardening audit is redteam/hardening2/run_audit.sh.
+# Dynamic and KITTI clips. Needs scripts/download.sh first and one GPU (about
+# 35 minutes on one A100). The iteration-12 hardening audit (variants and
+# shortcuts) is redteam/hardening2/run_audit.sh.
 
 set -euo pipefail
 
 cd /home/user
 
-bash redteam/hardening2/run_audit.sh
+bash scripts/reproduce.sh

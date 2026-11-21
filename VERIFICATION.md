@@ -33,3 +33,11 @@ The workspace is ready to serve as a research gym. Improve-mode agents can run t
 ## Iteration 11 note
 
 The benchmark described above was replaced in iteration 11 (hidden rendered long videos, predictor contract, TAE, validity gate). See `HARDENING.md` for the current design and its verification.
+
+## Iteration 12 note
+
+The hidden test and the train split now use real Bonn RGB-D Dynamic and KITTI long videos instead of rendered corridors. Other changes:
+- Hidden-test predictors run in a namespace sandbox.
+- One test clip with a GPS glitch was replaced.
+
+`python validate.py` passes on the final score files from job `7d38514d-b5f`. See `HARDENING.md` for the design, the audit and the remaining limitations.

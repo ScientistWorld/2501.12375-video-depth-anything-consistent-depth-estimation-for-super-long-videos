@@ -1,139 +1,203 @@
-# Hardening report (iteration 11)
+# Hardening report (iteration 12)
 
-All "after" numbers come from job `c657cb7c-2b5` (exit 0, one A100), which ran `redteam/hardening/run_audit.sh`. It planted forged score files, ran the hidden test with no arguments (`bash scripts/evaluate_test.sh`, the official `scoring/scores_test.json`), ran the train split, then ran 16 predictors (reference, baseline, 5 variants, 9 shortcuts) through the same hidden-test evaluator in one run, so every method saw identical hidden inputs. Raw results: `redteam/hardening/results.md`, `results.json`, `audit_scores_test.json`, `audit_detail_test.json` (per video), `stale_check.json`, `shortcut_generator_answers_report.json`.
+`REVIEW.md` found two remaining weaknesses:
+- synthetic corridor videos stood in for the paper's real benchmarks;
+- the best gains were test-time ensembles at only 1.7–2.9 SE.
 
-**Rank used here (dR).** dR = sum over experiments of weight x sum over metrics of |coefficient| x (improvement over the reference in the metric's better direction) / (std of that metric across the 7 honest attempts in this audit). "Before" numbers are copied from `REDTEAM.md`. They used the old rank: signed coefficient x raw difference with no spread normalization, on the old benchmark. So compare orderings and signs across the two columns, not magnitudes.
+This iteration moves the whole gym, train and hidden test, onto real long videos from two of the paper's own benchmarks. It also closes the main shortcut the previous hardening left open: a predictor reading the hidden test data while it runs. It then re-audits everything.
 
-## What was wrong and what changed
+All "after" numbers come from job `7d38514d-b5f` (exit 0, one A100), which ran `redteam/hardening2/run_audit.sh`. The steps were:
+1. A pre-flight check (`smoke.py`):
+   - every test file is on disk;
+   - with the true camera motion, ground-truth depth reprojects better than with no motion on every clip;
+   - exact labels score perfectly;
+   - GPS/IMU steps are consistent with the measured speed.
+2. Forged score files were planted.
+3. The hidden test ran with no arguments (`bash scripts/evaluate_test.sh` → official `scoring/scores_test.json`), and the plant was checked.
+4. The train split ran (official `scoring/scores_train.json` / `scores.json`).
+5. 16 audit predictors ran through the same hidden-test evaluator, so every method saw identical inputs.
 
-The red team found:
-- Test labels and their generator were visible (train and test were alternate 16-frame blocks of the same one video, in `data/`).
-- Resource metrics were read from a method-written sidecar, worth up to +5.79 for free.
-- The test evaluator kept stale scores and followed the train score file.
-- There was no quality gate.
-- The reproduction did not show the paper's δ1 or scale-drift direction.
+Raw results:
+- `redteam/hardening2/results.md` and `results.json`;
+- `audit_scores_test.json` and `audit_detail_test.json` (per video);
+- `smoke.json` and `stale_check.json`;
+- the shortcut reports.
 
-One coordinated rebuild fixed all of these:
+An earlier full run (job `499d2ba8-684`) is kept in `redteam/hardening2/run1/`. It found one test clip with a GPS glitch (see "Data fix during this iteration" below); the clip was replaced and everything was rerun.
 
-1. **Hidden, test-time-rendered test set.** Test videos are procedurally rendered corridor scenes. They come from a renderer and 63-bit seeds that exist only in `eval/test/` (`scenes.py`, `evaluate.py`). The evaluator renders them in memory at test time, writes only the RGB frames to a scratch directory, and deletes it afterwards. Labels never touch the disk. Train uses the visible generator `data/synthetic_rgbd.py` with seeds 101–104 and 201–202. `eval/train/` and `eval/test/` share no code.
-2. **Predictor contract; the test runs the method.** The method needs no training (released checkpoint), so the hidden test runs it on inputs only `eval/test/` holds. A method is a command registered in `method/predictors/*.json` or `baseline/predictors/*.json`. Both evaluators run every registered predictor through the same interface, with no method name hardcoded, and recompute every number from the raw `prediction` arrays. `scripts/evaluate_test.sh` takes no arguments and scores every predictor on disk.
-3. **Fixed roster; files written from scratch.** The experiments, videos, sizes, alignment, depth range, gate levels and failure values are all fixed in `eval/test/evaluate.py`. The evaluator never reads `scores_test.json`, `scores_train.json`, sidecars or anything in `data/`.
-4. **Self-reported resources removed from the score.** `param_count_M` and `video_training_frames_M` cannot be verified from outputs. They are now rules in `scoring/CONSTRAINTS.md` (≤30M parameters, ≤0.55M video frames) and paper values under `_paper_reported_other` in `reference.json`.
-5. **Validity gate.** A run fails if any output is missing, has the wrong shape or contains NaN/inf, or if the predictor exits non-zero. It also fails if, in any experiment:
-   - mean `absrel`/`delta1` do not beat the best image-agnostic answer, a static per-pixel template fitted to the test labels (about 0.385 / 0.348), or
-   - `tae` reaches 30, or `scale_drift` reaches 50.
+**Rank used here (dR).** For each experiment, each metric's improvement over the reference is taken in the metric's better direction. It is divided by that metric's std across the 8 honest attempts in this audit and multiplied by |coefficient|. dR is the weighted sum of these over experiments. The paired figure "mean ± SE" is the same rank computed per video (videos of an experiment weighted equally), with its standard error over videos. "Before" numbers are copied from the iteration-11 `HARDENING.md` (same rank, old synthetic benchmark). Compare orderings and signs across the two columns, not magnitudes.
 
-   A failed run gets exactly those values on every metric in every experiment, which is worse than any passing run on every metric. So a failed method can never outrank a working one through other metrics, and impossible values cannot score high.
-6. **The paper's metrics.** AbsRel and δ1 use one least-squares scale/shift per video in inverse depth (the paper's protocol). `tae` is the paper's Temporal Alignment Error (Eq. 5, ×100), computed with the true camera motion. It replaces the TGM-loss-style proxy and the window-boundary metric, which was tied to the baseline's 32-frame grid. `scale_drift` is the temporal std of the per-frame log-scale bias.
-7. **Setup fixed so the paper's mechanism is exercised.** The old benchmark was one short, nearly static video. The new scenes have a camera that keeps turning between far corridor views and near walls, so the depth range changes between windows. Experiments are `long_video_500` (6 videos; the paper evaluates up to 500 frames) and `super_long_video_1500` (2 videos; the paper's super-long claim). Input size is no longer an experiment axis: it is a method choice, and the reference uses the paper's 518.
+## What changed
 
-**Weights.** Changed from four 0.25-weight experiments (two lengths × two input sizes of one video) to 0.6 for `long_video_500` and 0.4 for `super_long_video_1500`. The 500-frame protocol is the paper's quantitative one; the super-long claim is qualitative in the paper (Fig. 7).
+1. **Real videos from the paper's benchmarks, hidden test only in `eval/test/`.**
+   - `bonn_500`: the first 500 frames of 12 Bonn RGB-D Dynamic sequences (indoor, handheld camera, people moving). 640x480 at 30 fps, registered Kinect depth, motion-capture poses.
+   - `kitti_500`: 500-frame clips of 10 KITTI drives, including the paper's two long KITTI validation drives. About 1242x375 at 10 fps, official annotated LiDAR depth, GPS/IMU poses.
+   - `kitti_1500`: five 1500-frame clips (2.5 minutes) of 3 other KITTI drives. This is the paper's super-long setting.
 
-Coefficients:
+   The visible train split (`data/train_clips.json`) has 6 / 4 / 2 further clips from disjoint sequences and drives. `scripts/download.sh` fetches the test clips into `eval/test/downloads/` (15 GB) and the train clips into `data/downloads/` (6.3 GB). It uses `data/fetch_clips.py`, a standard-library fetcher that range-reads only the needed members of the public archives and CRC-checks each one.
 
-| metric | old | new |
-|---|---:|---:|
-| absrel | 0.8 | 1.0 |
-| delta1 | 0.5 | 1.0 |
-| tae (replaces temporal_gradient_error 1.0 and boundary_temporal_error 0.9) | — | 1.0 |
-| scale_drift | 0.5 | 0.5 |
-| resource metrics | 0.2 each | removed |
+   The paper's protocol is followed:
+   - one least-squares scale/shift per video in inverse depth;
+   - AbsRel and delta1 per frame, then averaged;
+   - max depth 10 m (Bonn) or 80 m (KITTI);
+   - TAE as in the paper's Eq. 5 (x100) with the true relative poses.
 
-AbsRel, δ1 and TAE are the paper's three video metrics and get equal weight. The primary metric is now δ1, the paper's headline accuracy metric (Table 1 "δ1 Rank", Fig. 1).
+   Predictions are scored on every 2nd row and column of the native frame. This keeps a predictor's test outputs at about 7 GB instead of about 28 GB. Uniform pixel subsampling leaves the metrics' means unchanged.
+2. **Poses verified, not assumed.**
+   - Bonn uses the dataset page's formula T_ROS^-1 T_k T_ROS T_m: T_m's rotation is orthonormalised and T_k is interpolated to the RGB timestamp. Other pose conventions were tested and rejected; this one gives the lowest ground-truth reprojection error (median 1.5% vs 6.7% for no motion).
+   - KITTI uses the OXTS Mercator pose and the IMU→camera-2 calibration: 0.3% vs 1.7%.
+   - Each Bonn RGB frame takes the depth map closest in time (within 20 ms). Pairing by list position, as the official extraction script does, drifts by up to 0.2 s on `crowd3` because depth frames were dropped.
+3. **The predictor cannot read the test answers while it runs.** On the hidden test, each predictor runs under `unshare` in new user, mount and PID namespaces:
+   - `eval/test/` is replaced by an empty tmpfs;
+   - the input-frame directory is bind-mounted read-only;
+   - both mounts are locked by a nested user namespace, so it can neither unmount nor remount them;
+   - `/proc` is private, so it cannot reach another process's view of the filesystem.
+
+   Ground truth is loaded only after the predictor returns. The evaluator self-tests the isolation at start-up and records the result in `metrics_detail_test.json` (`"sandbox": "active: ..."` in both jobs, GPU usable inside). Where a platform does not allow it, the predictor runs unisolated on copied frames, and the reason is recorded. Hard links are used only when the read-only mount protects them.
+4. **Opaque inputs.** Predictors get native-resolution RGB PNG files under ids `video_000`…, with no sequence names, poses or intrinsics.
+5. **No wall-clock limit** in the method's path (the old 4-hour timeout is now an opt-in flag).
+6. **Kept from iteration 11:**
+   - fixed experiment roster;
+   - score files written from scratch, recomputed from raw `prediction` arrays;
+   - no sidecars read;
+   - the validity gate against the best image-agnostic static template, with caps TAE 30 and drift 50; a failed run gets those values on every metric.
+
+**Weights.** These were 0.6 / 0.4 on two synthetic experiments. They are now:
+- `bonn_500` 0.35 and `kitti_500` 0.35: the paper's quantitative Table 1 protocol on an indoor-dynamic and an outdoor benchmark.
+- `kitti_1500` 0.30: the paper's headline super-long claim, shown only qualitatively in the paper.
+
+Coefficients are unchanged: absrel 1, delta1 1, tae 1, scale_drift 0.5. The primary metric stays delta1.
 
 ## Does a better result now score higher?
 
-| case | what it is | before (REDTEAM.md, old rank) | after: dR (paired mean ± SE over 8 videos) |
-|---|---|---:|---:|
-| `better_bidirectional` | average with a time-reversed OI+KR pass (affine-matched, no labels) | +0.009 | **+0.932 ± 0.559** (better on 7/8 videos) |
-| `better_flip_ensemble` | average with a horizontally flipped OI+KR pass | +0.033 | **+0.613 ± 0.208** (6/8 videos) |
-| `vda_oi_kr` / `ref_repeat` | reference; fresh rerun | 0 / −0.00085 | **0 / 0.000** (bit-identical) |
-| `better_temporal3` | [1,2,1]/4 temporal filter on the reference | +0.050 | −0.058 ± 0.099 (TAE −15%, but loses absrel/δ1: a trade-off) |
-| `weaker_scale_jitter` | reference × per-frame 4% scale noise | — | **−3.561 ± 0.147** |
-| `vda_independent_windows` | same network, no cross-window stabilization (removes the key idea) | −1.272 | **−7.259 ± 1.210** |
+Yes. The reference is deterministic (a fresh rerun is bit-identical: `ref_repeat` dR 0.000). Paired differences over the 27 hidden videos separate the variants cleanly.
 
-Yes. The ordering is genuine improvements > reference > trade-off (≈0) > degraded variants > the ablation that removes the paper's idea, and all failed shortcuts come last.
-- **Run-to-run noise:** inference is deterministic. Three runs of the reference (official test, audit, fresh repeat) agree to every digit.
-- **Paired noise across scenes:** the flip ensemble beats the reference by about 2.9 SE; bidirectional by about 1.7 SE, winning on 7/8 videos.
-- **Paper effect versus noise:** the reference-versus-ablation effect is 6 SE.
+| case | what it is | before (synthetic) | after: dR (paired mean ± SE) | videos better (bonn / kitti500 / kitti1500) |
+|---|---|---:|---:|---|
+| `better_flip_bidir` | average of 4 OI+KR passes (as is, mirrored, time-reversed, both), affine-matched to each other, no labels | — | **+2.703 ± 0.459** (5.9 SE) | 11/12, 9/10, 5/5 |
+| `better_flip_ensemble` | average with a mirrored OI+KR pass | +0.613 ± 0.208 | **+1.381 ± 0.219** (6.3 SE) | 11/12, 9/10, 5/5 |
+| `better_bidirectional` | average with a time-reversed OI+KR pass | +0.932 ± 0.559 | **+1.353 ± 0.406** (3.3 SE) | 10/12, 7/10, 4/5 |
+| `vda_oi_kr` / `ref_repeat` | reference; fresh rerun | 0 / 0 | **0 / 0.000** | — |
+| `better_temporal3` | [1,2,1]/4 temporal filter of the reference (trade-off: TAE −8 to −14%, loses absrel/delta1) | −0.058 ± 0.099 | −0.611 ± 0.120 | 9/12, 3/10, 0/5 |
+| `weaker_scale_jitter` | reference × 4% per-frame scale noise | −3.561 ± 0.147 | **−4.958 ± 0.150** | 0/12, 0/10, 0/5 |
+| `vda_independent_windows` | same network, no cross-window stabilisation (removes the paper's idea) | −7.259 ± 1.210 | **−6.065 ± 2.040** | 2/12, 1/10, 0/5 |
 
-Raw hidden-test metrics (absrel / δ1 / tae / scale_drift):
+The flip ensemble now separates by 6.3 paired SE, against 2.9 before. It wins on 25 of 27 videos. The 4-pass ensemble separates by 5.9 SE. Every genuine improvement beats the reference in every experiment except one: the bidirectional pass on `kitti_1500` (+0.72 ± 0.51).
 
-| case | long_video_500 | super_long_video_1500 |
-|---|---|---|
-| better_bidirectional | 0.1481 / 0.8288 / 1.115 / 12.64 | 0.1242 / 0.8665 / 1.360 / 9.73 |
-| better_flip_ensemble | 0.1500 / 0.8158 / 1.115 / 12.97 | 0.1219 / 0.8725 / 1.293 / 9.50 |
-| **vda_oi_kr (reference)** | **0.1504 / 0.8146 / 1.173 / 12.96** | **0.1274 / 0.8616 / 1.377 / 10.10** |
-| better_temporal3 | 0.1508 / 0.8127 / 0.996 / 12.97 | 0.1290 / 0.8562 / 1.153 / 10.11 |
-| weaker_scale_jitter | 0.1515 / 0.8081 / 4.251 / 13.33 | 0.1299 / 0.8515 / 4.408 / 10.72 |
-| vda_independent_windows | 0.1734 / 0.7511 / 1.580 / 15.86 | 0.1585 / 0.8024 / 1.782 / 13.56 |
-| exact ground truth (floor) | 0 / 1 / 0.377 / 0 | 0 / 1 / 0.428 / 0 |
-| static template (gate level) | 0.3848 / 0.3482 / – / – | 0.3976 / 0.3478 / – / – |
+Raw hidden-test metrics (absrel / delta1 / tae / scale_drift):
 
-## The reproduction now shows the paper's direction
+| case | bonn_500 | kitti_500 | kitti_1500 |
+|---|---|---|---|
+| better_flip_bidir | 0.0744 / 0.9733 / 1.535 / 5.54 | 0.1066 / 0.8961 / 3.755 / 6.68 | 0.1040 / 0.9033 / 3.892 / 6.62 |
+| better_flip_ensemble | 0.0792 / 0.9656 / 1.537 / 5.80 | 0.1091 / 0.8919 / 3.781 / 7.07 | 0.1054 / 0.9007 / 3.907 / 6.79 |
+| better_bidirectional | 0.0751 / 0.9718 / 1.569 / 5.62 | 0.1100 / 0.8899 / 3.885 / 6.79 | 0.1090 / 0.8934 / 4.024 / 6.81 |
+| **vda_oi_kr (reference)** | **0.0803 / 0.9636 / 1.572 / 5.96** | **0.1123 / 0.8859 / 3.916 / 7.14** | **0.1104 / 0.8908 / 4.040 / 6.96** |
+| better_temporal3 | 0.0798 / 0.9622 / 1.439 / 5.98 | 0.1150 / 0.8776 / 3.380 / 7.13 | 0.1143 / 0.8796 / 3.646 / 6.95 |
+| weaker_scale_jitter | 0.0823 / 0.9606 / 3.353 / 6.37 | 0.1174 / 0.8755 / 6.365 / 8.19 | 0.1152 / 0.8813 / 6.426 / 7.99 |
+| vda_independent_windows | 0.0918 / 0.9460 / 1.841 / 8.83 | 0.1265 / 0.8564 / 4.167 / 9.26 | 0.1182 / 0.8745 / 4.343 / 8.60 |
+| static template (gate level) | 0.2374 / 0.5823 / – / – | 0.1904 / 0.6936 / – / – | 0.2082 / 0.6629 / – / – |
 
-Before, OI+KR improved temporal error and AbsRel over independent windows, but δ1 was lower in every experiment and scale drift was worse. After, OI+KR beats independent windows on all four metrics in both experiments, on both test and train. Only the data setup changed, not the method.
+## The reproduction shows the paper's claim
+
+OI+KR beats independent windows on all four metrics in all three experiments, on both test and train (`results.json` → `paper_direction`: 12/12 on test). This matches the paper's Table 5 direction.
 
 | split / experiment | independent windows | OI+KR (reference) |
 |---|---|---|
-| test long_video_500 | 0.1734 / 0.7511 / 1.580 / 15.86 | 0.1504 / 0.8146 / 1.173 / 12.96 |
-| test super_long_video_1500 | 0.1585 / 0.8024 / 1.782 / 13.56 | 0.1274 / 0.8616 / 1.377 / 10.10 |
-| train long_video_500 | 0.1885 / 0.6882 / 1.586 / 17.93 | 0.1648 / 0.7801 / 1.283 / 12.18 |
-| train super_long_video_1500 | 0.1558 / 0.8089 / 1.672 / 14.23 | 0.1308 / 0.8758 / 1.324 / 10.99 |
+| test bonn_500 | 0.0918 / 0.9460 / 1.841 / 8.83 | 0.0803 / 0.9636 / 1.572 / 5.96 |
+| test kitti_500 | 0.1265 / 0.8564 / 4.167 / 9.26 | 0.1123 / 0.8859 / 3.916 / 7.14 |
+| test kitti_1500 | 0.1182 / 0.8745 / 4.343 / 8.60 | 0.1104 / 0.8908 / 4.040 / 6.96 |
+| train bonn_500 | 0.0861 / 0.9487 / 1.402 / 8.45 | 0.0701 / 0.9814 / 1.093 / 6.07 |
+| train kitti_500 | 0.1552 / 0.7936 / 5.510 / 11.90 | 0.1240 / 0.8639 / 5.497 / 7.93 |
+| train kitti_1500 | 0.1272 / 0.8567 / 4.367 / 9.73 | 0.1149 / 0.8824 / 4.092 / 7.94 |
 
-These match the paper's Table 5 direction (AbsRel 0.157→0.144, δ1 0.826→0.851, TAE 0.874→0.718). An honest method scores alike on train and test (reference 0.165/0.780 vs 0.150/0.815 at 500 frames; 0.131/0.876 vs 0.127/0.862 at 1500).
+On Bonn, the reproduced VDA-S reaches 0.080 / 0.964 against the paper's Table 1 VDA-S Bonn entry of 0.083 / 0.950. On KITTI it reaches 0.112 / 0.886 against the paper's 0.086 / 0.942. The paper's KITTI set is the 13 validation drives cut to at most 500 frames, most of them much shorter. Ours are 500-frame clips of 10 mostly longer, busier drives. The method is the released code and checkpoint with the official benchmark settings (518 input, fp32), unchanged.
+
+An honest method scores alike on train and test (reference absrel 0.070 vs 0.080, 0.124 vs 0.112 and 0.115 vs 0.110).
 
 ## Shortcuts: fix and score before → after
 
 | shortcut | before | fix | after |
-|---|---:|---|---|
-| Visible answers (read `ground_truth.npz`) | +0.772 | No test labels exist on disk; labels live only in evaluator memory | Not possible. Nothing to read. |
-| Generator answers (rebuild labels with the visible generator) | +0.772 | Test seeds (63-bit) and renderer copy exist only in `eval/test/` | `shortcut_generator_answers` tried every train seed plus seeds 0–63 against frame 0 of each hidden video: **no match on any of 8 videos**. It falls back to the reference, so dR 0.000 and no gain. |
-| Ground-truth replacement | +0.772 | Labels are rendered in memory at test time; no file is read | Not possible. |
-| Zero-resource metadata | +5.790 | Resource metrics removed from the score; sidecars never read | `shortcut_metadata_zero` (reference + zero-param sidecar): **0.000** |
-| Negative-resource metadata | +400005.79 | Same | Not possible: no metadata is read. |
-| Constant output with zero resources | +5.408 | Validity gate + resources not scored | `shortcut_constant`: **failed** (absrel 0.404 ≥ 0.385); every metric at failure values, dR −91.8 |
-| Image-agnostic static template (new) | — | Gate is defined against the best such template | `shortcut_static_template` (mean train-scene inverse depth per pixel): **failed**, −91.8 |
-| Stale test scores (prewritten ideal scores) | +0.508 | Fixed roster; output written from scratch; train scores never read | Forged `scores_test.json`/`scores_train.json` planted before the official run: **all forged entries gone** (`stale_check.json`: passed) |
-| Forged train scores | −1.274 (failed) | Test never reads train files | Still fails (same check). |
-| Fixed-baseline replacement | −1.274 | Baselines are frozen in `scores_test.json`; the rank is against the frozen reference | Unchanged: does not pay. |
-| Empty / NaN / inf output | no score (crash, exit 1) | Recorded as a failed run instead of crashing the evaluator | `shortcut_empty`, `shortcut_nan`, `shortcut_inf`: **failed**, −91.8, other methods still scored |
-| Zero / negative output | no score (crash) | Constant predictions fit as a constant, then gated | `shortcut_zero`, `shortcut_negative`: **failed**, −91.8 |
-
-## Reference score before and after
-
-- **Before** (old benchmark, mean of four experiments): absrel 0.1339, δ1 0.8097, temporal-gradient error 0.238, boundary error 0.343, drift 0.046, plus fixed resource fields 28.4 / 0.55.
-- **After** (new hidden test): long_video_500 0.1504 / 0.8146 / 1.173 / 12.96; super_long_video_1500 0.1274 / 0.8616 / 1.377 / 10.10.
-
-The reference is rank 0 by definition in both. The two benchmarks are different, so the values are not comparable. `scoring/scores_test.json` and `scores_train.json` were regenerated from the reference and baseline runs alone.
-
-## Headroom check
-
-The reference sits at the bound of none of the 8 scored entries:
-- absrel 0.15 / 0.13 against a bound of 0;
-- δ1 0.81 / 0.86 against 1;
-- TAE 1.17 / 1.38 against an exact-label floor of 0.38 / 0.43;
-- scale_drift 13.0 / 10.1 against 0.
-
-Two simple label-free variants beat it, and neither comes near a bound. The independent-window baseline sits clearly below it (−7.26) on a scale with room above.
-
-There is no candidate enumeration the paper's method avoids. The nearest analogue, enumerating generator seeds to recover labels, fails, as shown above.
-
-As the experiment from where the paper's method falls short, I added `super_long_video_1500` (weight 0.4). These are 1500-frame videos where the last frames share nothing with the first. The paper claims arbitrary length but shows it only qualitatively. Here the reference still has scale_drift 10.1 and absrel 0.127, against 0 for exact labels. The reference and baseline were run on it (table above).
+|---|---|---|---|
+| Predictor reads the hidden test data while it runs (iteration 11 left this open: import the test renderer and seeds from `eval/test/`) | open (exact labels) | Namespace isolation: `eval/test/` is an empty locked tmpfs, `/proc` is private, ground truth is loaded after the predictor returns | `shortcut_read_hidden_answers` searches the hidden data for its frames and reads their depth. It found nothing on all 27 videos (`root_visible: false`), so it fell back to the reference: **dR 0.000**. With access, the same lookup gives +24.9 (next row). |
+| Predictor rewrites the shared test frames (hard links) | — (new) | Inputs are mounted read-only and locked in the sandbox; frames are copied when there is no sandbox | Probe: write, remount and unmount all fail (`inputs_read_only: true`). |
+| Generator / analysis-by-synthesis of the synthetic scenes (iteration 11 left this open) | open | No generator exists any more: the data is real | Not applicable. |
+| Image-agnostic static template (mean train-label inverse depth per pixel) | failed | Gate | `shortcut_static_template`: **failed**, dR −115.7 |
+| Constant / zero output | failed (−91.8) | Gate | `shortcut_constant`, `shortcut_zero`: **failed**, −115.7 |
+| NaN / empty output | failed (−91.8) | Shape/finiteness checks → failure values | `shortcut_nan`, `shortcut_empty`: **failed**, −115.7; other methods still scored |
+| Forged / stale score files | passed | Output always rewritten from the fixed roster | Forged `scores_test.json`/`scores_train.json` planted before the official run: **no forged entry survived** (`stale_check.json`) |
+| Short hand-written rules | — | (checked) | 9-frame temporal box filter of the reference: TAE −16 to −24%, but **−6.348 ± 0.882** (accuracy loss dominates). Per-frame median normalisation: **failed** the gate on KITTI. Neither outranks the reference. |
+| Self-reported resources (iteration 10) | +5.79 | Not scored (iteration 11) | Still not read. |
 
 ## Shortcuts left open (for the separate grader)
 
-- **Reading the hidden evaluator from a predictor.** Predictors run as subprocesses on the same filesystem. A predictor that imports `eval/test/scenes.py` with the seeds from `eval/test/evaluate.py` could re-render the labels. Closing this needs OS-level sandboxing, which this gym does not have. It is forbidden in `CONSTRAINTS.md` and easy to spot in code.
-- **Analysis-by-synthesis against the visible generator.** The scene family is fully specified in `data/synthetic_rgbd.py`: axis-aligned boxes, planes, known textures. A predictor could fit scene parameters to the frames and render exact depth. Not attempted. It is forbidden in `CONSTRAINTS.md` because it exploits the synthetic domain rather than solving video depth.
-- **Larger models or more training data.** Model size and training-data budget cannot be measured from predictions. They are rules (≤30M parameters, ≤0.55M video frames) left to the grader. A larger released model such as VDA-L would likely score higher.
-- **Fine-tuning on the visible scene family** within the 0.55M-frame budget is allowed. It is in-distribution training, like the paper's synthetic training, but it partly rewards fitting this rendered domain.
+- **Looking frames up in a private copy of the public benchmarks: +24.939 ± 1.624.** The test clips are public recordings, so an agent can download Bonn/KITTI themselves. It can match a frame by its bytes and read the depth. `shortcut_public_copy_lookup` does this from a copy outside `eval/test/` and gets AbsRel 0 / delta1 1 everywhere.
+
+  No evaluator-side measure can close this while the test uses the paper's public benchmarks. Re-encoding or perturbing frames would only push it to near-duplicate matching. It is forbidden in `scoring/CONSTRAINTS.md`, `briefing/evaluation.md` and `scoring/DIRECTION.md`, and it is unmistakable in code: the method would contain or fetch Bonn/KITTI depth.
+- **Training on Bonn/KITTI, including the visible train clips.** Forbidden as a zero-shot rule (the paper excludes all evaluation videos from training). The evaluator cannot see it.
+- **Larger models or more video supervision.** Model size and training data cannot be measured from predictions; they are rules (≤30M parameters, ≤0.55M video frames). A released VDA-B/VDA-L would score higher.
+
+## Reference score before and after
+
+- **Before** (synthetic corridors):
+  - `long_video_500`: 0.1504 / 0.8146 / 1.173 / 12.96;
+  - `super_long_video_1500`: 0.1274 / 0.8616 / 1.377 / 10.10.
+- **After** (real hidden videos):
+  - `bonn_500`: 0.0803 / 0.9636 / 1.572 / 5.96;
+  - `kitti_500`: 0.1123 / 0.8859 / 3.916 / 7.14;
+  - `kitti_1500`: 0.1104 / 0.8908 / 4.040 / 6.96.
+
+The reference is rank 0 by definition in both. `scoring/scores_test.json` and `scores_train.json` (and `scores.json`) were regenerated from the reference and baseline runs alone, from the final code and data.
+
+## Headroom check
+
+The reference is at the bound of none of the 12 scored entries:
+- absrel is 0.080 / 0.112 / 0.110 against 0;
+- delta1 is 0.964 / 0.886 / 0.891 against 1;
+- scale_drift is 6.0 / 7.1 / 7.0 against 0;
+- TAE is 1.6 / 3.9 / 4.0. It cannot reach 0 for any method because of independently moving people and cars, but label-free ensembles already lower it.
+
+Three label-free variants beat the reference by 3.3–6.3 paired SE, and none comes near a bound. The independent-window baseline sits clearly below (−6.07) on a scale with room above.
+
+The experiment where the paper's method falls short is `kitti_1500` (weight 0.30). Its 1500-frame clips are about 70 windows long, with drift 7.0 and absrel 0.110 against 0 for exact labels; the reference and baseline were run on it. The per-video detail also shows two Bonn sequences where OI+KR is clearly worse than independent windows:
+
+| sequence | OI+KR absrel | independent windows absrel |
+|---|---:|---:|
+| `removing_obstructing_box` | 0.120 | 0.054 |
+| `placing_obstructing_box` | 0.072 | 0.051 |
+
+A likely cause is key-frame referencing carrying a poor early scale through the clip. Either way it is a concrete failure a better method can fix.
+
+There is no candidate enumeration that the paper's method avoids. The nearest brute force is looking up the labels, covered above.
+
+## Data fix during this iteration
+
+The first full run flagged `kitti_20110930_0028_0005` in the pre-flight. Around raw frame 1005, its GPS altitude jumps by 9.9 m within 0.3 s, which gives 42 wrong relative camera poses. TAE on that clip was 7.0, against about 4 on clean clips.
+
+`redteam/hardening2/oxts_scan.py` checks every consecutive GPS/IMU step against the measured speed. The fix:
+- That clip was replaced by the same drive from frame 1505. All 21 KITTI clips (15 test, 6 train) now have 0 inconsistent steps.
+- The scan is part of the pre-flight.
+- Everything was rerun.
+
+Run-1 numbers (glitched clip) are in `redteam/hardening2/run1/`. The ordering was identical: flip +1.363 ± 0.207, 4-pass +2.405 ± 0.470, bidirectional +1.121 ± 0.391, baseline −6.368 ± 2.090.
 
 ## Not fixed, stated plainly
 
-- **Data.** The benchmark is synthetic (rendered corridors), not the paper's KITTI/ScanNet/Bonn/NYUv2/Sintel. Absolute numbers are not comparable to the paper's, and the paper's values are kept unchanged in `reference.json` for orientation, with notes.
-- **TAE implementation.** TAE uses nearest-pixel reprojection with a z-buffer (closest surface wins); the official script writes reprojected points without a z-buffer. Exact labels score about 0.4 rather than 0.
-- **Test size.** The test has 8 videos. Bidirectional's advantage is 1.7 paired SE. I did not enlarge the test further because the hidden test already takes about 28 minutes on one A100 for two predictors (about 11 minutes of that is rendering on one CPU).
-- **GPU needed.** The hidden test runs the predictors, so it needs a GPU in practice. On CPU the 518-pixel reference would take hours.
-- **Rank normalization with failed runs.** Failure values sit far from honest values. If the external ranker includes failed attempts when it measures each metric's spread, every metric's spread inflates by a similar factor (about 20–36×, because the gate levels are far from honest values on all four metrics), so their relative weights are roughly preserved.
-- **Validator warning.** `validate.py` passes, with one expected soft warning: `eval/test/scenes.py` regenerates data, which is by design since the hidden test renders its own inputs.
-- **Old red-team cases.** The directories under `redteam/` from iteration 10 target the removed benchmark and no longer run against the new evaluator. They are kept as the record behind the "before" column.
+- **Two of the paper's five video benchmarks.**
+  - ScanNet is under its own terms of use and is not redistributable by a script.
+  - NYUv2's raw videos are about 430 GB.
+  - Sintel's clips are about 50 frames, not long videos.
+
+  The paper reports TAE only on ScanNet, so there is no paper TAE for Bonn/KITTI to compare with.
+- **KITTI accuracy below the paper's number** (0.112 / 0.886 vs 0.086 / 0.942): different and longer clips, explained above. The direction of every claim is reproduced, and Bonn matches.
+- **TAE details.**
+  - TAE uses a z-buffer (the closest surface wins); the official script lets the last write win.
+  - It is computed on all pixels, including moving people and cars and the KITTI sky (clipped at 80 m), as in the official script.
+  - In two Bonn sequences (`kidnapping_box2`, `person_tracking2`) the first RGB frame precedes the first motion-capture sample by more than 50 ms. The first pose is held for at most 1–2 frame pairs.
+- **Test size.** 12 / 10 / 5 videos. `kitti_1500` has 5 clips from 3 drives; the bidirectional variant's gain there (+0.72 ± 0.51) is not significant on its own. The KITTI drives with ≥1500 annotated frames are few, and two of them are used for train.
+- **Platform dependence of the isolation.** It needs unprivileged user namespaces (`unshare`), which the job container allows. Elsewhere the evaluator falls back to an unisolated run on copied frames and says so in the detail file.
+- **Cost.**
+  - Download: 22 GB.
+  - The hidden test needs a GPU: about 24 minutes for the reference and baseline on one A100, including scoring.
+  - Data licences: Bonn and KITTI are public; KITTI is CC BY-NC-SA 3.0.
+- **Rank normalisation with failed runs.** Failure values sit far from honest values on all four metrics. If the external ranker includes failed attempts when it measures spreads, every metric's spread inflates by a similar factor, so their relative weights are roughly preserved.
+- **Old red-team cases.** `redteam/` directories from iterations 10 and 11 (including `redteam/hardening/`) target the removed synthetic benchmarks and no longer run. They are kept as the record behind the "before" column.
