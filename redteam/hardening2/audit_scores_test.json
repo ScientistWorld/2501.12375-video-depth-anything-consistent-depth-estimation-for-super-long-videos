@@ -191,94 +191,94 @@
     "kitti_1500": {
       "results": {
         "better_bidirectional": {
-          "absrel": 0.11246423456067563,
-          "delta1": 0.8861445088595632,
-          "tae": 4.655483080893023,
-          "scale_drift": 7.220196295583248
+          "absrel": 0.10902793852705624,
+          "delta1": 0.8934013209861688,
+          "tae": 4.023960138287296,
+          "scale_drift": 6.813429142791793
         },
         "better_flip_bidir": {
-          "absrel": 0.10774429247155501,
-          "delta1": 0.8957234424161193,
-          "tae": 4.516407084808617,
-          "scale_drift": 7.060392216909906
+          "absrel": 0.10402383311781245,
+          "delta1": 0.9032846349910898,
+          "tae": 3.8919312357039653,
+          "scale_drift": 6.622076391225678
         },
         "better_flip_ensemble": {
-          "absrel": 0.10736787095985731,
-          "delta1": 0.8965284606904079,
-          "tae": 4.5469334946277815,
-          "scale_drift": 6.946613303337026
+          "absrel": 0.10543510267231479,
+          "delta1": 0.9006882871292244,
+          "tae": 3.907187825761336,
+          "scale_drift": 6.785231912716317
         },
         "better_temporal3": {
-          "absrel": 0.1163109107476266,
-          "delta1": 0.8749683098997876,
-          "tae": 4.2633104539566675,
-          "scale_drift": 7.096667478190247
+          "absrel": 0.11428870730195424,
+          "delta1": 0.8795536675736819,
+          "tae": 3.645589836507574,
+          "scale_drift": 6.94877135360416
         },
         "probe_frame_median_norm": {
-          "absrel": 0.21574441783592824,
-          "delta1": 0.6446142912074324,
+          "absrel": 0.2081502019180228,
+          "delta1": 0.6629408576642053,
           "tae": 30.0,
           "scale_drift": 50.0
         },
         "probe_temporal_box9": {
-          "absrel": 0.13534997620456418,
-          "delta1": 0.8252345402829064,
-          "tae": 3.843864056469161,
-          "scale_drift": 7.270004564226437
+          "absrel": 0.13248941786440765,
+          "delta1": 0.8318164871889232,
+          "tae": 3.2706414836108295,
+          "scale_drift": 7.102823383301332
         },
         "ref_repeat": {
-          "absrel": 0.11235491505065136,
-          "delta1": 0.8863205525721206,
-          "tae": 4.687205939062428,
-          "scale_drift": 7.141348714399162
+          "absrel": 0.11042816513385341,
+          "delta1": 0.8907949566343607,
+          "tae": 4.040240680696933,
+          "scale_drift": 6.959569400620325
         },
         "shortcut_constant": {
-          "absrel": 0.21574441783592824,
-          "delta1": 0.6446142912074324,
+          "absrel": 0.2081502019180228,
+          "delta1": 0.6629408576642053,
           "tae": 30.0,
           "scale_drift": 50.0
         },
         "shortcut_empty": {
-          "absrel": 0.21574441783592824,
-          "delta1": 0.6446142912074324,
+          "absrel": 0.2081502019180228,
+          "delta1": 0.6629408576642053,
           "tae": 30.0,
           "scale_drift": 50.0
         },
         "shortcut_nan": {
-          "absrel": 0.21574441783592824,
-          "delta1": 0.6446142912074324,
+          "absrel": 0.2081502019180228,
+          "delta1": 0.6629408576642053,
           "tae": 30.0,
           "scale_drift": 50.0
         },
         "shortcut_public_copy_lookup": {
-          "absrel": 2.1634468659392336e-08,
+          "absrel": 2.16518049357336e-08,
           "delta1": 1.0,
-          "tae": 13.703659274124155,
-          "scale_drift": 5.745288577405666e-08
+          "tae": 13.8188937773655,
+          "scale_drift": 5.096513702386972e-08
         },
         "shortcut_read_hidden_answers": {
-          "absrel": 0.11235491505065136,
-          "delta1": 0.8863205525721206,
-          "tae": 4.687205939062428,
-          "scale_drift": 7.141348714399162
+          "absrel": 0.11042816513385341,
+          "delta1": 0.8907949566343607,
+          "tae": 4.040240680696933,
+          "scale_drift": 6.959569400620325
         },
         "shortcut_static_template": {
-          "absrel": 0.21574441783592824,
-          "delta1": 0.6446142912074324,
+          "absrel": 0.2081502019180228,
+          "delta1": 0.6629408576642053,
           "tae": 30.0,
           "scale_drift": 50.0
         },
         "shortcut_zero": {
-          "absrel": 0.21574441783592824,
-          "delta1": 0.6446142912074324,
+          "absrel": 0.2081502019180228,
+          "delta1": 0.6629408576642053,
           "tae": 30.0,
           "scale_drift": 50.0
         },
         "weaker_scale_jitter": {
-          "absrel": 0.11718907037128445,
-          "delta1": 0.8761944852853366,
-          "tae": 7.023806895687962,
-          "scale_drift": 8.192748919494102
+          "absrel": 0.11520252716493255,
+          "delta1": 0.8813079545628636,
+          "tae": 6.425605405198182,
+          "scale_drift": 7.987411941855191
         }
       }
     }
@@ -301,7 +301,7 @@
       "reasons": [
         "kitti_500: absrel 0.2011 is not below the static-template level 0.1904",
         "kitti_500: delta1 0.6539 is not above the static-template level 0.6936",
-        "kitti_1500: delta1 0.6229 is not above the static-template level 0.6446"
+        "kitti_1500: delta1 0.6339 is not above the static-template level 0.6629"
       ]
     },
     "probe_temporal_box9": {
@@ -317,8 +317,8 @@
         "bonn_500: delta1 0.4514 is not above the static-template level 0.5823",
         "kitti_500: absrel 0.4065 is not below the static-template level 0.1904",
         "kitti_500: delta1 0.3092 is not above the static-template level 0.6936",
-        "kitti_1500: absrel 0.4097 is not below the static-template level 0.2157",
-        "kitti_1500: delta1 0.2987 is not above the static-template level 0.6446"
+        "kitti_1500: absrel 0.4069 is not below the static-template level 0.2082",
+        "kitti_1500: delta1 0.3016 is not above the static-template level 0.6629"
       ]
     },
     "shortcut_empty": {
@@ -346,8 +346,8 @@
         "bonn_500: delta1 0.5157 is not above the static-template level 0.5823",
         "kitti_500: absrel 0.2325 is not below the static-template level 0.1904",
         "kitti_500: delta1 0.6246 is not above the static-template level 0.6936",
-        "kitti_1500: absrel 0.2290 is not below the static-template level 0.2157",
-        "kitti_1500: delta1 0.6246 is not above the static-template level 0.6446"
+        "kitti_1500: absrel 0.2225 is not below the static-template level 0.2082",
+        "kitti_1500: delta1 0.6401 is not above the static-template level 0.6629"
       ]
     },
     "shortcut_zero": {
@@ -357,8 +357,8 @@
         "bonn_500: delta1 0.4514 is not above the static-template level 0.5823",
         "kitti_500: absrel 0.4065 is not below the static-template level 0.1904",
         "kitti_500: delta1 0.3092 is not above the static-template level 0.6936",
-        "kitti_1500: absrel 0.4097 is not below the static-template level 0.2157",
-        "kitti_1500: delta1 0.2987 is not above the static-template level 0.6446"
+        "kitti_1500: absrel 0.4069 is not below the static-template level 0.2082",
+        "kitti_1500: delta1 0.3016 is not above the static-template level 0.6629"
       ]
     },
     "weaker_scale_jitter": {
