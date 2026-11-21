@@ -1,8 +1,6 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends.
-action: submit
-gpus: 1
-test: false
+action: done
 milestone: core_claim_plus
-notes: "Final iteration-12 audit after replacing the one KITTI test clip with a GPS glitch: pre-flight, official hidden test (forged-score plant), train split, variants and shortcuts (redteam/hardening2/run_audit.sh). Produces the final scores_test.json / scores_train.json."
+notes: "Hidden test moved to real Bonn RGB-D Dynamic + KITTI long videos (500/1500 frames) with sandboxed predictors; OI+KR beats independent windows on all metrics; label-free ensembles beat the reference by 3-6 paired SE; shortcuts fail or tie except public-dataset lookup (rule). See HARDENING.md."
